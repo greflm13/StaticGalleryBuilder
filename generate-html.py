@@ -11,6 +11,7 @@ root and webroot must point to the same folder, one on filesystem and one on the
 
 ROOT = "/mnt/nfs/pictures/"
 WEBROOT = "https://pictures.sorogon.eu/"
+FOLDERICON = "https://www.svgrepo.com/show/400249/folder.svg"
 imgext = [".jpg", ".jpeg"]
 rawext = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
 
@@ -144,7 +145,7 @@ def listfolder(folder: str):
         for item in items:
             if item != "Galleries" and item != ".previews":
                 if os.path.isdir(os.path.join(folder, item)):
-                    subfolders.extend([f'<figure><a href="{WEBROOT}{urllib.parse.quote(folder.removeprefix(ROOT))}/{urllib.parse.quote(item)}"><img src="https://www.svgrepo.com/show/400249/folder.svg" alt="Folder icon"/></a><figcaption><a href="{WEBROOT}{urllib.parse.quote(folder.removeprefix(ROOT))}/{urllib.parse.quote(item)}">{item}</a></figcaption></figure>'])
+                    subfolders.extend([f'<figure><a href="{WEBROOT}{urllib.parse.quote(folder.removeprefix(ROOT))}/{urllib.parse.quote(item)}"><img src="{FOLDERICON}" alt="Folder icon"/></a><figcaption><a href="{WEBROOT}{urllib.parse.quote(folder.removeprefix(ROOT))}/{urllib.parse.quote(item)}">{item}</a></figcaption></figure>'])
                     listfolder(os.path.join(folder, item))
                 else:
                     if os.path.splitext(item)[1].lower() in imgext:
