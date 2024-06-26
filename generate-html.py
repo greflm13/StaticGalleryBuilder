@@ -153,7 +153,10 @@ def listfolder(folder: str):
                             thumbnails.append((folder, item))
                         for raw in rawext:
                             if os.path.exists(os.path.join(folder, os.path.splitext(item)[0] + raw)):
-                                image += f': <a href="{WEBROOT}{urllib.parse.quote(folder.removeprefix(ROOT))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">RAW</a>'
+                                if raw == ".tif" or raw == ".tiff" or raw == ".TIF" or raw == ".TIFF":
+                                    image += f': <a href="{WEBROOT}{urllib.parse.quote(folder.removeprefix(ROOT))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">TIFF</a>'
+                                else:
+                                    image += f': <a href="{WEBROOT}{urllib.parse.quote(folder.removeprefix(ROOT))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">RAW</a>'
                         image += "</figcaption></figure>"
                         images.extend([image])
         f.write('    <div class="header">\n')
