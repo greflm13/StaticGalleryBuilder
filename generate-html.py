@@ -144,7 +144,7 @@ def listfolder(folder: str):
         for item in items:
             if item != "Galleries" and item != ".previews":
                 if os.path.isdir(os.path.join(folder, item)):
-                    subfolders.extend([f'<figure><a href="{WEBROOT}{folder.removeprefix(ROOT)}/{item}"><img src="https://www.svgrepo.com/show/400249/folder.svg" alt="Folder icon"/></a><figcaption><a href="{WEBROOT}{folder.removeprefix(ROOT)}/{item}">{item}</a></figcaption></figure>'])
+                    subfolders.extend([f'<figure><a href="{WEBROOT}{urllib.parse.quote(folder.removeprefix(ROOT))}/{urllib.parse.quote(item)}"><img src="https://www.svgrepo.com/show/400249/folder.svg" alt="Folder icon"/></a><figcaption><a href="{WEBROOT}{urllib.parse.quote(folder.removeprefix(ROOT))}/{urllib.parse.quote(item)}">{item}</a></figcaption></figure>'])
                     listfolder(os.path.join(folder, item))
                 else:
                     if os.path.splitext(item)[1] in imgext:
