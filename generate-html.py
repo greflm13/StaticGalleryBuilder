@@ -29,8 +29,12 @@ def listfolder(folder: str):
 
 
 def main():
+    if not root.endswith("/"):
+        root += "/"
+    if not webroot.endswith("/"):
+        webroot += "/"
     listfolder(root)
-
+    # @TODO: write actual html files (and css 🙄)
 
 if __name__ == "__main__":
     main()
