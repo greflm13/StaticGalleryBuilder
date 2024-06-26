@@ -11,8 +11,8 @@ root and webroot must point to the same folder, one on filesystem and one on the
 
 ROOT = "/mnt/nfs/pictures/"
 WEBROOT = "https://pictures.sorogon.eu/"
-imgext = [".jpg", ".jpeg", ".JPG", ".JPEG"]
-rawext = [".ARW", ".tif", ".tiff", ".TIF", ".TIFF"]
+imgext = [".jpg", ".jpeg"]
+rawext = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
 
 thumbnails: list[tuple[str, str]] = []
 
@@ -147,13 +147,18 @@ def listfolder(folder: str):
                     subfolders.extend([f'<figure><a href="{WEBROOT}{urllib.parse.quote(folder.removeprefix(ROOT))}/{urllib.parse.quote(item)}"><img src="https://www.svgrepo.com/show/400249/folder.svg" alt="Folder icon"/></a><figcaption><a href="{WEBROOT}{urllib.parse.quote(folder.removeprefix(ROOT))}/{urllib.parse.quote(item)}">{item}</a></figcaption></figure>'])
                     listfolder(os.path.join(folder, item))
                 else:
-                    if os.path.splitext(item)[1] in imgext:
+                    if os.path.splitext(item)[1].lower() in imgext:
                         image = f'<figure><a href="{WEBROOT}{urllib.parse.quote(folder.removeprefix(ROOT))}/{urllib.parse.quote(item)}"><img src="{WEBROOT}.previews/{urllib.parse.quote(folder.removeprefix(ROOT))}/{urllib.parse.quote(item)}" alt="{item}"/></a><figcaption class="caption">{item}'
                         if not os.path.exists(os.path.join(ROOT, ".previews", folder.removeprefix(ROOT), item)):
                             thumbnails.append((folder, item))
                         for raw in rawext:
                             if os.path.exists(os.path.join(folder, os.path.splitext(item)[0] + raw)):
-                                if raw == ".tif" or raw == ".tiff" or raw == ".TIF" or raw == ".TIFF":
+                                if raw == ".tif" or raw == ".tiff":
+                                    image += f': <a href="{WEBROOT}{urllib.parse.quote(folder.removeprefix(ROOT))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">TIFF</a>'
+                                else:
+                                    image += f': <a href="{WEBROOT}{urllib.parse.quote(folder.removeprefix(ROOT))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">RAW</a>'
+                            elif os.path.exists(os.path.join(folder, os.path.splitext(item)[0] + raw.upper())):
+                                if raw == ".tif" or raw == ".tiff":
                                     image += f': <a href="{WEBROOT}{urllib.parse.quote(folder.removeprefix(ROOT))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">TIFF</a>'
                                 else:
                                     image += f': <a href="{WEBROOT}{urllib.parse.quote(folder.removeprefix(ROOT))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">RAW</a>'
