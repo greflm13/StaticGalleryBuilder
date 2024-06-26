@@ -172,9 +172,9 @@ def listfolder(folder: str, title: str):
                                 image += f': <a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">RAW</a>'
                         elif os.path.exists(os.path.join(folder, os.path.splitext(item)[0] + raw.upper())):
                             if raw == ".tif" or raw == ".tiff":
-                                image += f': <a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">TIFF</a>'
+                                image += f': <a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw.upper()}">TIFF</a>'
                             else:
-                                image += f': <a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">RAW</a>'
+                                image += f': <a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw.upper()}">RAW</a>'
                     image += "</figcaption></figure>"
                     images.extend([image])
     if len(images) > 0 or (args.fancyfolders and not contains_files):
