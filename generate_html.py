@@ -151,49 +151,50 @@ def listfolder(folder: str, title: str):
     if not os.path.exists(os.path.join(args.root, ".previews", folder.removeprefix(args.root))):
         os.mkdir(os.path.join(args.root, ".previews", folder.removeprefix(args.root)))
 
-    with open(os.path.join(folder, "index.html"), "w", encoding="utf-8") as f:
-        temp_obj = Template(HTMLHEADER)
-        f.write(temp_obj.substitute(title=title))
-        for item in items:
-            if item != "Galleries" and item != ".previews":
-                if os.path.isdir(os.path.join(folder, item)):
-                    subfolders.extend([f'<figure><a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}"><img src="{args.foldericon}" alt="Folder icon"/></a><figcaption><a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}">{item}</a></figcaption></figure>'])
-                    listfolder(os.path.join(folder, item), item)
-                else:
-                    if os.path.splitext(item)[1].lower() in imgext:
-                        image = f'<figure><a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}"><img src="{args.webroot}.previews/{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}" alt="{item}"/></a><figcaption class="caption">{item}'
-                        if not os.path.exists(os.path.join(args.root, ".previews", folder.removeprefix(args.root), item)):
-                            thumbnails.append((folder, item))
-                        for raw in rawext:
-                            if os.path.exists(os.path.join(folder, os.path.splitext(item)[0] + raw)):
-                                if raw == ".tif" or raw == ".tiff":
-                                    image += f': <a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">TIFF</a>'
-                                else:
-                                    image += f': <a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">RAW</a>'
-                            elif os.path.exists(os.path.join(folder, os.path.splitext(item)[0] + raw.upper())):
-                                if raw == ".tif" or raw == ".tiff":
-                                    image += f': <a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">TIFF</a>'
-                                else:
-                                    image += f': <a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">RAW</a>'
-                        image += "</figcaption></figure>"
-                        images.extend([image])
-        f.write('    <div class="header">\n')
-        f.write(f"      <h1>{title}</h1>\n")
-        f.write('      <div class="folders">\n')
-        for subfolder in subfolders:
-            f.write(subfolder)
-            f.write("\n")
-        f.write("      </div>\n")
-        f.write("    </div>\n")
-        f.write('    <div class="row">\n')
-        for chunk in np.array_split(images, 8):
-            f.write('      <div class="column">\n')
-            for image in chunk:
-                f.write(f"        {image}\n")
+    temp_obj = Template(HTMLHEADER)
+    for item in items:
+        if item != "Galleries" and item != ".previews":
+            if os.path.isdir(os.path.join(folder, item)):
+                subfolders.extend([f'<figure><a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}"><img src="{args.foldericon}" alt="Folder icon"/></a><figcaption><a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}">{item}</a></figcaption></figure>'])
+                listfolder(os.path.join(folder, item), item)
+            else:
+                if os.path.splitext(item)[1].lower() in imgext:
+                    image = f'<figure><a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}"><img src="{args.webroot}.previews/{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}" alt="{item}"/></a><figcaption class="caption">{item}'
+                    if not os.path.exists(os.path.join(args.root, ".previews", folder.removeprefix(args.root), item)):
+                        thumbnails.append((folder, item))
+                    for raw in rawext:
+                        if os.path.exists(os.path.join(folder, os.path.splitext(item)[0] + raw)):
+                            if raw == ".tif" or raw == ".tiff":
+                                image += f': <a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">TIFF</a>'
+                            else:
+                                image += f': <a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">RAW</a>'
+                        elif os.path.exists(os.path.join(folder, os.path.splitext(item)[0] + raw.upper())):
+                            if raw == ".tif" or raw == ".tiff":
+                                image += f': <a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">TIFF</a>'
+                            else:
+                                image += f': <a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">RAW</a>'
+                    image += "</figcaption></figure>"
+                    images.extend([image])
+    if len(images) > 0:
+        with open(os.path.join(folder, "index.html"), "w", encoding="utf-8") as f:
+            f.write(temp_obj.substitute(title=title))
+            f.write('    <div class="header">\n')
+            f.write(f"      <h1>{title}</h1>\n")
+            f.write('      <div class="folders">\n')
+            for subfolder in subfolders:
+                f.write(subfolder)
+                f.write("\n")
             f.write("      </div>\n")
-        f.write("    </div>\n")
-        f.write("  </body>\n</html>")
-        f.close()
+            f.write("    </div>\n")
+            f.write('    <div class="row">\n')
+            for chunk in np.array_split(images, 8):
+                f.write('      <div class="column">\n')
+                for image in chunk:
+                    f.write(f"        {image}\n")
+                f.write("      </div>\n")
+            f.write("    </div>\n")
+            f.write("  </body>\n</html>")
+            f.close()
 
 
 def main():
