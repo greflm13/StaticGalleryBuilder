@@ -152,12 +152,14 @@ def listfolder(folder: str, title: str):
         os.mkdir(os.path.join(args.root, ".previews", folder.removeprefix(args.root)))
 
     temp_obj = Template(HTMLHEADER)
+    contains_files = False
     for item in items:
         if item != "Galleries" and item != ".previews":
             if os.path.isdir(os.path.join(folder, item)):
                 subfolders.extend([f'<figure><a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}"><img src="{args.foldericon}" alt="Folder icon"/></a><figcaption><a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}">{item}</a></figcaption></figure>'])
                 listfolder(os.path.join(folder, item), item)
             else:
+                contains_files = True
                 if os.path.splitext(item)[1].lower() in imgext:
                     image = f'<figure><a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}"><img src="{args.webroot}.previews/{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}" alt="{item}"/></a><figcaption class="caption">{item}'
                     if not os.path.exists(os.path.join(args.root, ".previews", folder.removeprefix(args.root), item)):
@@ -175,7 +177,7 @@ def listfolder(folder: str, title: str):
                                 image += f': <a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">RAW</a>'
                     image += "</figcaption></figure>"
                     images.extend([image])
-    if len(images) > 0:
+    if len(images) > 0 or (args.fancyfolders and not contains_files):
         with open(os.path.join(folder, "index.html"), "w", encoding="utf-8") as f:
             f.write(temp_obj.substitute(title=title))
             f.write('    <div class="header">\n')
@@ -205,6 +207,7 @@ def main():
     parser.add_argument("-w", "--webroot", help="Webroot url", default=_WEBROOT, required=False, type=str, dest="webroot")
     parser.add_argument("-i", "--foldericon", help="Foldericon url", default=_FOLDERICON, required=False, type=str, dest="foldericon", metavar="ICON")
     parser.add_argument("-r", "--regenerate", help="Regenerate thumbnails", action="store_true", default=False, required=False, dest="regenerate")
+    parser.add_argument("--fancyfolders", help="Use fancy folders instead of default apache ones", action="store_true", default=False, required=False, dest="fancyfolders")
     args = parser.parse_args()
 
     if not args.root.endswith("/"):
