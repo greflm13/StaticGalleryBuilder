@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
-import sys
 import os
+import argparse
 import urllib.parse
 from multiprocessing import Pool
+from string import Template
 import numpy as np
 
 """
 root and webroot must point to the same folder, one on filesystem and one on the webserver. Use absolut paths, e.g. /data/pictures/ and https://pictures.example.com/
 """
 
-ROOT = "/mnt/nfs/pictures/"
-WEBROOT = "https://pictures.sorogon.eu/"
-FOLDERICON = "https://www.svgrepo.com/show/400249/folder.svg"
+_ROOT = "/mnt/nfs/pictures/"
+_WEBROOT = "https://pictures.sorogon.eu/"
+_FOLDERICON = "https://www.svgrepo.com/show/400249/folder.svg"
+_ROOTTITLE = "Pictures"
 imgext = [".jpg", ".jpeg"]
 rawext = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
 
@@ -23,7 +25,7 @@ HTMLHEADER = """
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pictures</title>
+    <title>$title</title>
     <style>
       * {
         box-sizing: border-box;
@@ -34,18 +36,26 @@ HTMLHEADER = """
         font-family: Arial;
       }
       
-      .header {
+      .folders {
         text-align: center;
-        padding: 32px;
         display: -ms-flexbox; /* IE10 */
         display: flex;
         -ms-flex-wrap: wrap; /* IE10 */
         flex-wrap: wrap;
         justify-content: space-evenly;
-        
       }
 
-      .header img {
+      .folders figure {
+        margin-bottom: 32px;
+      }
+
+      .header h1 {
+        font-size: 2.5em;
+        font-weight: bold;
+        text-align: center;
+      }
+
+      .folders img {
         width: 100px;
         vertical-align: middle;
       }
@@ -83,7 +93,7 @@ HTMLHEADER = """
           flex: 25%;
           max-width: 25%;
         }
-        .header img {
+        .folders img {
           width: 80px;
         }
       }
@@ -95,7 +105,7 @@ HTMLHEADER = """
           flex: 50%;
           max-width: 50%;
         }
-        .header img {
+        .folders img {
           width: 60px;
         }
       }
@@ -107,7 +117,7 @@ HTMLHEADER = """
           flex: 100%;
           max-width: 100%;
         }
-        .header img {
+        .folders img {
           width: 50px;
         }
       }
@@ -128,47 +138,52 @@ HTMLHEADER = """
 
 def thumbnail_convert(arguments: tuple[str, str]):
     folder, item = arguments
-    os.system(f'magick "{os.path.join(folder, item)}" -quality 75% -define jpeg:size=1024x1024 -define jpeg:extent=100kb -thumbnail 512x512 -auto-orient "{os.path.join(ROOT, ".previews", folder.removeprefix(ROOT), item)}"')
+    if not os.path.exists(os.path.join(args.root, ".previews", folder.removeprefix(args.root), item)) and args.regenerate is False:
+        os.system(f'magick "{os.path.join(folder, item)}" -quality 75% -define jpeg:size=1024x1024 -define jpeg:extent=100kb -thumbnail 512x512 -auto-orient "{os.path.join(args.root, ".previews", folder.removeprefix(args.root), item)}"')
 
 
-def listfolder(folder: str):
+def listfolder(folder: str, title: str):
     items: list[str] = os.listdir(folder)
     items.sort()
     images: list[str] = []
     subfolders: list[str] = []
 
-    if not os.path.exists(os.path.join(ROOT, ".previews", folder.removeprefix(ROOT))):
-        os.mkdir(os.path.join(ROOT, ".previews", folder.removeprefix(ROOT)))
+    if not os.path.exists(os.path.join(args.root, ".previews", folder.removeprefix(args.root))):
+        os.mkdir(os.path.join(args.root, ".previews", folder.removeprefix(args.root)))
 
     with open(os.path.join(folder, "index.html"), "w", encoding="utf-8") as f:
-        f.write(HTMLHEADER)
+        temp_obj = Template(HTMLHEADER)
+        f.write(temp_obj.substitute(title=title))
         for item in items:
             if item != "Galleries" and item != ".previews":
                 if os.path.isdir(os.path.join(folder, item)):
-                    subfolders.extend([f'<figure><a href="{WEBROOT}{urllib.parse.quote(folder.removeprefix(ROOT))}/{urllib.parse.quote(item)}"><img src="{FOLDERICON}" alt="Folder icon"/></a><figcaption><a href="{WEBROOT}{urllib.parse.quote(folder.removeprefix(ROOT))}/{urllib.parse.quote(item)}">{item}</a></figcaption></figure>'])
-                    listfolder(os.path.join(folder, item))
+                    subfolders.extend([f'<figure><a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}"><img src="{args.foldericon}" alt="Folder icon"/></a><figcaption><a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}">{item}</a></figcaption></figure>'])
+                    listfolder(os.path.join(folder, item), item)
                 else:
                     if os.path.splitext(item)[1].lower() in imgext:
-                        image = f'<figure><a href="{WEBROOT}{urllib.parse.quote(folder.removeprefix(ROOT))}/{urllib.parse.quote(item)}"><img src="{WEBROOT}.previews/{urllib.parse.quote(folder.removeprefix(ROOT))}/{urllib.parse.quote(item)}" alt="{item}"/></a><figcaption class="caption">{item}'
-                        if not os.path.exists(os.path.join(ROOT, ".previews", folder.removeprefix(ROOT), item)):
+                        image = f'<figure><a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}"><img src="{args.webroot}.previews/{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}" alt="{item}"/></a><figcaption class="caption">{item}'
+                        if not os.path.exists(os.path.join(args.root, ".previews", folder.removeprefix(args.root), item)):
                             thumbnails.append((folder, item))
                         for raw in rawext:
                             if os.path.exists(os.path.join(folder, os.path.splitext(item)[0] + raw)):
                                 if raw == ".tif" or raw == ".tiff":
-                                    image += f': <a href="{WEBROOT}{urllib.parse.quote(folder.removeprefix(ROOT))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">TIFF</a>'
+                                    image += f': <a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">TIFF</a>'
                                 else:
-                                    image += f': <a href="{WEBROOT}{urllib.parse.quote(folder.removeprefix(ROOT))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">RAW</a>'
+                                    image += f': <a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">RAW</a>'
                             elif os.path.exists(os.path.join(folder, os.path.splitext(item)[0] + raw.upper())):
                                 if raw == ".tif" or raw == ".tiff":
-                                    image += f': <a href="{WEBROOT}{urllib.parse.quote(folder.removeprefix(ROOT))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">TIFF</a>'
+                                    image += f': <a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">TIFF</a>'
                                 else:
-                                    image += f': <a href="{WEBROOT}{urllib.parse.quote(folder.removeprefix(ROOT))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">RAW</a>'
+                                    image += f': <a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">RAW</a>'
                         image += "</figcaption></figure>"
                         images.extend([image])
         f.write('    <div class="header">\n')
+        f.write(f"      <h1>{title}</h1>\n")
+        f.write('      <div class="folders">\n')
         for subfolder in subfolders:
             f.write(subfolder)
             f.write("\n")
+        f.write("      </div>\n")
         f.write("    </div>\n")
         f.write('    <div class="row">\n')
         for chunk in np.array_split(images, 8):
@@ -182,16 +197,23 @@ def listfolder(folder: str):
 
 
 def main():
-    global ROOT
-    global WEBROOT
-    if not ROOT.endswith("/"):
-        ROOT += "/"
-    if not WEBROOT.endswith("/"):
-        WEBROOT += "/"
-    if not os.path.exists(os.path.join(ROOT, ".previews")):
-        os.mkdir(os.path.join(ROOT, ".previews"))
+    global args
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description="Generate html files for static image host.")
+    parser.add_argument("-f", "--root", help="Root folder", default=_ROOT, required=False, type=str, dest="root")
+    parser.add_argument("-w", "--webroot", help="Webroot url", default=_WEBROOT, required=False, type=str, dest="webroot")
+    parser.add_argument("-i", "--foldericon", help="Foldericon url", default=_FOLDERICON, required=False, type=str, dest="foldericon", metavar="ICON")
+    parser.add_argument("-r", "--regenerate", help="Regenerate thumbnails", action="store_true", default=False, required=False, dest="regenerate")
+    args = parser.parse_args()
+
+    if not args.root.endswith("/"):
+        args.root += "/"
+    if not args.webroot.endswith("/"):
+        args.webroot += "/"
+    if not os.path.exists(os.path.join(args.root, ".previews")):
+        os.mkdir(os.path.join(args.root, ".previews"))
     print("Generating html files...")
-    listfolder(ROOT)
+    listfolder(args.root, _ROOTTITLE)
 
     with Pool(os.cpu_count()) as p:
         print("Generating thumbnails...")
