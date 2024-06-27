@@ -11,7 +11,7 @@ from alive_progress import alive_bar
 root and webroot must point to the same folder, one on filesystem and one on the webserver. Use absolut paths, e.g. /data/pictures/ and https://pictures.example.com/
 """
 
-_ROOT = "/data/pictures/"
+_ROOT = "/home/user/Pictures/"
 _WEBROOT = "https://pictures.example.com/"
 _FOLDERICON = "https://www.svgrepo.com/show/400249/folder.svg"
 _ROOTTITLE = "Pictures"
@@ -155,7 +155,7 @@ def thumbnail_convert(arguments: tuple[str, str]):
     global bar
     folder, item = arguments
     if not os.path.exists(os.path.join(args.root, ".previews", folder.removeprefix(args.root), item)) or args.regenerate:
-        os.system(f'magick "{os.path.join(folder, item)}" -quality 75% -define jpeg:size=1024x1024 -define jpeg:extent=100kb -thumbnail 512x512 -auto-orient "{os.path.join(args.root, ".previews", folder.removeprefix(args.root), item)}"')
+        os.system(f'magick "{os.path.join(folder, item)}" -quality 75% -define jpeg:size=1024x1024 -define jpeg:extent=100kb -thumbnail 512x512 -auto-orient "{os.path.join(args.root, ".previews", folder.removeprefix(args.root), os.path.splitext(item)[0])}.jpg"')
     bar()
 
 
@@ -179,7 +179,7 @@ def listfolder(folder: str, title: str):
             else:
                 contains_files = True
                 if os.path.splitext(item)[1].lower() in imgext:
-                    image = f'<figure><a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}"><img src="{args.webroot}.previews/{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}" alt="{item}"/></a><figcaption class="caption">{item}'
+                    image = f'<figure><a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}"><img src="{args.webroot}.previews/{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}.jpg" alt="{item}"/></a><figcaption class="caption">{item}'
                     if not os.path.exists(os.path.join(args.root, ".previews", folder.removeprefix(args.root), item)):
                         thumbnails.append((folder, item))
                     for raw in rawext:
@@ -215,6 +215,9 @@ def listfolder(folder: str, title: str):
             f.write("    </div>\n")
             f.write("  </body>\n</html>")
             f.close()
+    else:
+        if os.path.exists(os.path.join(folder, "index.html")):
+            os.remove(os.path.join(folder, "index.html"))
     bar()
 
 
