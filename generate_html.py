@@ -19,7 +19,13 @@ _FAVICON = "favicon.ico"
 _AUTHOR = "Author"
 imgext = [".jpg", ".jpeg"]
 rawext = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
-excludes = [".lock", _FAVICON, "index.html", "Galleries", ".previews", "Archives"]
+excludes = [
+    ".lock",
+    _FAVICON,
+    "index.html",
+    ".previews",
+]
+notlist = ["Galleries", "Archives"]
 
 thumbnails: list[tuple[str, str]] = []
 
@@ -243,7 +249,8 @@ def listfolder(folder: str, title: str):
         if item not in excludes:
             if os.path.isdir(os.path.join(folder, item)):
                 subfolders.extend([f'<figure><a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}"><img src="{args.foldericon}" alt="Folder icon"/></a><figcaption><a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}">{item}</a></figcaption></figure>'])
-                listfolder(os.path.join(folder, item), os.path.join(folder, item).removeprefix(args.root))
+                if item not in notlist:
+                    listfolder(os.path.join(folder, item), os.path.join(folder, item).removeprefix(args.root))
             else:
                 if not args.non_interactive:
                     pbar.desc = f"Generating html files - {folder}"
@@ -321,7 +328,8 @@ def gettotal(folder):
                 total += 1
                 if not args.non_interactive:
                     pbar.update(1)
-                gettotal(os.path.join(folder, item))
+                if item not in notlist:
+                    gettotal(os.path.join(folder, item))
 
 
 def main():
