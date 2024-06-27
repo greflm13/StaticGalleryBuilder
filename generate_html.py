@@ -5,6 +5,7 @@ import urllib.parse
 import shutil
 from multiprocessing import Pool
 from string import Template
+from pathlib import Path
 import numpy as np
 from tqdm.auto import tqdm
 
@@ -18,7 +19,7 @@ _FOLDERICON = "https://www.svgrepo.com/show/400249/folder.svg"
 _ROOTTITLE = "Pictures"
 imgext = [".jpg", ".jpeg"]
 rawext = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
-excludes = ["index.html", "Galleries", ".previews", "Archives", "Wallpaper"]
+excludes = [".lock", "index.html", "Galleries", ".previews", "Archives", "Wallpaper"]
 
 thumbnails: list[tuple[str, str]] = []
 
@@ -46,6 +47,7 @@ HTMLHEADER = """
         -ms-flex-wrap: wrap; /* IE10 */
         flex-wrap: wrap;
         justify-content: space-evenly;
+        overflow: hidden;
       }
 
       .folders figure {
@@ -65,6 +67,7 @@ HTMLHEADER = """
 
       .folders figcaption {
         width: 120px;
+        text-align: center;
       }
 
       .row {
@@ -269,25 +272,33 @@ def main():
     if not os.path.exists(os.path.join(args.root, ".previews")):
         os.mkdir(os.path.join(args.root, ".previews"))
 
-    if args.non_interactive:
-        print("Generating html files...")
-        listfolder(args.root, _ROOTTITLE)
+    if os.path.exists(os.path.join(args.root, ".lock")):
+        print("Another instance of this program is running.")
+        exit()
+    try:
+        Path(os.path.join(args.root, ".lock")).touch()
 
-        with Pool(os.cpu_count()) as p:
-            print("Generating thumbnails...")
-            p.map(thumbnail_convert, thumbnails)
-    else:
-        pbar = tqdm(desc="Traversing filesystem", unit=" folders", ascii=True, dynamic_ncols=True)
-        gettotal(args.root)
-        pbar.close()
+        if args.non_interactive:
+            print("Generating html files...")
+            listfolder(args.root, _ROOTTITLE)
 
-        pbar = tqdm(total=total + 1, desc="Generating html files", unit=" files", ascii=True, dynamic_ncols=True)
-        listfolder(args.root, _ROOTTITLE)
-        pbar.close()
+            with Pool(os.cpu_count()) as p:
+                print("Generating thumbnails...")
+                p.map(thumbnail_convert, thumbnails)
+        else:
+            pbar = tqdm(desc="Traversing filesystem", unit=" folders", ascii=True, dynamic_ncols=True)
+            gettotal(args.root)
+            pbar.close()
 
-        with Pool(os.cpu_count()) as p:
-            for r in tqdm(p.imap_unordered(thumbnail_convert, thumbnails), total=len(thumbnails), desc="Generating thumbnails", unit=" files", ascii=True, dynamic_ncols=True):
-                ...
+            pbar = tqdm(total=total + 1, desc="Generating html files", unit=" files", ascii=True, dynamic_ncols=True)
+            listfolder(args.root, _ROOTTITLE)
+            pbar.close()
+
+            with Pool(os.cpu_count()) as p:
+                for r in tqdm(p.imap_unordered(thumbnail_convert, thumbnails), total=len(thumbnails), desc="Generating thumbnails", unit=" files", ascii=True, dynamic_ncols=True):
+                    pass
+    finally:
+        os.remove(os.path.join(args.root, ".lock"))
 
 
 if __name__ == "__main__":
