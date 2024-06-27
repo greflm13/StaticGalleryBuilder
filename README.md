@@ -71,8 +71,8 @@ To include a license, author, and custom title:
 
 - The root and webroot paths must point to the same folder, one on the filesystem and one on the webserver. Use absolute paths.
 - Ensure that ImageMagick is installed and accessible in your system for thumbnail generation.
-- The script assumes that the preview thumbnails will be stored in a `.previews` subdirectory within the root folder.
+- The script generates the preview thumbnails in a `.previews` subdirectory within the root folder.
 
 ## License
 
-This project is licensed under the AGPL-3.0 License. See the `LICENSE` file for details.
+This project is licensed under the AGPL-3.0 License. See the [LICENSE](LICENSE) file for details.
