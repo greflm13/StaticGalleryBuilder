@@ -19,7 +19,7 @@ _FOLDERICON = "https://www.svgrepo.com/show/400249/folder.svg"
 _ROOTTITLE = "Pictures"
 imgext = [".jpg", ".jpeg"]
 rawext = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
-excludes = [".lock", "index.html", "Galleries", ".previews", "Archives", "Wallpaper"]
+excludes = [".lock", "index.html", "Galleries", ".previews", "Archives"]
 
 thumbnails: list[tuple[str, str]] = []
 
