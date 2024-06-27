@@ -260,16 +260,16 @@ def main():
             print("Generating thumbnails...")
             p.map(thumbnail_convert, thumbnails)
     else:
-        pbar = tqdm(desc="Traversing filesystem", unit="folders")
+        pbar = tqdm(desc="Traversing filesystem", unit=" folders")
         gettotal(args.root)
         pbar.close()
 
-        pbar = tqdm(total=total + 1, desc="Generating html files", unit="files")
+        pbar = tqdm(total=total + 1, desc="Generating html files", unit=" files")
         listfolder(args.root, _ROOTTITLE)
         pbar.close()
 
         with Pool(os.cpu_count()) as p:
-            for r in tqdm(p.imap_unordered(thumbnail_convert, thumbnails), total=len(thumbnails), desc="Generating thumbnails", unit="files"):
+            for r in tqdm(p.imap_unordered(thumbnail_convert, thumbnails), total=len(thumbnails), desc="Generating thumbnails", unit=" files"):
                 ...
 
 
