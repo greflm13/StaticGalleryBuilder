@@ -18,7 +18,6 @@ _ROOTTITLE = "Pictures"
 imgext = [".jpg", ".jpeg"]
 rawext = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
 
-total = 0
 thumbnails: list[tuple[str, str]] = []
 
 HTMLHEADER = """
@@ -169,7 +168,7 @@ def listfolder(folder: str, title: str):
     temp_obj = Template(HTMLHEADER)
     contains_files = False
     for item in items:
-        if item != "Galleries" and item != ".previews":
+        if item not in ("Galleries", ".previews"):
             if os.path.isdir(os.path.join(folder, item)):
                 subfolders.extend([f'<figure><a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}"><img src="{args.foldericon}" alt="Folder icon"/></a><figcaption><a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}">{item}</a></figcaption></figure>'])
                 listfolder(os.path.join(folder, item), item)
@@ -181,12 +180,12 @@ def listfolder(folder: str, title: str):
                         thumbnails.append((folder, item))
                     for raw in rawext:
                         if os.path.exists(os.path.join(folder, os.path.splitext(item)[0] + raw)):
-                            if raw == ".tif" or raw == ".tiff":
+                            if raw in (".tif", ".tiff"):
                                 image += f': <a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">TIFF</a>'
                             else:
                                 image += f': <a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw}">RAW</a>'
                         elif os.path.exists(os.path.join(folder, os.path.splitext(item)[0] + raw.upper())):
-                            if raw == ".tif" or raw == ".tiff":
+                            if raw in (".tif", ".tiff"):
                                 image += f': <a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw.upper()}">TIFF</a>'
                             else:
                                 image += f': <a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw.upper()}">RAW</a>'
@@ -224,7 +223,7 @@ def gettotal(folder):
     items.sort()
 
     for item in items:
-        if item != "Galleries" and item != ".previews":
+        if item not in ("Galleries", ".previews"):
             if os.path.isdir(os.path.join(folder, item)):
                 gettotal(os.path.join(folder, item))
                 total += 1
@@ -232,8 +231,11 @@ def gettotal(folder):
 
 
 def main():
+    global total
     global args
     global pbar
+
+    total = 0
     # Parse command-line arguments
     parser = argparse.ArgumentParser(description="Generate html files for static image host.")
     parser.add_argument("-p", "--root", help="Root folder", default=_ROOT, required=False, type=str, dest="root")
