@@ -11,7 +11,7 @@ from tqdm.auto import tqdm
 root and webroot must point to the same folder, one on filesystem and one on the webserver. Use absolut paths, e.g. /data/pictures/ and https://pictures.example.com/
 """
 
-_ROOT = "/home/user/Pictures/"
+_ROOT = "/data/pictures/"
 _WEBROOT = "https://pictures.example.com/"
 _FOLDERICON = "https://www.svgrepo.com/show/400249/folder.svg"
 _ROOTTITLE = "Pictures"
@@ -261,16 +261,16 @@ def main():
             print("Generating thumbnails...")
             p.map(thumbnail_convert, thumbnails)
     else:
-        pbar = tqdm(desc="Traversing filesystem", unit=" folders")
+        pbar = tqdm(desc="Traversing filesystem", unit=" folders", ascii=True, dynamic_ncols=True)
         gettotal(args.root)
         pbar.close()
 
-        pbar = tqdm(total=total + 1, desc="Generating html files", unit=" files")
+        pbar = tqdm(total=total + 1, desc="Generating html files", unit=" files", ascii=True, dynamic_ncols=True)
         listfolder(args.root, _ROOTTITLE)
         pbar.close()
 
         with Pool(os.cpu_count()) as p:
-            for r in tqdm(p.imap_unordered(thumbnail_convert, thumbnails), total=len(thumbnails), desc="Generating thumbnails", unit=" files"):
+            for r in tqdm(p.imap_unordered(thumbnail_convert, thumbnails), total=len(thumbnails), desc="Generating thumbnails", unit=" files", ascii=True, dynamic_ncols=True):
                 ...
 
 
