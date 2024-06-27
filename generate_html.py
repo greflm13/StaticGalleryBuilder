@@ -162,6 +162,7 @@ def thumbnail_convert(arguments: tuple[str, str]):
 
 
 def listfolder(folder: str, title: str):
+    pbar.desc = f"Generating html files - {folder}"
     items: list[str] = os.listdir(folder)
     items.sort()
     images: list[str] = []
@@ -221,7 +222,6 @@ def listfolder(folder: str, title: str):
         if os.path.exists(os.path.join(folder, "index.html")):
             os.remove(os.path.join(folder, "index.html"))
     pbar.update(1)
-    pbar.desc = f"Generating html files - {folder}"
 
 
 def gettotal(folder):
