@@ -9,17 +9,14 @@ from pathlib import Path
 import numpy as np
 from tqdm.auto import tqdm
 
-"""
-root and webroot must point to the same folder, one on filesystem and one on the webserver. Use absolut paths, e.g. /data/pictures/ and https://pictures.example.com/
-"""
-
 _ROOT = "/data/pictures/"
 _WEBROOT = "https://pictures.example.com/"
 _FOLDERICON = "https://www.svgrepo.com/show/400249/folder.svg"
 _ROOTTITLE = "Pictures"
+_FAVICON = "favicon.ico"
 imgext = [".jpg", ".jpeg"]
 rawext = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
-excludes = [".lock", "index.html", "Galleries", ".previews", "Archives"]
+excludes = [".lock", "favicon.ico", "index.html", "Galleries", ".previews", "Archives"]
 
 thumbnails: list[tuple[str, str]] = []
 
@@ -30,6 +27,7 @@ HTMLHEADER = """
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>$title</title>
+    <link rel="icon" type="image/x-icon" href="$favicon">
     <style>
       * {
         box-sizing: border-box;
@@ -214,7 +212,7 @@ def listfolder(folder: str, title: str):
         pbar.update(0)
     if len(images) > 0 or (args.fancyfolders and not contains_files):
         with open(os.path.join(folder, "index.html"), "w", encoding="utf-8") as f:
-            f.write(temp_obj.substitute(title=title))
+            f.write(temp_obj.substitute(title=title, favicon=f"{args.root}/{_FAVICON}"))
             f.write('    <div class="header">\n')
             f.write(f"      <h1>{title}</h1>\n")
             f.write('      <div class="folders">\n')
