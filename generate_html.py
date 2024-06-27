@@ -5,18 +5,20 @@ import urllib.parse
 from multiprocessing import Pool
 from string import Template
 import numpy as np
+from alive_progress import alive_bar
 
 """
 root and webroot must point to the same folder, one on filesystem and one on the webserver. Use absolut paths, e.g. /data/pictures/ and https://pictures.example.com/
 """
 
-_ROOT = "/mnt/nfs/pictures/"
-_WEBROOT = "https://pictures.sorogon.eu/"
+_ROOT = "/data/pictures/"
+_WEBROOT = "https://pictures.example.com/"
 _FOLDERICON = "https://www.svgrepo.com/show/400249/folder.svg"
 _ROOTTITLE = "Pictures"
 imgext = [".jpg", ".jpeg"]
 rawext = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
 
+total = 0
 thumbnails: list[tuple[str, str]] = []
 
 HTMLHEADER = """
@@ -30,12 +32,12 @@ HTMLHEADER = """
       * {
         box-sizing: border-box;
       }
-      
+
       body {
         margin: 0;
         font-family: Arial;
       }
-      
+
       .folders {
         text-align: center;
         display: -ms-flexbox; /* IE10 */
@@ -59,7 +61,11 @@ HTMLHEADER = """
         width: 100px;
         vertical-align: middle;
       }
-      
+
+      .folders figcaption {
+        width: 100px;
+      }
+
       .row {
         display: -ms-flexbox; /* IE10 */
         display: flex;
@@ -71,7 +77,7 @@ HTMLHEADER = """
       figure {
         margin: 0;
       }
-      
+
       /* Create four equal columns that sits next to each other */
       .column {
         -ms-flex: 12.5%; /* IE10 */
@@ -85,7 +91,7 @@ HTMLHEADER = """
         vertical-align: middle;
         width: 100%;
       }
-      
+
       /* Responsive layout - makes a four column-layout instead of eight columns */
       @media screen and (max-width: 1000px) {
         .column {
@@ -96,8 +102,11 @@ HTMLHEADER = """
         .folders img {
           width: 80px;
         }
+        .folders figcaption {
+          width: 80px;
+        }
       }
-      
+
       /* Responsive layout - makes a two column-layout instead of four columns */
       @media screen and (max-width: 800px) {
         .column {
@@ -108,8 +117,11 @@ HTMLHEADER = """
         .folders img {
           width: 60px;
         }
+        .folders figcaption {
+          width: 60px;
+        }
       }
-      
+
       /* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
       @media screen and (max-width: 600px) {
         .column {
@@ -118,7 +130,10 @@ HTMLHEADER = """
           max-width: 100%;
         }
         .folders img {
-          width: 50px;
+          width: 40px;
+        }
+        .folders figcaption {
+          width: 40px;
         }
       }
 
@@ -137,12 +152,15 @@ HTMLHEADER = """
 
 
 def thumbnail_convert(arguments: tuple[str, str]):
+    global bar
     folder, item = arguments
     if not os.path.exists(os.path.join(args.root, ".previews", folder.removeprefix(args.root), item)) and args.regenerate is False:
         os.system(f'magick "{os.path.join(folder, item)}" -quality 75% -define jpeg:size=1024x1024 -define jpeg:extent=100kb -thumbnail 512x512 -auto-orient "{os.path.join(args.root, ".previews", folder.removeprefix(args.root), item)}"')
+    bar()
 
 
 def listfolder(folder: str, title: str):
+    global bar
     items: list[str] = os.listdir(folder)
     items.sort()
     images: list[str] = []
@@ -197,16 +215,35 @@ def listfolder(folder: str, title: str):
             f.write("    </div>\n")
             f.write("  </body>\n</html>")
             f.close()
+    bar()
+
+
+def gettotal(folder):
+    global total
+    global bar
+
+    items: list[str] = os.listdir(folder)
+    items.sort()
+
+    for item in items:
+        if item != "Galleries" and item != ".previews":
+            if os.path.isdir(os.path.join(folder, item)):
+                gettotal(os.path.join(folder, item))
+                total += 1
+                bar()
 
 
 def main():
     global args
+    global bar
+    global total
     # Parse command-line arguments
     parser = argparse.ArgumentParser(description="Generate html files for static image host.")
     parser.add_argument("-f", "--root", help="Root folder", default=_ROOT, required=False, type=str, dest="root")
     parser.add_argument("-w", "--webroot", help="Webroot url", default=_WEBROOT, required=False, type=str, dest="webroot")
     parser.add_argument("-i", "--foldericon", help="Foldericon url", default=_FOLDERICON, required=False, type=str, dest="foldericon", metavar="ICON")
     parser.add_argument("-r", "--regenerate", help="Regenerate thumbnails", action="store_true", default=False, required=False, dest="regenerate")
+    parser.add_argument("-n", "--non-interactive", help="Disable interactive mode", action="store_true", default=False, required=False, dest="non_interactive")
     parser.add_argument("--fancyfolders", help="Use fancy folders instead of default apache ones", action="store_true", default=False, required=False, dest="fancyfolders")
     args = parser.parse_args()
 
@@ -216,12 +253,27 @@ def main():
         args.webroot += "/"
     if not os.path.exists(os.path.join(args.root, ".previews")):
         os.mkdir(os.path.join(args.root, ".previews"))
-    print("Generating html files...")
-    listfolder(args.root, _ROOTTITLE)
 
-    with Pool(os.cpu_count()) as p:
-        print("Generating thumbnails...")
-        p.map(thumbnail_convert, thumbnails)
+    if args.non_interactive:
+        print("Generating html files...")
+        listfolder(args.root, _ROOTTITLE)
+
+        with Pool(os.cpu_count()) as p:
+            print("Generating thumbnails...")
+            p.map(thumbnail_convert, thumbnails)
+    else:
+        print("Traversing filesystem...")
+        with alive_bar(0, spinner="classic", bar="classic") as bar:
+            gettotal(args.root)
+
+        print("Generating html files...")
+        with alive_bar(total, spinner="classic", bar="classic") as bar:
+            listfolder(args.root, _ROOTTITLE)
+
+        with alive_bar(len(thumbnails), spinner="classic", bar="classic") as bar:
+            with Pool(os.cpu_count()) as p:
+                print("Generating thumbnails...")
+                p.map(thumbnail_convert, thumbnails)
 
 
 if __name__ == "__main__":
