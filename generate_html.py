@@ -163,6 +163,7 @@ def thumbnail_convert(arguments: tuple[str, str]):
 
 def listfolder(folder: str, title: str):
     pbar.desc = f"Generating html files - {folder}"
+    pbar.update(0)
     items: list[str] = os.listdir(folder)
     items.sort()
     images: list[str] = []
@@ -180,6 +181,7 @@ def listfolder(folder: str, title: str):
                 listfolder(os.path.join(folder, item), item)
             else:
                 pbar.desc = f"Generating html files - {folder}"
+                pbar.update(0)
                 contains_files = True
                 if os.path.splitext(item)[1].lower() in imgext:
                     image = f'<figure><a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}"><img src="{args.webroot}.previews/{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}.jpg" alt="{item}"/></a><figcaption class="caption">{item}'
@@ -199,6 +201,7 @@ def listfolder(folder: str, title: str):
                     image += "</figcaption></figure>"
                     images.extend([image])
     pbar.desc = f"Generating html files - {folder}"
+    pbar.update(0)
     if len(images) > 0 or (args.fancyfolders and not contains_files):
         with open(os.path.join(folder, "index.html"), "w", encoding="utf-8") as f:
             f.write(temp_obj.substitute(title=title))
@@ -230,6 +233,7 @@ def gettotal(folder):
     global total
 
     pbar.desc = f"Traversing filesystem - {folder}"
+    pbar.update(0)
 
     items: list[str] = os.listdir(folder)
     items.sort()
