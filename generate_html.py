@@ -154,7 +154,7 @@ HTMLHEADER = """
 
 def thumbnail_convert(arguments: tuple[str, str]):
     folder, item = arguments
-    if not os.path.exists(os.path.join(args.root, ".previews", folder.removeprefix(args.root), os.path.splitext(item)[0] + ".jpg")) or args.regenerate:
+    if not os.path.exists(os.path.join(args.root, ".previews", folder.removeprefix(args.root), os.path.splitext(item)[0]) + ".jpg") or args.regenerate:
         if shutil.which("magick"):
             os.system(f'magick "{os.path.join(folder, item)}" -quality 75% -define jpeg:size=1024x1024 -define jpeg:extent=100kb -thumbnail 512x512 -auto-orient "{os.path.join(args.root, ".previews", folder.removeprefix(args.root), os.path.splitext(item)[0])}.jpg"')
         else:
@@ -221,6 +221,7 @@ def listfolder(folder: str, title: str):
         if os.path.exists(os.path.join(folder, "index.html")):
             os.remove(os.path.join(folder, "index.html"))
     pbar.update(1)
+    pbar.desc = f"Generating html files - {folder}"
 
 
 def gettotal(folder):
