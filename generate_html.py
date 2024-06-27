@@ -5,7 +5,7 @@ import urllib.parse
 from multiprocessing import Pool
 from string import Template
 import numpy as np
-from alive_progress import alive_bar
+from tqdm.auto import tqdm
 
 """
 root and webroot must point to the same folder, one on filesystem and one on the webserver. Use absolut paths, e.g. /data/pictures/ and https://pictures.example.com/
@@ -152,15 +152,12 @@ HTMLHEADER = """
 
 
 def thumbnail_convert(arguments: tuple[str, str]):
-    global bar
     folder, item = arguments
-    if not os.path.exists(os.path.join(args.root, ".previews", folder.removeprefix(args.root), item)) or args.regenerate:
+    if not os.path.exists(os.path.join(args.root, ".previews", folder.removeprefix(args.root), os.path.splitext(item)[0] + ".jpg")) or args.regenerate:
         os.system(f'magick "{os.path.join(folder, item)}" -quality 75% -define jpeg:size=1024x1024 -define jpeg:extent=100kb -thumbnail 512x512 -auto-orient "{os.path.join(args.root, ".previews", folder.removeprefix(args.root), os.path.splitext(item)[0])}.jpg"')
-    bar()
 
 
 def listfolder(folder: str, title: str):
-    global bar
     items: list[str] = os.listdir(folder)
     items.sort()
     images: list[str] = []
@@ -218,12 +215,11 @@ def listfolder(folder: str, title: str):
     else:
         if os.path.exists(os.path.join(folder, "index.html")):
             os.remove(os.path.join(folder, "index.html"))
-    bar()
+    pbar.update(1)
 
 
 def gettotal(folder):
     global total
-    global bar
 
     items: list[str] = os.listdir(folder)
     items.sort()
@@ -233,13 +229,12 @@ def gettotal(folder):
             if os.path.isdir(os.path.join(folder, item)):
                 gettotal(os.path.join(folder, item))
                 total += 1
-                bar()
+                pbar.update(1)
 
 
 def main():
     global args
-    global bar
-    global total
+    global pbar
     # Parse command-line arguments
     parser = argparse.ArgumentParser(description="Generate html files for static image host.")
     parser.add_argument("-p", "--root", help="Root folder", default=_ROOT, required=False, type=str, dest="root")
@@ -265,18 +260,17 @@ def main():
             print("Generating thumbnails...")
             p.map(thumbnail_convert, thumbnails)
     else:
-        print("Traversing filesystem...")
-        with alive_bar(0, spinner="classic", bar="classic") as bar:
-            gettotal(args.root)
+        pbar = tqdm(desc="Traversing filesystem", unit="folders")
+        gettotal(args.root)
+        pbar.close()
 
-        print("Generating html files...")
-        with alive_bar(total, spinner="classic", bar="classic") as bar:
-            listfolder(args.root, _ROOTTITLE)
+        pbar = tqdm(total=total + 1, desc="Generating html files", unit="files")
+        listfolder(args.root, _ROOTTITLE)
+        pbar.close()
 
-        with alive_bar(len(thumbnails), spinner="classic", bar="classic") as bar:
-            with Pool(os.cpu_count()) as p:
-                print("Generating thumbnails...")
-                p.map(thumbnail_convert, thumbnails)
+        with Pool(os.cpu_count()) as p:
+            for r in tqdm(p.imap_unordered(thumbnail_convert, thumbnails), total=len(thumbnails), desc="Generating thumbnails", unit="files"):
+                ...
 
 
 if __name__ == "__main__":

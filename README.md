@@ -1,6 +1,6 @@
 # generate_html.py
 
-`generate_html.py` is a Python script designed to generate static HTML files for hosting images on a web server. It traverses a specified root directory, creates thumbnail previews for images, and generates corresponding HTML files to display the images and subfolders in a user-friendly format. 
+`generate_html.py` is a Python script designed to generate static HTML files for hosting images on a web server. It traverses a specified root directory, creates thumbnail previews for images, and generates corresponding HTML files to display the images and subfolders in a user-friendly format.
 
 ## Features
 
@@ -14,14 +14,14 @@
 
 - Python 3.x
 - `numpy` library
-- `alive_progress` library
+- `tqdm` library
 
 ## Installation
 
 Install the required libraries using pip:
 
 ```sh
-pip install numpy alive_progress
+pip install numpy tqdm
 ```
 
 ## Usage
