@@ -9,11 +9,14 @@ from pathlib import Path
 import numpy as np
 from tqdm.auto import tqdm
 
+import cclicense
+
 _ROOT = "/data/pictures/"
 _WEBROOT = "https://pictures.example.com/"
 _FOLDERICON = "https://www.svgrepo.com/show/400249/folder.svg"
 _ROOTTITLE = "Pictures"
 _FAVICON = "favicon.ico"
+_AUTHOR = "Author"
 imgext = [".jpg", ".jpeg"]
 rawext = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
 excludes = [".lock", _FAVICON, "index.html", "Galleries", ".previews", "Archives"]
@@ -35,6 +38,8 @@ HTMLHEADER = """
 
       body {
         margin: 0;
+        margin-top: 32px;
+        margin-bottom: 56px;
         font-family: Arial;
       }
 
@@ -50,6 +55,7 @@ HTMLHEADER = """
 
       .folders figure {
         margin-bottom: 32px;
+        margin-top: 50px;
       }
 
       .header h1 {
@@ -151,9 +157,61 @@ HTMLHEADER = """
         width: 100%;
         display: block;
       }
+
+      .license {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: lightgrey;
+        padding: 12px;
+      }
+
+      .navbar {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background-color: #333;
+      }
+      
+      .navbar li {
+        float: left;
+      }
+      
+      .navbar li a {
+        display: block;
+        color: white;
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+      }
+
+      .navbar li span {
+        display: block;
+        color: white;
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+      }
+      
+      /* Change the link color to #111 (black) on hover */
+      .navbar li a:hover {
+        background-color: #111;
+      }
     </style>
   </head>
   <body>
+"""
+
+NAVBAR = """
+<ul class="navbar">
+  <li><a href="$home">Home</a></li>
+  <li><a href="$parent">Parent Directory</a></li>
+  <li style="position: absolute; left: 50%; transform: translateX(-50%);"><span>$title</span></li>
+  $license</ul>
 """
 
 
@@ -178,7 +236,8 @@ def listfolder(folder: str, title: str):
     if not os.path.exists(os.path.join(args.root, ".previews", folder.removeprefix(args.root))):
         os.mkdir(os.path.join(args.root, ".previews", folder.removeprefix(args.root)))
 
-    temp_obj = Template(HTMLHEADER)
+    body = Template(HTMLHEADER)
+    navbar = Template(NAVBAR)
     contains_files = False
     for item in items:
         if item not in excludes:
@@ -212,9 +271,15 @@ def listfolder(folder: str, title: str):
         pbar.update(0)
     if len(images) > 0 or (args.fancyfolders and not contains_files):
         with open(os.path.join(folder, "index.html"), "w", encoding="utf-8") as f:
-            f.write(temp_obj.substitute(title=title, favicon=f"{args.root}/{_FAVICON}"))
+            f.write(body.substitute(title=title, favicon=f"{args.webroot}{_FAVICON}"))
             f.write('    <div class="header">\n')
-            f.write(f"      <h1>{title}</h1>\n")
+            if folder == args.root:
+                f.write(f"      <h1>{os.path.basename(folder)}</h1>\n")
+            else:
+                if args.license:
+                    f.write(navbar.substitute(home=args.webroot, parent=f"{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root).removesuffix(folder.split('/')[-1]))}", title=os.path.basename(folder), license=f'  <li style="float:right"><a href="{cclicense.licenseurlswitch(args.license)}" target="_blank">License</a></li>\n'))
+                else:
+                    f.write(navbar.substitute(home=args.webroot, parent=f"{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root).removesuffix(folder.split('/')[-1]))}", title=os.path.basename(folder), license=""))
             f.write('      <div class="folders">\n')
             for subfolder in subfolders:
                 f.write(subfolder)
@@ -229,6 +294,8 @@ def listfolder(folder: str, title: str):
                         f.write(f"        {image}\n")
                     f.write("      </div>\n")
                 f.write("    </div>\n")
+            if args.license:
+                f.write(_cclicense.substitute(webroot=args.webroot, title=args.title, author=args.author))
             f.write("  </body>\n</html>")
             f.close()
     else:
@@ -261,6 +328,7 @@ def main():
     global total
     global args
     global pbar
+    global _cclicense
 
     total = 0
     # Parse command-line arguments
@@ -270,6 +338,9 @@ def main():
     parser.add_argument("-i", "--foldericon", help="Foldericon url", default=_FOLDERICON, required=False, type=str, dest="foldericon", metavar="ICON")
     parser.add_argument("-r", "--regenerate", help="Regenerate thumbnails", action="store_true", default=False, required=False, dest="regenerate")
     parser.add_argument("-n", "--non-interactive", help="Disable interactive mode", action="store_true", default=False, required=False, dest="non_interactive")
+    parser.add_argument("-l", "--license", help="License", default=None, required=False, choices=["cc-zero", "cc-by", "cc-by-sa", "cc-by-nd", "cc-by-nc", "cc-by-nc-sa", "cc-by-nc-nd"], dest="license")
+    parser.add_argument("-a", "--author", help="Author", default=_AUTHOR, required=False, type=str, dest="author")
+    parser.add_argument("-t", "--title", help="Title", default=_ROOTTITLE, required=False, type=str, dest="title")
     parser.add_argument("--fancyfolders", help="Use fancy folders instead of default apache ones", action="store_true", default=False, required=False, dest="fancyfolders")
     args = parser.parse_args()
 
@@ -280,6 +351,9 @@ def main():
     if not os.path.exists(os.path.join(args.root, ".previews")):
         os.mkdir(os.path.join(args.root, ".previews"))
 
+    if args.license:
+        _cclicense = Template(cclicense.licenseswitch(args.license))
+
     if os.path.exists(os.path.join(args.root, ".lock")):
         print("Another instance of this program is running.")
         exit()
@@ -288,7 +362,7 @@ def main():
 
         if args.non_interactive:
             print("Generating html files...")
-            listfolder(args.root, _ROOTTITLE)
+            listfolder(args.root, args.title)
 
             with Pool(os.cpu_count()) as p:
                 print("Generating thumbnails...")
@@ -299,7 +373,7 @@ def main():
             pbar.close()
 
             pbar = tqdm(total=total + 1, desc="Generating html files", unit=" files", ascii=True, dynamic_ncols=True)
-            listfolder(args.root, _ROOTTITLE)
+            listfolder(args.root, args.title)
             pbar.close()
 
             with Pool(os.cpu_count()) as p:

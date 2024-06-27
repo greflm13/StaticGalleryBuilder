@@ -9,6 +9,8 @@
 - **Folder Navigation:** The HTML files include navigation links to subfolders.
 - **Responsive Design:** The generated HTML uses responsive design techniques to ensure the gallery looks good on different screen sizes.
 - **Non-Interactive Mode:** It can run in a non-interactive mode suitable for automated workflows.
+- **License Information:** Optionally include license information in the HTML files.
+- **Custom Author and Title:** Allows specifying a custom author and title for the HTML files.
 
 ## Requirements
 
@@ -29,7 +31,7 @@ pip install numpy tqdm
 The script supports several command-line options to customize its behavior. Below is the list of available options:
 
 ```sh
-./generate_html.py [-h] [-f ROOT] [-w WEBROOT] [-i ICON] [-r] [-n] [--fancyfolders]
+./generate_html.py [-h] [-f ROOT] [-w WEBROOT] [-i ICON] [-r] [-n] [--fancyfolders] [-l LICENSE] [-a AUTHOR] [-t TITLE]
 ```
 
 ### Options
@@ -41,6 +43,9 @@ The script supports several command-line options to customize its behavior. Belo
 - `-r, --regenerate`: Regenerate thumbnails even if they already exist.
 - `-n, --non-interactive`: Disable interactive mode, which is useful for automated workflows.
 - `--fancyfolders`: Use fancy folders instead of the default Apache directory listing.
+- `-l LICENSE, --license LICENSE`: Specify a license for the content. Options are `cc-zero`, `cc-by`, `cc-by-sa`, `cc-by-nd`, `cc-by-nc`, `cc-by-nc-sa`, and `cc-by-nc-nd`.
+- `-a AUTHOR, --author AUTHOR`: Specify the author of the content.
+- `-t TITLE, --title TITLE`: Specify the title for the root directory HTML file.
 
 ### Example
 
@@ -54,6 +59,12 @@ To regenerate thumbnails and run in non-interactive mode:
 
 ```sh
 ./generate_html.py -f /data/pictures -w https://pictures.example.com -r -n
+```
+
+To include a license, author, and custom title:
+
+```sh
+./generate_html.py -f /data/pictures -w https://pictures.example.com -l cc-by -a "John Doe" -t "My Photo Gallery"
 ```
 
 ## Notes
