@@ -218,7 +218,8 @@ def listfolder(folder: str, title: str):
             f.write("  </body>\n</html>")
             f.close()
     else:
-        os.remove(os.path.join(folder, "index.html"))
+        if os.path.exists(os.path.join(folder, "index.html")):
+            os.remove(os.path.join(folder, "index.html"))
     pbar.update(1)
 
 
