@@ -17,6 +17,7 @@ _FOLDERICON = "https://www.svgrepo.com/show/400249/folder.svg"
 _ROOTTITLE = "Pictures"
 imgext = [".jpg", ".jpeg"]
 rawext = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
+excludes = ["Galleries", ".previews", "Archives"]
 
 thumbnails: list[tuple[str, str]] = []
 
@@ -62,7 +63,7 @@ HTMLHEADER = """
       }
 
       .folders figcaption {
-        width: 100px;
+        width: 120px;
       }
 
       .row {
@@ -102,7 +103,7 @@ HTMLHEADER = """
           width: 80px;
         }
         .folders figcaption {
-          width: 80px;
+          width: 100px;
         }
       }
 
@@ -117,7 +118,7 @@ HTMLHEADER = """
           width: 60px;
         }
         .folders figcaption {
-          width: 60px;
+          width: 80px;
         }
       }
 
@@ -132,7 +133,7 @@ HTMLHEADER = """
           width: 40px;
         }
         .folders figcaption {
-          width: 40px;
+          width: 60px;
         }
       }
 
@@ -168,7 +169,7 @@ def listfolder(folder: str, title: str):
     temp_obj = Template(HTMLHEADER)
     contains_files = False
     for item in items:
-        if item not in ("Galleries", ".previews"):
+        if item not in excludes:
             if os.path.isdir(os.path.join(folder, item)):
                 subfolders.extend([f'<figure><a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}"><img src="{args.foldericon}" alt="Folder icon"/></a><figcaption><a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}">{item}</a></figcaption></figure>'])
                 listfolder(os.path.join(folder, item), item)
@@ -223,7 +224,7 @@ def gettotal(folder):
     items.sort()
 
     for item in items:
-        if item not in ("Galleries", ".previews"):
+        if item not in excludes:
             if os.path.isdir(os.path.join(folder, item)):
                 gettotal(os.path.join(folder, item))
                 total += 1
