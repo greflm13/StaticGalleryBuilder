@@ -67,6 +67,7 @@ HTMLHEADER = """
 
       .folders figcaption {
         width: 120px;
+        font-size: smaller;
         text-align: center;
       }
 
@@ -108,6 +109,7 @@ HTMLHEADER = """
         }
         .folders figcaption {
           width: 100px;
+          font-size: small;
         }
       }
 
@@ -123,6 +125,7 @@ HTMLHEADER = """
         }
         .folders figcaption {
           width: 80px;
+          font-size: x-small;
         }
       }
 
@@ -138,6 +141,7 @@ HTMLHEADER = """
         }
         .folders figcaption {
           width: 60px;
+          font-size: xx-small;
         }
       }
 
