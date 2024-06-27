@@ -169,8 +169,9 @@ def thumbnail_convert(arguments: tuple[str, str]):
 
 
 def listfolder(folder: str, title: str):
-    pbar.desc = f"Generating html files - {folder}"
-    pbar.update(0)
+    if not args.non_interactive:
+        pbar.desc = f"Generating html files - {folder}"
+        pbar.update(0)
     items: list[str] = os.listdir(folder)
     items.sort()
     images: list[str] = []
@@ -187,8 +188,9 @@ def listfolder(folder: str, title: str):
                 subfolders.extend([f'<figure><a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}"><img src="{args.foldericon}" alt="Folder icon"/></a><figcaption><a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}">{item}</a></figcaption></figure>'])
                 listfolder(os.path.join(folder, item), item)
             else:
-                pbar.desc = f"Generating html files - {folder}"
-                pbar.update(0)
+                if not args.non_interactive:
+                    pbar.desc = f"Generating html files - {folder}"
+                    pbar.update(0)
                 contains_files = True
                 if os.path.splitext(item)[1].lower() in imgext:
                     image = f'<figure><a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}"><img src="{args.webroot}.previews/{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}.jpg" alt="{item}"/></a><figcaption class="caption">{item}'
@@ -207,8 +209,9 @@ def listfolder(folder: str, title: str):
                                 image += f': <a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw.upper()}">RAW</a>'
                     image += "</figcaption></figure>"
                     images.extend([image])
-    pbar.desc = f"Generating html files - {folder}"
-    pbar.update(0)
+    if not args.non_interactive:
+        pbar.desc = f"Generating html files - {folder}"
+        pbar.update(0)
     if len(images) > 0 or (args.fancyfolders and not contains_files):
         with open(os.path.join(folder, "index.html"), "w", encoding="utf-8") as f:
             f.write(temp_obj.substitute(title=title))
@@ -233,14 +236,16 @@ def listfolder(folder: str, title: str):
     else:
         if os.path.exists(os.path.join(folder, "index.html")):
             os.remove(os.path.join(folder, "index.html"))
-    pbar.update(1)
+    if not args.non_interactive:
+        pbar.update(1)
 
 
 def gettotal(folder):
     global total
 
-    pbar.desc = f"Traversing filesystem - {folder}"
-    pbar.update(0)
+    if not args.non_interactive:
+        pbar.desc = f"Traversing filesystem - {folder}"
+        pbar.update(0)
 
     items: list[str] = os.listdir(folder)
     items.sort()
@@ -249,7 +254,8 @@ def gettotal(folder):
         if item not in excludes:
             if os.path.isdir(os.path.join(folder, item)):
                 total += 1
-                pbar.update(1)
+                if not args.non_interactive:
+                    pbar.update(1)
                 gettotal(os.path.join(folder, item))
 
 
