@@ -239,7 +239,7 @@ def main():
     global total
     # Parse command-line arguments
     parser = argparse.ArgumentParser(description="Generate html files for static image host.")
-    parser.add_argument("-f", "--root", help="Root folder", default=_ROOT, required=False, type=str, dest="root")
+    parser.add_argument("-p", "--root", help="Root folder", default=_ROOT, required=False, type=str, dest="root")
     parser.add_argument("-w", "--webroot", help="Webroot url", default=_WEBROOT, required=False, type=str, dest="webroot")
     parser.add_argument("-i", "--foldericon", help="Foldericon url", default=_FOLDERICON, required=False, type=str, dest="foldericon", metavar="ICON")
     parser.add_argument("-r", "--regenerate", help="Regenerate thumbnails", action="store_true", default=False, required=False, dest="regenerate")

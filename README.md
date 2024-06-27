@@ -35,7 +35,7 @@ The script supports several command-line options to customize its behavior. Belo
 ### Options
 
 - `-h, --help`: Show the help message and exit.
-- `-f ROOT, --root ROOT`: Specify the root folder where the images are stored. Default is `/data/pictures/`.
+- `-p ROOT, --root ROOT`: Specify the root folder where the images are stored. Default is `/data/pictures/`.
 - `-w WEBROOT, --webroot WEBROOT`: Specify the web root URL where the images will be accessible. Default is `https://pictures.example.com/`.
 - `-i ICON, --foldericon ICON`: Specify the URL for the folder icon. Default is `https://www.svgrepo.com/show/400249/folder.svg`.
 - `-r, --regenerate`: Regenerate thumbnails even if they already exist.
