@@ -154,7 +154,7 @@ HTMLHEADER = """
 def thumbnail_convert(arguments: tuple[str, str]):
     global bar
     folder, item = arguments
-    if not os.path.exists(os.path.join(args.root, ".previews", folder.removeprefix(args.root), item)) and args.regenerate is False:
+    if not os.path.exists(os.path.join(args.root, ".previews", folder.removeprefix(args.root), item)) or args.regenerate:
         os.system(f'magick "{os.path.join(folder, item)}" -quality 75% -define jpeg:size=1024x1024 -define jpeg:extent=100kb -thumbnail 512x512 -auto-orient "{os.path.join(args.root, ".previews", folder.removeprefix(args.root), item)}"')
     bar()
 
