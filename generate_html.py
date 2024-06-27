@@ -18,7 +18,7 @@ _FOLDERICON = "https://www.svgrepo.com/show/400249/folder.svg"
 _ROOTTITLE = "Pictures"
 imgext = [".jpg", ".jpeg"]
 rawext = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
-excludes = ["Galleries", ".previews", "Archives"]
+excludes = ["Galleries", ".previews", "Archives", "Wallpaper"]
 
 thumbnails: list[tuple[str, str]] = []
 
@@ -229,15 +229,17 @@ def listfolder(folder: str, title: str):
 def gettotal(folder):
     global total
 
+    pbar.desc = f"Traversing filesystem - {folder}"
+
     items: list[str] = os.listdir(folder)
     items.sort()
 
     for item in items:
         if item not in excludes:
             if os.path.isdir(os.path.join(folder, item)):
-                gettotal(os.path.join(folder, item))
                 total += 1
                 pbar.update(1)
+                gettotal(os.path.join(folder, item))
 
 
 def main():
