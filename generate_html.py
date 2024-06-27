@@ -263,12 +263,12 @@ def main():
         gettotal(args.root)
         pbar.close()
 
-        pbar = tqdm(total=total + 1, desc="Generating html files", unit=" files", ascii="#", dynamic_ncols=True)
+        pbar = tqdm(total=total + 1, desc="Generating html files", unit=" files", ascii="#")
         listfolder(args.root, _ROOTTITLE)
         pbar.close()
 
         with Pool(os.cpu_count()) as p:
-            for r in tqdm(p.imap_unordered(thumbnail_convert, thumbnails), total=len(thumbnails), desc="Generating thumbnails", unit=" files", ascii="#", dynamic_ncols=True):
+            for r in tqdm(p.imap_unordered(thumbnail_convert, thumbnails), total=len(thumbnails), desc="Generating thumbnails", unit=" files", ascii="#"):
                 ...
 
 
