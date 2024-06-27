@@ -196,8 +196,6 @@ def listfolder(folder: str, title: str):
                                 image += f': <a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw.upper()}">RAW</a>'
                     image += "</figcaption></figure>"
                     images.extend([image])
-    if os.path.exists(os.path.join(folder, "index.html")):
-        os.remove(os.path.join(folder, "index.html"))
     if len(images) > 0 or (args.fancyfolders and not contains_files):
         with open(os.path.join(folder, "index.html"), "w", encoding="utf-8") as f:
             f.write(temp_obj.substitute(title=title))
@@ -209,15 +207,18 @@ def listfolder(folder: str, title: str):
                 f.write("\n")
             f.write("      </div>\n")
             f.write("    </div>\n")
-            f.write('    <div class="row">\n')
-            for chunk in np.array_split(images, 8):
-                f.write('      <div class="column">\n')
-                for image in chunk:
-                    f.write(f"        {image}\n")
-                f.write("      </div>\n")
-            f.write("    </div>\n")
+            if len(images) > 0:
+                f.write('    <div class="row">\n')
+                for chunk in np.array_split(images, 8):
+                    f.write('      <div class="column">\n')
+                    for image in chunk:
+                        f.write(f"        {image}\n")
+                    f.write("      </div>\n")
+                f.write("    </div>\n")
             f.write("  </body>\n</html>")
             f.close()
+    else:
+        os.remove(os.path.join(folder, "index.html"))
     pbar.update(1)
 
 
