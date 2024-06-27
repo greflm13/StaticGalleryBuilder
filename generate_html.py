@@ -192,6 +192,8 @@ def listfolder(folder: str, title: str):
                                 image += f': <a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw.upper()}">RAW</a>'
                     image += "</figcaption></figure>"
                     images.extend([image])
+    if os.path.exists(os.path.join(folder, "index.html")):
+        os.remove(os.path.join(folder, "index.html"))
     if len(images) > 0 or (args.fancyfolders and not contains_files):
         with open(os.path.join(folder, "index.html"), "w", encoding="utf-8") as f:
             f.write(temp_obj.substitute(title=title))
@@ -212,9 +214,6 @@ def listfolder(folder: str, title: str):
             f.write("    </div>\n")
             f.write("  </body>\n</html>")
             f.close()
-    else:
-        if os.path.exists(os.path.join(folder, "index.html")):
-            os.remove(os.path.join(folder, "index.html"))
     pbar.update(1)
 
 
@@ -264,12 +263,12 @@ def main():
         gettotal(args.root)
         pbar.close()
 
-        pbar = tqdm(total=total + 1, desc="Generating html files", unit=" files")
+        pbar = tqdm(total=total + 1, desc="Generating html files", unit=" files", ascii="#", dynamic_ncols=True)
         listfolder(args.root, _ROOTTITLE)
         pbar.close()
 
         with Pool(os.cpu_count()) as p:
-            for r in tqdm(p.imap_unordered(thumbnail_convert, thumbnails), total=len(thumbnails), desc="Generating thumbnails", unit=" files"):
+            for r in tqdm(p.imap_unordered(thumbnail_convert, thumbnails), total=len(thumbnails), desc="Generating thumbnails", unit=" files", ascii="#", dynamic_ncols=True):
                 ...
 
 
