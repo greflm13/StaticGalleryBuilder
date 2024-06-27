@@ -179,6 +179,7 @@ def listfolder(folder: str, title: str):
                 subfolders.extend([f'<figure><a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}"><img src="{args.foldericon}" alt="Folder icon"/></a><figcaption><a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}">{item}</a></figcaption></figure>'])
                 listfolder(os.path.join(folder, item), item)
             else:
+                pbar.desc = f"Generating html files - {folder}"
                 contains_files = True
                 if os.path.splitext(item)[1].lower() in imgext:
                     image = f'<figure><a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(item)}"><img src="{args.webroot}.previews/{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}.jpg" alt="{item}"/></a><figcaption class="caption">{item}'
@@ -197,6 +198,7 @@ def listfolder(folder: str, title: str):
                                 image += f': <a href="{args.webroot}{urllib.parse.quote(folder.removeprefix(args.root))}/{urllib.parse.quote(os.path.splitext(item)[0])}{raw.upper()}">RAW</a>'
                     image += "</figcaption></figure>"
                     images.extend([image])
+    pbar.desc = f"Generating html files - {folder}"
     if len(images) > 0 or (args.fancyfolders and not contains_files):
         with open(os.path.join(folder, "index.html"), "w", encoding="utf-8") as f:
             f.write(temp_obj.substitute(title=title))
