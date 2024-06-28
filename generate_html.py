@@ -11,6 +11,8 @@ from tqdm.auto import tqdm
 
 import cclicense
 
+environment = Environment(loader=FileSystemLoader("templates/"))
+
 _ROOT = "/data/pictures/"
 _WEBROOT = "https://pictures.example.com/"
 _FOLDERICON = "https://www.svgrepo.com/show/400249/folder.svg"
