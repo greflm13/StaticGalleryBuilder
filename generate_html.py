@@ -108,7 +108,7 @@ def listfolder(folder: str, title: str):
             if foldername == "":
                 parent = None
             else:
-                parent = f"{args.webroot}{urllib.parse.quote(foldername.removesuffix(folder.split('/')[-1] + "/"))}"
+                parent = f"{args.webroot}{urllib.parse.quote(foldername.removesuffix(folder.split('/')[-1] + '/'))}"
             if args.license:
                 _license = {
                     "project": args.title,
