@@ -20,6 +20,7 @@ _ROOTTITLE = "Pictures"
 _STATICFILES = os.path.join(os.path.abspath(os.path.dirname(__file__)), "files")
 _FAVICON = ".static/favicon.ico"
 _STYLE = ".static/global.css"
+_THEME = ".static/default.css"
 _AUTHOR = "Author"
 # fmt: off
 rawext = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
@@ -122,7 +123,7 @@ def listfolder(folder: str, title: str):
                 title=title,
                 favicon=f"{args.webroot}{_FAVICON}",
                 stylesheet=f"{args.webroot}{_STYLE}",
-                theme=None,
+                theme=f"{args.webroot}{urllib.parse.quote(args.theme)}",
                 root=args.webroot,
                 parent=parent,
                 header=header,
@@ -179,6 +180,7 @@ def main():
     parser.add_argument("-l", "--license", help="License", default=None, required=False, choices=["cc-zero", "cc-by", "cc-by-sa", "cc-by-nd", "cc-by-nc", "cc-by-nc-sa", "cc-by-nc-nd"], dest="license")
     parser.add_argument("-a", "--author", help="Author", default=_AUTHOR, required=False, type=str, dest="author")
     parser.add_argument("-t", "--title", help="Title", default=_ROOTTITLE, required=False, type=str, dest="title")
+    parser.add_argument("--theme", help="Relative link to CSS theme file", default=_THEME, required=False, type=str, dest="theme")
     parser.add_argument("--fancyfolders", help="Use fancy folders instead of default apache ones", action="store_true", default=False, required=False, dest="fancyfolders")
     args = parser.parse_args()
     # fmt: on

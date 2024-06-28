@@ -1,0 +1,23 @@
+.navbar {
+  color: #e8e6e3;
+  background-color: #262a2b;
+}
+
+.navbar li a {
+  color: #e8e6e3;
+}
+
+/* Change the link color on hover */
+.navbar li a:hover {
+  background-color: #0d0e0e;
+}
+
+.license {
+  color: #e8e6e3;
+  background-color: #313537;
+}
+
+body {
+  color: #e8e6e3;
+  background-color: #181a1b;
+}

@@ -1,0 +1,22 @@
+.navbar {
+  color: #fff;
+  background-color: #333;
+}
+
+.navbar li a {
+  color: #fff;
+}
+
+/* Change the link color on hover */
+.navbar li a:hover {
+  background-color: #111;
+}
+
+.license {
+  color: #000;
+  background-color: #ddd;
+}
+
+body {
+  background-color: #fff;
+}

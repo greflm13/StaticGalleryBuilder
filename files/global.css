@@ -7,6 +7,7 @@ body {
   margin-top: 32px;
   margin-bottom: 56px;
   font-family: Arial;
+  height: 100%;
 }
 
 .folders {
@@ -129,7 +130,6 @@ figure {
 .caption {
   padding-top: 4px;
   text-align: center;
-  font-style: italic;
   font-size: 12px;
   width: 100%;
   display: block;
@@ -139,7 +139,6 @@ figure {
   position: fixed;
   bottom: 0;
   width: 100%;
-  background-color: lightgrey;
   padding: 12px;
 }
 
@@ -151,7 +150,6 @@ figure {
   position: fixed;
   top: 0;
   width: 100%;
-  background-color: #333;
 }
 
 .navbar li {
@@ -160,7 +158,6 @@ figure {
 
 .navbar li a {
   display: block;
-  color: white;
   text-align: center;
   padding: 14px 16px;
   text-decoration: none;
@@ -168,13 +165,7 @@ figure {
 
 .navbar li span {
   display: block;
-  color: white;
   text-align: center;
   padding: 14px 16px;
   text-decoration: none;
-}
-
-/* Change the link color to #111 (black) on hover */
-.navbar li a:hover {
-  background-color: #111;
 }
