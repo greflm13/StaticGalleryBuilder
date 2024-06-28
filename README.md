@@ -11,6 +11,7 @@
 - **Non-Interactive Mode:** It can run in a non-interactive mode suitable for automated workflows.
 - **License Information:** Optionally include license information in the HTML files.
 - **Custom Author and Title:** Allows specifying a custom author and title for the HTML files.
+- **CSS Theme Support:** Allows specifying a custom CSS theme file for the HTML files.
 
 ## Requirements
 
@@ -33,7 +34,7 @@ pip install numpy tqdm Jinja2
 The script supports several command-line options to customize its behavior. Below is the list of available options:
 
 ```sh
-./generate_html.py [-h] [-f ROOT] [-w WEBROOT] [-i ICON] [-r] [-n] [--fancyfolders] [-l LICENSE] [-a AUTHOR] [-t TITLE]
+./generate_html.py [-h] [-p ROOT] [-w WEBROOT] [-i ICON] [-r] [-n] [--fancyfolders] [-l LICENSE] [-a AUTHOR] [-t TITLE] [--theme THEME]
 ```
 
 ### Options
@@ -48,25 +49,32 @@ The script supports several command-line options to customize its behavior. Belo
 - `-l LICENSE, --license LICENSE`: Specify a license for the content. Options are `cc-zero`, `cc-by`, `cc-by-sa`, `cc-by-nd`, `cc-by-nc`, `cc-by-nc-sa`, and `cc-by-nc-nd`.
 - `-a AUTHOR, --author AUTHOR`: Specify the author of the content.
 - `-t TITLE, --title TITLE`: Specify the title for the root directory HTML file.
+- `--theme THEME`: Specify the relative link to a custom CSS theme file. Default is `.static/default.css`.
 
 ### Example
 
 To generate HTML files and thumbnails for a directory `/data/pictures` and host them on `https://pictures.example.com`, run:
 
 ```sh
-./generate_html.py -f /data/pictures -w https://pictures.example.com
+./generate_html.py -p /data/pictures -w https://pictures.example.com
 ```
 
 To regenerate thumbnails and run in non-interactive mode:
 
 ```sh
-./generate_html.py -f /data/pictures -w https://pictures.example.com -r -n
+./generate_html.py -p /data/pictures -w https://pictures.example.com -r -n
 ```
 
 To include a license, author, and custom title:
 
 ```sh
-./generate_html.py -f /data/pictures -w https://pictures.example.com -l cc-by -a "John Doe" -t "My Photo Gallery"
+./generate_html.py -p /data/pictures -w https://pictures.example.com -l cc-by -a "John Doe" -t "My Photo Gallery"
+```
+
+To specify a custom CSS theme:
+
+```sh
+./generate_html.py -p /data/pictures -w https://pictures.example.com --theme custom_theme.css
 ```
 
 ## Notes
