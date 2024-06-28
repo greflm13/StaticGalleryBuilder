@@ -24,7 +24,7 @@ _THEME = os.path.join(os.path.abspath(os.path.dirname(__file__)), "themes", "def
 _AUTHOR = "Author"
 # fmt: off
 rawext = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
-imgext = [".jpg", ".jpeg"]
+imgext = [".jpg", ".jpeg", ".png"]
 excludes = [".lock", "index.html", ".thumbnails", ".static"]
 notlist = ["Galleries", "Archives"]
 # fmt: on
@@ -71,9 +71,7 @@ def listfolder(folder: str, title: str):
                 if item not in notlist:
                     listfolder(os.path.join(folder, item), os.path.join(folder, item).removeprefix(args.root))
             else:
-                baseurl = urllib.parse.quote(foldername) + "/"
-                if baseurl == "/":
-                    baseurl = ""
+                baseurl = urllib.parse.quote(foldername) + urllib.parse.quote(item)
                 extsplit = os.path.splitext(item)
                 if not args.non_interactive:
                     pbar.desc = f"Generating html files - {folder}"
