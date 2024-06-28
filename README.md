@@ -49,7 +49,7 @@ The script supports several command-line options to customize its behavior. Belo
 - `-l LICENSE, --license LICENSE`: Specify a license for the content. Options are `cc-zero`, `cc-by`, `cc-by-sa`, `cc-by-nd`, `cc-by-nc`, `cc-by-nc-sa`, and `cc-by-nc-nd`.
 - `-a AUTHOR, --author AUTHOR`: Specify the author of the content.
 - `-t TITLE, --title TITLE`: Specify the title for the root directory HTML file.
-- `--theme THEME`: Specify the relative link to a custom CSS theme file. Default is `.static/default.css`.
+- `--theme THEME`: Specify the path to a custom CSS theme file. Default is `themes/default.css`.
 
 ### Example
 
