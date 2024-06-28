@@ -140,7 +140,6 @@ def listfolder(folder: str, title: str):
         if os.path.exists(os.path.join(folder, "index.html")):
             os.remove(os.path.join(folder, "index.html"))
     if not args.non_interactive:
-        pbar.desc = "Generating html files"
         pbar.update(1)
 
 
@@ -162,9 +161,6 @@ def gettotal(folder):
                     pbar.update(1)
                 if item not in notlist:
                     gettotal(os.path.join(folder, item))
-    if not args.non_interactive:
-        pbar.desc = "Traversing filesystem"
-        pbar.update(0)
 
 
 def main():
@@ -223,10 +219,14 @@ def main():
         else:
             pbar = tqdm(desc="Traversing filesystem", unit=" folders", ascii=True, dynamic_ncols=True)
             gettotal(args.root)
+            pbar.desc = "Traversing filesystem"
+            pbar.update(0)
             pbar.close()
 
             pbar = tqdm(total=total + 1, desc="Generating html files", unit=" files", ascii=True, dynamic_ncols=True)
             listfolder(args.root, args.title)
+            pbar.desc = "Generating html files"
+            pbar.update(0)
             pbar.close()
 
             with Pool(os.cpu_count()) as p:
