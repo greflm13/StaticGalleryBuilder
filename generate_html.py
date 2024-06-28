@@ -11,7 +11,7 @@ from tqdm.auto import tqdm
 
 import cclicense
 
-environment = Environment(loader=FileSystemLoader("templates/"))
+environment = Environment(loader=FileSystemLoader(os.path.join(os.path.abspath(os.path.dirname(__file__)), "templates/")))
 
 _ROOT = "/data/pictures/"
 _WEBROOT = "https://pictures.example.com/"
