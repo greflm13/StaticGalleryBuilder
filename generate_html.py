@@ -126,7 +126,7 @@ def listfolder(folder: str, title: str):
                 root=args.webroot,
                 parent=parent,
                 header=header,
-                foldericon=args.foldericon
+                foldericon=args.foldericon,
                 license=_license,
                 subdirectories=subfolders,
                 images=imagechunks,
