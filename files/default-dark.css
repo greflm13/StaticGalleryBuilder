@@ -1,9 +1,11 @@
 .navbar {
+  font-weight: bold;
   color: #e8e6e3;
   background-color: #262a2b;
 }
 
 .navbar li a {
+  font-weight: bold;
   color: #e8e6e3;
 }
 
