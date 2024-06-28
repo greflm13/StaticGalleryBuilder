@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }}</title>
+  <link rel="icon" type="image/x-icon" href="{{ favicon }}">
+  <link rel="stylesheet" href="{{ stylesheet }}">
+  {%- if theme %}
+  <link rel="stylesheet" href="{{ theme }}">
+  {%- endif %}
+</head>
+
+<body>
+  <div class="header">
+    <ul class="navbar">
+      <li><a href="{{ root }}">Home</a></li>
+      {%- if parent %}
+      <li><a href="{{ parent }}">Parent Directory</a></li>
+      {%- endif %}
+      <li style="position: absolute; left: 50%; transform: translateX(-50%);"><span>{{ header }}</span></li>
+      {%- if license %}
+      <li style="float:right"><a href="{{ license.url }}" target="_blank">License</a></li>
+      {%- endif %}
+    </ul>
+    {% if subdirectories %}
+    <div class="folders">
+      {%- for subdirectory in subdirectories %}
+      <figure>
+        <a href="{{ subdirectory.url }}"><img src="{{ foldericon }}" alt="Folder icon" /></a>
+        <figcaption><a href="{{ subdirectory.url }}">{{ subdirectory.name }}</a></figcaption>
+      </figure>
+      {%- endfor %}
+    </div>
+    {%- endif %}
+  </div>
+  {% if images %}
+  <div class="row">
+    {%- for imageblock in images %}
+    <div class="column">
+      {%- for image in imageblock %}
+      <figure>
+        <a href="{{ image.url }}"><img src="{{ image.thumbnail }}" alt="{{ image.name }}" /></a>
+        <figcaption class="caption">{{ image.name }}{% if image.tiff %}
+          <a href="{{ image.tiff }}">TIFF</a>{% endif %}{% if image.raw %}
+          <a href="{{ image.raw }}">RAW</a>{% endif %}
+        </figcaption>
+      </figure>
+      {%- endfor %}
+    </div>
+    {%- endfor %}
+  </div>
+  {%- endif %}
+  {% if license %}
+  {%- if 'CC' in license.type %}
+  <div class="license" xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/">
+    {%- if license.type == 'CC0 1.0' %}
+    <a property="dct:title" rel="cc:attributionURL" href="{{ root }}">{{ license.project }}</a> by <span property="cc:attributionName">{{ license.author }}</span> is marked with
+    <a href="{{ license.url }}" target="_blank" rel="license noopener noreferrer" style="display: inline-block">CC0 1.0
+      {%- for pic in license.pics %}
+      <img style="height: 22px !important; margin-left: 3px; vertical-align: text-bottom" src="{{ pic }}" alt="" />
+      {%- endfor %}
+    </a>
+    {%- else %}
+    <a property="dct:title" rel="cc:attributionURL" href="{{ root }}">{{ license.project }}</a> by <span property="cc:attributionName">{{ license.author }}</span> is licensed under
+    <a href="{{ license.url }}" target="_blank" rel="license noopener noreferrer" style="display: inline-block">{{ license.type }}
+      {%- for pic in license.pics %}
+      <img style="height: 22px !important; margin-left: 3px; vertical-align: text-bottom" src="{{ pic }}" alt="" />
+      {%- endfor %}
+    </a>
+    {%- endif %}
+  </div>
+  {%- endif %}
+  {%- endif %}
+</body>
+
+</html>

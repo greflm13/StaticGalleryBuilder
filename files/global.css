@@ -1,0 +1,180 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  margin-top: 32px;
+  margin-bottom: 56px;
+  font-family: Arial;
+}
+
+.folders {
+  text-align: center;
+  display: -ms-flexbox;
+  /* IE10 */
+  display: flex;
+  -ms-flex-wrap: wrap;
+  /* IE10 */
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  overflow: hidden;
+}
+
+.folders figure {
+  margin-bottom: 32px;
+  margin-top: 50px;
+}
+
+.header h1 {
+  font-size: 2.5em;
+  font-weight: bold;
+  text-align: center;
+}
+
+.folders img {
+  width: 100px;
+  vertical-align: middle;
+}
+
+.folders figcaption {
+  width: 120px;
+  font-size: smaller;
+  text-align: center;
+}
+
+.row {
+  display: -ms-flexbox;
+  /* IE10 */
+  display: flex;
+  -ms-flex-wrap: wrap;
+  /* IE10 */
+  flex-wrap: wrap;
+  padding: 0 2px;
+}
+
+figure {
+  margin: 0;
+}
+
+/* Create four equal columns that sits next to each other */
+.column {
+  -ms-flex: 12.5%;
+  /* IE10 */
+  flex: 12.5%;
+  max-width: 12.5%;
+  padding: 0 4px;
+}
+
+.column img {
+  margin-top: 20px;
+  vertical-align: middle;
+  width: 100%;
+}
+
+/* Responsive layout - makes a four column-layout instead of eight columns */
+@media screen and (max-width: 1000px) {
+  .column {
+    -ms-flex: 25%;
+    flex: 25%;
+    max-width: 25%;
+  }
+
+  .folders img {
+    width: 80px;
+  }
+
+  .folders figcaption {
+    width: 100px;
+    font-size: small;
+  }
+}
+
+/* Responsive layout - makes a two column-layout instead of four columns */
+@media screen and (max-width: 800px) {
+  .column {
+    -ms-flex: 50%;
+    flex: 50%;
+    max-width: 50%;
+  }
+
+  .folders img {
+    width: 60px;
+  }
+
+  .folders figcaption {
+    width: 80px;
+    font-size: x-small;
+  }
+}
+
+/* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
+@media screen and (max-width: 600px) {
+  .column {
+    -ms-flex: 100%;
+    flex: 100%;
+    max-width: 100%;
+  }
+
+  .folders img {
+    width: 40px;
+  }
+
+  .folders figcaption {
+    width: 60px;
+    font-size: xx-small;
+  }
+}
+
+.caption {
+  padding-top: 4px;
+  text-align: center;
+  font-style: italic;
+  font-size: 12px;
+  width: 100%;
+  display: block;
+}
+
+.license {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background-color: lightgrey;
+  padding: 12px;
+}
+
+.navbar {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background-color: #333;
+}
+
+.navbar li {
+  float: left;
+}
+
+.navbar li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+.navbar li span {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+/* Change the link color to #111 (black) on hover */
+.navbar li a:hover {
+  background-color: #111;
+}

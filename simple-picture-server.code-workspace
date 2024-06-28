@@ -1,0 +1,62 @@
+{
+    "folders": [
+        {
+            "path": "./",
+            "name": "Simple Picture Server"
+        }
+    ],
+    "settings": {
+        "files.associations": {
+            "**/*.html.j2": "jinja-html",
+            "**/*.css.j2": "jinja-css",
+            "**/*.css": "css",
+        },
+        "python.analysis.inlayHints.callArgumentNames": "off",
+        "python.analysis.inlayHints.functionReturnTypes": false,
+        "python.analysis.inlayHints.variableTypes": false,
+        "pylint.args": [
+            "--disable=C0111",
+            "--disable=C0301",
+            "--good-names-rgxs=^[_a-z][_a-z0-9]?$"
+        ],
+        "editor.formatOnSave": false,
+        "black-formatter.interpreter": [
+            "/usr/bin/python3"
+        ],
+        "black-formatter.args": [
+            "-l 140"
+        ],
+        "gitblame.inlineMessageEnabled": true,
+        "gitblame.inlineMessageFormat": "${author.name}, ${time.ago} • ${commit.summary}",
+        "gitblame.statusBarMessageFormat": "${author.name} (${time.ago})",
+        "[python]": {
+            "editor.defaultFormatter": "ms-python.black-formatter"
+        },
+        "[css]": {
+            "editor.defaultFormatter": "vscode.css-language-features"
+        },
+        "[jinja-html]": {
+            "editor.defaultFormatter": "vscode.html-language-features"
+        },
+        "[jinja-css]": {
+            "editor.defaultFormatter": "vscode.css-language-features"
+        },
+        "html.format.templating": true,
+        "html.format.wrapAttributes": "preserve",
+        "html.format.wrapLineLength": 200,
+        "html.format.indentHandlebars": true
+    },
+    "extensions": {
+        "recommendations": [
+            "ms-python.black-formatter",
+            "ms-python.python",
+            "ms-python.vscode-pylance",
+            "ms-python.debugpy",
+            "ms-python.pylint",
+            "samuelcolvin.jinjahtml",
+            "vscode.html-language-features",
+            "vscode.css-language-features",
+            "waderyan.gitblame",
+        ]
+    }
+}

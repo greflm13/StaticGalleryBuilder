@@ -17,13 +17,15 @@
 - Python 3.x
 - `numpy` library
 - `tqdm` library
+- `Jinja2` library
+- `ImageMagick`
 
 ## Installation
 
 Install the required libraries using pip:
 
 ```sh
-pip install numpy tqdm
+pip install numpy tqdm Jinja2
 ```
 
 ## Usage
@@ -71,7 +73,7 @@ To include a license, author, and custom title:
 
 - The root and webroot paths must point to the same folder, one on the filesystem and one on the webserver. Use absolute paths.
 - Ensure that ImageMagick is installed and accessible in your system for thumbnail generation.
-- The script generates the preview thumbnails in a `.previews` subdirectory within the root folder.
+- The script generates the preview thumbnails in a `.thumbnails` subdirectory within the root folder.
 
 ## License
 
