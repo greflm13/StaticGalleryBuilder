@@ -140,6 +140,7 @@ def listfolder(folder: str, title: str):
         if os.path.exists(os.path.join(folder, "index.html")):
             os.remove(os.path.join(folder, "index.html"))
     if not args.non_interactive:
+        pbar.desc = "Generating html files"
         pbar.update(1)
 
 
@@ -161,6 +162,9 @@ def gettotal(folder):
                     pbar.update(1)
                 if item not in notlist:
                     gettotal(os.path.join(folder, item))
+    if not args.non_interactive:
+        pbar.desc = "Traversing filesystem"
+        pbar.update(0)
 
 
 def main():
