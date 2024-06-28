@@ -56,6 +56,8 @@ def listfolder(folder: str, title: str):
     subfolders: list[dict] = []
 
     foldername = folder.removeprefix(args.root)
+    if foldername != "":
+        foldername += "/"
 
     if not os.path.exists(os.path.join(args.root, ".thumbnails", foldername)):
         os.mkdir(os.path.join(args.root, ".thumbnails", foldername))
@@ -64,12 +66,14 @@ def listfolder(folder: str, title: str):
     for item in items:
         if item not in excludes:
             if os.path.isdir(os.path.join(folder, item)):
-                subfolder = {"url": f"{args.webroot}{urllib.parse.quote(foldername)}/{urllib.parse.quote(item)}", "name": item}
+                subfolder = {"url": f"{args.webroot}{urllib.parse.quote(foldername)}{urllib.parse.quote(item)}", "name": item}
                 subfolders.extend([subfolder])
                 if item not in notlist:
                     listfolder(os.path.join(folder, item), os.path.join(folder, item).removeprefix(args.root))
             else:
                 baseurl = urllib.parse.quote(foldername) + "/"
+                if baseurl == "/":
+                    baseurl = ""
                 extsplit = os.path.splitext(item)
                 if not args.non_interactive:
                     pbar.desc = f"Generating html files - {folder}"
