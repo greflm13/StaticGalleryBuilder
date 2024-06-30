@@ -13,15 +13,13 @@ import cclicense
 
 environment = Environment(loader=FileSystemLoader(os.path.join(os.path.abspath(os.path.dirname(__file__)), "templates/")))
 
-_ROOT = "/data/pictures/"
-_WEBROOT = "https://pictures.example.com/"
 _FOLDERICON = "https://www.svgrepo.com/show/400249/folder.svg"
-_ROOTTITLE = "Pictures"
 _STATICFILES = os.path.join(os.path.abspath(os.path.dirname(__file__)), "files")
 _FAVICON = ".static/favicon.ico"
 _STYLE = ".static/global.css"
 _THEME = os.path.join(os.path.abspath(os.path.dirname(__file__)), "themes", "default.css")
 _AUTHOR = "Author"
+VERSION = "1.3"
 # fmt: off
 rawext = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
 imgext = [".jpg", ".jpeg"]
@@ -69,7 +67,7 @@ def listfolder(folder: str, title: str):
             if os.path.isdir(os.path.join(folder, item)):
                 subfolder = {"url": f"{args.webroot}{baseurl}{urllib.parse.quote(item)}", "name": item}
                 subfolders.extend([subfolder])
-                if item not in notlist:
+                if item not in args.exclude:
                     listfolder(os.path.join(folder, item), os.path.join(folder, item).removeprefix(args.root))
             else:
                 extsplit = os.path.splitext(item)
@@ -77,7 +75,7 @@ def listfolder(folder: str, title: str):
                     pbar.desc = f"Generating html files - {folder}"
                     pbar.update(0)
                 contains_files = True
-                if extsplit[1].lower() in imgext:
+                if extsplit[1].lower() in args.extensions:
                     image = {
                         "url": f"{args.webroot}{baseurl}{urllib.parse.quote(item)}",
                         "thumbnail": f"{args.webroot}.thumbnails/{baseurl}{urllib.parse.quote(extsplit[0])}.jpg",
@@ -96,7 +94,7 @@ def listfolder(folder: str, title: str):
     if not args.non_interactive:
         pbar.desc = f"Generating html files - {folder}"
         pbar.update(0)
-    if len(images) > 0 or (args.fancyfolders and not contains_files):
+    if len(images) > 0 or (args.fancyfolders and not contains_files) or (args.fancyfolders and args.ignoreotherfiles):
         imagechunks = []
         if len(images) > 0:
             for chunk in np.array_split(images, 8):
@@ -159,7 +157,7 @@ def gettotal(folder):
                 total += 1
                 if not args.non_interactive:
                     pbar.update(1)
-                if item not in notlist:
+                if item not in args.exclude:
                     gettotal(os.path.join(folder, item))
 
 
@@ -174,19 +172,27 @@ def main():
     # fmt: off
     # Parse command-line arguments
     parser = argparse.ArgumentParser(description="Generate html files for static image host.")
-    parser.add_argument("-p", "--root", help="Root folder", default=_ROOT, required=False, type=str, dest="root")
-    parser.add_argument("-w", "--webroot", help="Webroot url", default=_WEBROOT, required=False, type=str, dest="webroot")
+    parser.add_argument("-p", "--root", help="Root folder", required=True, type=str, dest="root")
+    parser.add_argument("-w", "--webroot", help="Webroot url", required=True, type=str, dest="webroot")
+    parser.add_argument("-t", "--title", help="Title", required=True, type=str, dest="title")
     parser.add_argument("-i", "--foldericon", help="Foldericon url", default=_FOLDERICON, required=False, type=str, dest="foldericon", metavar="ICON")
     parser.add_argument("-r", "--regenerate", help="Regenerate thumbnails", action="store_true", default=False, required=False, dest="regenerate")
     parser.add_argument("-n", "--non-interactive", help="Disable interactive mode", action="store_true", default=False, required=False, dest="non_interactive")
     parser.add_argument("-l", "--license", help="License", default=None, required=False, choices=["cc-zero", "cc-by", "cc-by-sa", "cc-by-nd", "cc-by-nc", "cc-by-nc-sa", "cc-by-nc-nd"], dest="license")
     parser.add_argument("-a", "--author", help="Author", default=_AUTHOR, required=False, type=str, dest="author")
-    parser.add_argument("-t", "--title", help="Title", default=_ROOTTITLE, required=False, type=str, dest="title")
+    parser.add_argument("-e", "--extension", help="Extensions to include (multiple --extension are allowed)", required=False, action="append", dest="extensions")
     parser.add_argument("--theme", help="Path to CSS theme file", default=_THEME, required=False, type=str, dest="theme")
     parser.add_argument("--fancyfolders", help="Use fancy folders instead of default apache ones", action="store_true", default=False, required=False, dest="fancyfolders")
+    parser.add_argument("--ignore-other-files", help="Ignore other files than the ones specified with the specified extensions -e", action="store_true", default=False, required=False, dest="ignoreotherfiles")
+    parser.add_argument("--exclude", help="Exclude folders, only provide the basename of the folders you want to exclude (multiple --exclude are allowed)", required=False, action="append", dest="exclude")
+    parser.add_argument('--version', action='version', version=f'%(prog)s {VERSION}')
     args = parser.parse_args()
     # fmt: on
 
+    if args.extensions == []:
+        args.extensions = imgext
+    if args.exclude == []:
+        args.exclude = notlist
     if not args.root.endswith("/"):
         args.root += "/"
     if not args.webroot.endswith("/"):

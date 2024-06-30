@@ -12,6 +12,9 @@
 - **License Information:** Optionally include license information in the HTML files.
 - **Custom Author and Title:** Allows specifying a custom author and title for the HTML files.
 - **CSS Theme Support:** Allows specifying a custom CSS theme file for the HTML files.
+- **Folder Exclusion:** Ability to exclude specific folders from processing.
+- **Selective File Extensions:** Ability to specify which file extensions to include in the gallery.
+- **Ignore Other Files:** Option to ignore files other than those specified by the included extensions.
 
 ## Requirements
 
@@ -34,47 +37,56 @@ pip install numpy tqdm Jinja2
 The script supports several command-line options to customize its behavior. Below is the list of available options:
 
 ```sh
-./generate_html.py [-h] [-p ROOT] [-w WEBROOT] [-i ICON] [-r] [-n] [--fancyfolders] [-l LICENSE] [-a AUTHOR] [-t TITLE] [--theme THEME]
+./generate_html.py [-h] -p ROOT -w WEBROOT -t TITLE [-i ICON] [-r] [-n] [--fancyfolders] [-l LICENSE] [-a AUTHOR] [-e EXTENSION] [--theme THEME] [--ignore-other-files] [--exclude EXCLUDE]
 ```
 
 ### Options
 
 - `-h, --help`: Show the help message and exit.
-- `-p ROOT, --root ROOT`: Specify the root folder where the images are stored. Default is `/data/pictures/`.
-- `-w WEBROOT, --webroot WEBROOT`: Specify the web root URL where the images will be accessible. Default is `https://pictures.example.com/`.
+- `-p ROOT, --root ROOT`: Specify the root folder where the images are stored. This option is required.
+- `-w WEBROOT, --webroot WEBROOT`: Specify the web root URL where the images will be accessible. This option is required.
+- `-t TITLE, --title TITLE`: Specify the title for the root directory HTML file. This option is required.
 - `-i ICON, --foldericon ICON`: Specify the URL for the folder icon. Default is `https://www.svgrepo.com/show/400249/folder.svg`.
 - `-r, --regenerate`: Regenerate thumbnails even if they already exist.
 - `-n, --non-interactive`: Disable interactive mode, which is useful for automated workflows.
 - `--fancyfolders`: Use fancy folders instead of the default Apache directory listing.
 - `-l LICENSE, --license LICENSE`: Specify a license for the content. Options are `cc-zero`, `cc-by`, `cc-by-sa`, `cc-by-nd`, `cc-by-nc`, `cc-by-nc-sa`, and `cc-by-nc-nd`.
-- `-a AUTHOR, --author AUTHOR`: Specify the author of the content.
-- `-t TITLE, --title TITLE`: Specify the title for the root directory HTML file.
+- `-a AUTHOR, --author AUTHOR`: Specify the author of the content. Default is "Author".
+- `-e EXTENSION, --extension EXTENSION`: Specify file extensions to include. This option can be used multiple times.
 - `--theme THEME`: Specify the path to a custom CSS theme file. Default is `themes/default.css`.
+- `--ignore-other-files`: Ignore files other than those specified by the included extensions.
+- `--exclude EXCLUDE`: Exclude folders from processing. Only provide the basename of the folders you want to exclude. This option can be used multiple times.
 
 ### Example
 
 To generate HTML files and thumbnails for a directory `/data/pictures` and host them on `https://pictures.example.com`, run:
 
 ```sh
-./generate_html.py -p /data/pictures -w https://pictures.example.com
+./generate_html.py -p /data/pictures -w https://pictures.example.com -t "My Photo Gallery"
 ```
 
 To regenerate thumbnails and run in non-interactive mode:
 
 ```sh
-./generate_html.py -p /data/pictures -w https://pictures.example.com -r -n
+./generate_html.py -p /data/pictures -w https://pictures.example.com -t "My Photo Gallery" -r -n
 ```
 
 To include a license, author, and custom title:
 
 ```sh
-./generate_html.py -p /data/pictures -w https://pictures.example.com -l cc-by -a "John Doe" -t "My Photo Gallery"
+./generate_html.py -p /data/pictures -w https://pictures.example.com -t "My Photo Gallery" -l cc-by -a "John Doe"
 ```
 
 To specify a custom CSS theme:
 
 ```sh
-./generate_html.py -p /data/pictures -w https://pictures.example.com --theme custom_theme.css
+./generate_html.py -p /data/pictures -w https://pictures.example.com -t "My Photo Gallery" --theme custom_theme.css
+```
+
+To exclude specific folders and specify file extensions:
+
+```sh
+./generate_html.py -p /data/pictures -w https://pictures.example.com -t "My Photo Gallery" --exclude Archives --exclude Temp -e .jpg -e .jpeg -e .png
 ```
 
 ## Notes
@@ -82,6 +94,7 @@ To specify a custom CSS theme:
 - The root and webroot paths must point to the same folder, one on the filesystem and one on the webserver. Use absolute paths.
 - Ensure that ImageMagick is installed and accessible in your system for thumbnail generation.
 - The script generates the preview thumbnails in a `.thumbnails` subdirectory within the root folder.
+- The `.lock` file prevents multiple instances of the script from running simultaneously. Make sure to remove it if the script terminates unexpectedly.
 
 ## License
 
