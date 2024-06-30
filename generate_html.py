@@ -189,9 +189,9 @@ def main():
     args = parser.parse_args()
     # fmt: on
 
-    if args.extensions == []:
+    if not args.extensions:
         args.extensions = imgext
-    if args.exclude == []:
+    if not args.exclude:
         args.exclude = notlist
     if not args.root.endswith("/"):
         args.root += "/"
