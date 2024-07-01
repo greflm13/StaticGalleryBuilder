@@ -46,7 +46,6 @@ The script supports several command-line options to customize its behavior. Belo
 - `-p ROOT, --root-directory ROOT`: Specify the root folder where the images are stored. This option is required.
 - `-w WEBROOT, --web-root-url WEBROOT`: Specify the web root URL where the images will be accessible. This option is required.
 - `-t TITLE, --site-title TITLE`: Specify the title for the root directory HTML file. This option is required.
-- `-i ICON, --folder-icon-url ICON`: Specify the URL for the folder icon. Default is `https://www.svgrepo.com/show/400249/folder.svg`.
 - `-r, --regenerate-thumbnails`: Regenerate thumbnails even if they already exist.
 - `-n, --non-interactive-mode`: Disable interactive mode, which is useful for automated workflows.
 - `--use-fancy-folders`: Use fancy folders instead of the default Apache directory listing.

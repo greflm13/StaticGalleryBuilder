@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap");
+
 .navbar {
   font-weight: bold;
   color: #fff;
@@ -5,7 +7,7 @@
 }
 
 .navbar li a {
-  font-weight: bold;
+  font-weight: 700;
   color: #fff;
 }
 
@@ -17,8 +19,35 @@
 .license {
   color: #000;
   background-color: #ddd;
+  font-weight: 500;
+}
+
+.license a {
+  color: #0055ff;
+  text-decoration: none;
+}
+
+.folders img {
+  content: url(https://www.svgrepo.com/show/474852/folder.svg);
+}
+
+.folders a {
+  font-weight: 700;
+  color: #0055ff;
+  text-decoration: none;
 }
 
 body {
+  color: #000;
   background-color: #fff;
+  font-family: "Ubuntu", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+body a {
+  font-weight: 400;
+  color: #0055ff;
+  text-decoration: none;
 }

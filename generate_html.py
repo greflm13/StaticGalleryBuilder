@@ -14,13 +14,12 @@ import cclicense
 
 # fmt: off
 # Constants
-DEFAULT_FOLDER_ICON = "https://www.svgrepo.com/show/400249/folder.svg"
 STATIC_FILES_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), "files")
 FAVICON_PATH = ".static/favicon.ico"
 GLOBAL_CSS_PATH = ".static/global.css"
 DEFAULT_THEME_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), "themes", "default.css")
 DEFAULT_AUTHOR = "Author"
-VERSION = "1.4"
+VERSION = "1.5"
 RAW_EXTENSIONS = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
 IMG_EXTENSIONS = [".jpg", ".jpeg"]
 EXCLUDES = [".lock", "index.html", ".thumbnails", ".static"]
@@ -31,11 +30,11 @@ NOT_LIST = ["Galleries", "Archives"]
 env = Environment(loader=FileSystemLoader(os.path.join(os.path.abspath(os.path.dirname(__file__)), "templates")))
 thumbnails: List[Tuple[str, str]] = []
 
+
 class Args:
     root_directory: str
     web_root_url: str
     site_title: str
-    folder_icon_url: str
     regenerate_thumbnails: bool
     non_interactive_mode: bool
     use_fancy_folders: bool
@@ -52,7 +51,6 @@ def parse_arguments() -> Args:
     parser.add_argument("-p", "--root-directory", help="Root directory containing the images.", required=True, type=str, dest="root_directory")
     parser.add_argument("-w", "--web-root-url", help="Base URL of the web root for the image hosting site.", required=True, type=str, dest="web_root_url")
     parser.add_argument("-t", "--site-title", help="Title of the image hosting site.", required=True, type=str, dest="site_title")
-    parser.add_argument("-i", "--folder-icon-url", help="URL of the icon used for folders.", default=DEFAULT_FOLDER_ICON, type=str, metavar="ICON", dest="folder_icon_url")
     parser.add_argument("-r", "--regenerate-thumbnails", help="Regenerate thumbnails even if they already exist.", action="store_true", default=False, dest="regenerate_thumbnails")
     parser.add_argument("-n", "--non-interactive-mode", help="Run in non-interactive mode, disabling progress bars.", action="store_true", default=False, dest="non_interactive_mode")
     parser.add_argument("-l", "--license-type", help="Specify the license type for the images.", choices=["cc-zero", "cc-by", "cc-by-sa", "cc-by-nd", "cc-by-nc", "cc-by-nc-sa", "cc-by-nc-nd"], default=None, dest="license_type")
@@ -69,7 +67,6 @@ def parse_arguments() -> Args:
     args.root_directory = parsed_args.root_directory
     args.web_root_url = parsed_args.web_root_url
     args.site_title = parsed_args.site_title
-    args.folder_icon_url = parsed_args.folder_icon_url
     args.regenerate_thumbnails = parsed_args.regenerate_thumbnails
     args.non_interactive_mode = parsed_args.non_interactive_mode
     args.use_fancy_folders = parsed_args.use_fancy_folders
@@ -113,12 +110,17 @@ def generate_thumbnail(arguments: Tuple[str, str]) -> None:
 
 def get_total_folders(folder: str) -> None:
     global total
+
+    total += 1
+
+    pbar.desc = f"Traversing filesystem - {folder}"
+    pbar.update(1)
+
     items = os.listdir(folder)
     items.sort()
     for item in items:
         if item not in EXCLUDES:
             if os.path.isdir(os.path.join(folder, item)):
-                total += 1
                 if item not in args.exclude_folders:
                     get_total_folders(os.path.join(folder, item))
 
@@ -191,7 +193,6 @@ def list_folder(folder: str, title: str) -> None:
                 root=args.web_root_url,
                 parent=parent,
                 header=header,
-                foldericon=args.folder_icon_url,
                 license=license_info,
                 subdirectories=subfolders,
                 images=image_chunks,
@@ -234,7 +235,7 @@ def main() -> None:
             pbar.update(0)
             pbar.close()
 
-            pbar = tqdm(total=total + 1, desc="Generating HTML files", unit="files", ascii=True, dynamic_ncols=True)
+            pbar = tqdm(total=total, desc="Generating HTML files", unit="files", ascii=True, dynamic_ncols=True)
             list_folder(args.root_directory, args.site_title)
             pbar.desc = "Generating html files"
             pbar.update(0)
