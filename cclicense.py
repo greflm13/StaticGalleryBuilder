@@ -1,3 +1,11 @@
+class License:
+    project: str
+    author: str
+    type: str
+    url: str
+    pics: list[str]
+
+
 def licenseswitch(cclicense: str) -> str:
     switch = {
         "cc-zero": """
