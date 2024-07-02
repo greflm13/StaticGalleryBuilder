@@ -22,14 +22,14 @@
 - `numpy` library
 - `tqdm` library
 - `Jinja2` library
-- `ImageMagick`
+- `Pillow` library
 
 ## Installation
 
 Install the required libraries using pip:
 
 ```sh
-pip install numpy tqdm Jinja2
+pip install numpy tqdm Jinja2 Pillow
 ```
 
 ## Usage
@@ -91,7 +91,6 @@ To exclude specific folders and specify file extensions:
 ## Notes
 
 - The root and web root paths must point to the same folder, one on the filesystem and one on the web server. Use absolute paths.
-- Ensure that ImageMagick is installed and accessible in your system for thumbnail generation.
 - The script generates the preview thumbnails in a `.thumbnails` subdirectory within the root folder.
 - The `.lock` file prevents multiple instances of the script from running simultaneously. Make sure to remove it if the script terminates unexpectedly.
 

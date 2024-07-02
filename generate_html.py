@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 from jinja2 import Environment, FileSystemLoader
 from tqdm.auto import tqdm
+from PIL import Image
 
 import cclicense
 
@@ -19,7 +20,7 @@ FAVICON_PATH = ".static/favicon.ico"
 GLOBAL_CSS_PATH = ".static/global.css"
 DEFAULT_THEME_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), "themes", "default.css")
 DEFAULT_AUTHOR = "Author"
-VERSION = "1.5"
+VERSION = "1.6"
 RAW_EXTENSIONS = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
 IMG_EXTENSIONS = [".jpg", ".jpeg"]
 EXCLUDES = [".lock", "index.html", ".thumbnails", ".static"]
@@ -102,10 +103,13 @@ def generate_thumbnail(arguments: Tuple[str, str]) -> None:
     folder, item = arguments
     path = os.path.join(args.root_directory, ".thumbnails", folder.removeprefix(args.root_directory), os.path.splitext(item)[0]) + ".jpg"
     if not os.path.exists(path) or args.regenerate_thumbnails:
-        if shutil.which("magick"):
-            os.system(f'magick "{os.path.join(folder, item)}" -quality 75% -define jpeg:size=1024x1024 -define jpeg:extent=100kb -thumbnail 512x512 -auto-orient "{path}"')
-        else:
-            os.system(f'convert "{os.path.join(folder, item)}" -quality 75% -define jpeg:size=1024x1024 -define jpeg:extent=100kb -thumbnail 512x512 -auto-orient "{path}"')
+        try:
+            with Image.open(os.path.join(folder, item)) as img:
+                img.thumbnail((512, 512))
+                img.save(path, "JPEG", quality=75, optimize=True)
+        except OSError:
+            print(f"Failed to generate thumbnail for {os.path.join(folder, item)}")
+            pass
 
 
 def get_total_folders(folder: str) -> None:
