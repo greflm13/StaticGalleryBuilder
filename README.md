@@ -23,22 +23,21 @@
 - `tqdm` library
 - `Jinja2` library
 - `Pillow` library
+- `rich_argparse` library
 
 ## Installation
 
 Install the required libraries using pip:
 
 ```sh
-pip install numpy tqdm Jinja2 Pillow
+pip install numpy tqdm Jinja2 Pillow rich-argparse
 ```
 
 ## Usage
 
 The script supports several command-line options to customize its behavior. Below is the list of available options:
 
-```sh
-./generate_html.py [-h] -p ROOT -w WEBROOT -t TITLE [-i ICON] [-r] [-n] [--use-fancy-folders] [-l LICENSE] [-a AUTHOR] [-e EXTENSION] [--theme-path THEME] [--ignore-other-files] [--exclude-folders EXCLUDE]
-```
+![help-preview](help.svg)
 
 ### Options
 

@@ -10,6 +10,7 @@ import numpy as np
 from jinja2 import Environment, FileSystemLoader
 from tqdm.auto import tqdm
 from PIL import Image
+from rich_argparse import RichHelpFormatter
 
 import cclicense
 
@@ -20,7 +21,7 @@ FAVICON_PATH = ".static/favicon.ico"
 GLOBAL_CSS_PATH = ".static/global.css"
 DEFAULT_THEME_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), "themes", "default.css")
 DEFAULT_AUTHOR = "Author"
-VERSION = "1.6"
+VERSION = "1.6.1"
 RAW_EXTENSIONS = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
 IMG_EXTENSIONS = [".jpg", ".jpeg"]
 EXCLUDES = [".lock", "index.html", ".thumbnails", ".static"]
@@ -48,7 +49,7 @@ class Args:
 
 
 def parse_arguments() -> Args:
-    parser = argparse.ArgumentParser(description="Generate HTML files for a static image hosting website.")
+    parser = argparse.ArgumentParser(description="Generate HTML files for a static image hosting website.", formatter_class=RichHelpFormatter)
     parser.add_argument("-p", "--root-directory", help="Root directory containing the images.", required=True, type=str, dest="root_directory")
     parser.add_argument("-w", "--web-root-url", help="Base URL of the web root for the image hosting site.", required=True, type=str, dest="web_root_url")
     parser.add_argument("-t", "--site-title", help="Title of the image hosting site.", required=True, type=str, dest="site_title")
@@ -88,8 +89,6 @@ def init_globals(args: Args) -> None:
         args.exclude_folders = NOT_LIST
     args.root_directory = args.root_directory.rstrip("/") + "/"
     args.web_root_url = args.web_root_url.rstrip("/") + "/"
-    if not os.path.exists(os.path.join(args.root_directory, ".thumbnails")):
-        os.mkdir(os.path.join(args.root_directory, ".thumbnails"))
 
     RAW_EXTENSIONS = [ext.lower() for ext in RAW_EXTENSIONS] + [ext.upper() for ext in RAW_EXTENSIONS]
 
@@ -221,6 +220,8 @@ def main() -> None:
         exit()
 
     try:
+        if not os.path.exists(os.path.join(args.root_directory, ".thumbnails")):
+            os.mkdir(os.path.join(args.root_directory, ".thumbnails"))
         Path(os.path.join(args.root_directory, ".lock")).touch()
 
         print("Copying static files...")
