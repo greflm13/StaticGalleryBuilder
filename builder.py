@@ -48,72 +48,21 @@ class Args:
     exclude_folders: List[str]
 
 
+# fmt: off
 def parse_arguments() -> Args:
-    parser = argparse.ArgumentParser(
-        description="Generate HTML files for a static image hosting website.", formatter_class=RichHelpFormatter
-    )
-    parser.add_argument(
-        "-p", "--root-directory", help="Root directory containing the images.", required=True, type=str, dest="root_directory"
-    )
-    parser.add_argument(
-        "-w", "--web-root-url", help="Base URL of the web root for the image hosting site.", required=True, type=str, dest="web_root_url"
-    )
+    parser = argparse.ArgumentParser(description="Generate HTML files for a static image hosting website.", formatter_class=RichHelpFormatter)
+    parser.add_argument("-p", "--root-directory", help="Root directory containing the images.", required=True, type=str, dest="root_directory")
+    parser.add_argument("-w", "--web-root-url", help="Base URL of the web root for the image hosting site.", required=True, type=str, dest="web_root_url")
     parser.add_argument("-t", "--site-title", help="Title of the image hosting site.", required=True, type=str, dest="site_title")
-    parser.add_argument(
-        "-r",
-        "--regenerate-thumbnails",
-        help="Regenerate thumbnails even if they already exist.",
-        action="store_true",
-        default=False,
-        dest="regenerate_thumbnails",
-    )
-    parser.add_argument(
-        "-n",
-        "--non-interactive-mode",
-        help="Run in non-interactive mode, disabling progress bars.",
-        action="store_true",
-        default=False,
-        dest="non_interactive_mode",
-    )
-    parser.add_argument(
-        "-l",
-        "--license-type",
-        help="Specify the license type for the images.",
-        choices=["cc-zero", "cc-by", "cc-by-sa", "cc-by-nd", "cc-by-nc", "cc-by-nc-sa", "cc-by-nc-nd"],
-        default=None,
-        dest="license_type",
-    )
-    parser.add_argument(
-        "-a", "--author-name", help="Name of the author of the images.", default=DEFAULT_AUTHOR, type=str, dest="author_name"
-    )
-    parser.add_argument(
-        "-e",
-        "--file-extensions",
-        help="File extensions to include (can be specified multiple times).",
-        action="append",
-        dest="file_extensions",
-    )
+    parser.add_argument("-r", "--regenerate-thumbnails", help="Regenerate thumbnails even if they already exist.", action="store_true", default=False, dest="regenerate_thumbnails")
+    parser.add_argument("-n", "--non-interactive-mode", help="Run in non-interactive mode, disabling progress bars.", action="store_true", default=False, dest="non_interactive_mode")
+    parser.add_argument("-l", "--license-type", help="Specify the license type for the images.", choices=["cc-zero", "cc-by", "cc-by-sa", "cc-by-nd", "cc-by-nc", "cc-by-nc-sa", "cc-by-nc-nd"], default=None, dest="license_type")
+    parser.add_argument("-a", "--author-name", help="Name of the author of the images.", default=DEFAULT_AUTHOR, type=str, dest="author_name")
+    parser.add_argument("-e", "--file-extensions", help="File extensions to include (can be specified multiple times).", action="append", dest="file_extensions")
     parser.add_argument("--theme-path", help="Path to the CSS theme file.", default=DEFAULT_THEME_PATH, type=str, dest="theme_path")
-    parser.add_argument(
-        "--use-fancy-folders",
-        help="Enable fancy folder view instead of the default Apache directory listing.",
-        action="store_true",
-        default=False,
-        dest="use_fancy_folders",
-    )
-    parser.add_argument(
-        "--ignore-other-files",
-        help="Ignore files that do not match the specified extensions.",
-        action="store_true",
-        default=False,
-        dest="ignore_other_files",
-    )
-    parser.add_argument(
-        "--exclude-folder",
-        help="Folders to exclude from processing (can be specified multiple times).",
-        action="append",
-        dest="exclude_folders",
-    )
+    parser.add_argument("--use-fancy-folders", help="Enable fancy folder view instead of the default Apache directory listing.", action="store_true", default=False, dest="use_fancy_folders")
+    parser.add_argument("--ignore-other-files", help="Ignore files that do not match the specified extensions.", action="store_true", default=False, dest="ignore_other_files")
+    parser.add_argument("--exclude-folder", help="Folders to exclude from processing (can be specified multiple times).", action="append", dest="exclude_folders")
     parser.add_argument("--version", action="version", version=f"%(prog)s {VERSION}")
 
     parsed_args = parser.parse_args()
@@ -131,6 +80,7 @@ def parse_arguments() -> Args:
     _args.ignore_other_files = parsed_args.ignore_other_files
     _args.exclude_folders = parsed_args.exclude_folders
     return _args
+# fmt: on
 
 
 def init_globals(_args: Args) -> Args:
