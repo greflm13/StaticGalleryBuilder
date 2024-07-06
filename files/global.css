@@ -10,6 +10,45 @@ body {
   height: 100%;
 }
 
+.tooltip {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 300px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 100;
+  top: 40px;
+  left: 50%;
+  transform: translate(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
 .folders {
   text-align: center;
   display: -ms-flexbox;
@@ -150,7 +189,6 @@ figure {
   list-style-type: none;
   margin: 0;
   padding: 0;
-  overflow: hidden;
   position: fixed;
   top: 0;
   width: 100%;
@@ -167,7 +205,7 @@ figure {
   text-decoration: none;
 }
 
-.navbar li span {
+.navbar li .header {
   display: block;
   text-align: center;
   padding: 14px 16px;

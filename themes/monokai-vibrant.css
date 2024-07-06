@@ -38,6 +38,10 @@
   text-decoration: none;
 }
 
+.tooltiptext {
+  font-weight: 600;
+}
+
 body {
   color: #f6f6f6;
   background-color: #16171d;

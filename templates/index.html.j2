@@ -19,7 +19,15 @@
       {%- if parent %}
       <li><a href="{{ parent }}">Parent Directory</a></li>
       {%- endif %}
-      <li style="position: absolute; left: 50%; transform: translateX(-50%);"><span>{{ header }}</span></li>
+      <li class="tooltip"><span class="header">{{ header }}</span>
+        {%- if info -%}
+        <span class="tooltiptext">
+          {%- for infoline in info -%}
+          {{ infoline }}<br />
+          {%- endfor -%}
+        </span>
+        {%- endif -%}
+      </li>
       {%- if license %}
       <li style="float:right"><a href="{{ license.url }}" target="_blank">License</a></li>
       {%- endif %}

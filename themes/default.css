@@ -37,6 +37,10 @@
   text-decoration: none;
 }
 
+.tooltiptext {
+  font-weight: 400;
+}
+
 body {
   color: #000;
   background-color: #fff;

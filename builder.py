@@ -31,6 +31,7 @@ NOT_LIST = ["Galleries", "Archives"]
 # Initialize Jinja2 environment
 env = Environment(loader=FileSystemLoader(os.path.join(os.path.abspath(os.path.dirname(__file__)), "templates")))
 thumbnails: List[Tuple[str, str]] = []
+info: Dict[str, str] = {}
 
 
 class Args:
@@ -97,9 +98,9 @@ def init_globals(_args: Args) -> Args:
     return _args
 
 
-def copy_static_files(args: Args) -> None:
-    shutil.copytree(STATIC_FILES_DIR, os.path.join(args.root_directory, ".static"), dirs_exist_ok=True)
-    shutil.copyfile(args.theme_path, os.path.join(args.root_directory, ".static", "theme.css"))
+def copy_static_files(_args: Args) -> None:
+    shutil.copytree(STATIC_FILES_DIR, os.path.join(_args.root_directory, ".static"), dirs_exist_ok=True)
+    shutil.copyfile(_args.theme_path, os.path.join(_args.root_directory, ".static", "theme.css"))
 
 
 def generate_thumbnail(arguments: Tuple[str, str]) -> None:
@@ -171,12 +172,17 @@ def list_folder(folder: str, title: str) -> None:
                             else:
                                 image["raw"] = f"{args.web_root_url}{baseurl}{url}"
                     images.append(image)
+                if item == "info":
+                    with open(os.path.join(folder, item), encoding="utf-8") as f:
+                        _info = f.read()
+                        info[urllib.parse.quote(folder)] = _info
     if not args.non_interactive_mode:
         pbar.desc = f"Generating HTML files - {folder}"
         pbar.update(0)
     if images or (args.use_fancy_folders and not contains_files) or (args.use_fancy_folders and args.ignore_other_files):
         image_chunks = np.array_split(images, 8) if images else []
         with open(os.path.join(folder, "index.html"), "w", encoding="utf-8") as f:
+            _info: List[str] = None
             header = os.path.basename(folder) or title
             parent = (
                 None if not foldername else f"{args.web_root_url}{urllib.parse.quote(foldername.removesuffix(folder.split('/')[-1] + '/'))}"
@@ -192,6 +198,12 @@ def list_folder(folder: str, title: str) -> None:
                 if args.license_type
                 else None
             )
+            if urllib.parse.quote(folder) in info:
+                _info = []
+                _infolst = info[urllib.parse.quote(folder)].split("\n")
+                for i in _infolst:
+                    if len(i) > 1:
+                        _info.append(i)
             html = env.get_template("index.html.j2")
             content = html.render(
                 title=title,
@@ -204,6 +216,7 @@ def list_folder(folder: str, title: str) -> None:
                 license=license_info,
                 subdirectories=subfolders,
                 images=image_chunks,
+                info=_info,
             )
             f.write(content)
     else:

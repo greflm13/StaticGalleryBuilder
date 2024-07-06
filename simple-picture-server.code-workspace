@@ -58,5 +58,42 @@
             "vscode.css-language-features",
             "waderyan.gitblame",
         ]
+    },
+    "launch": {
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "name": "Python Debugger: Current File",
+                "type": "debugpy",
+                "request": "launch",
+                "program": "${workspaceFolder}/builder.py",
+                "console": "integratedTerminal",
+                "args": [
+                    "-p",
+                    "/mnt/nfs/pictures",
+                    "-w",
+                    "https://pictures.sorogon.eu",
+                    "-t",
+                    "Pictures",
+                    "--theme",
+                    "themes/kjoe.css",
+                    "--use-fancy-folders",
+                    "-n"
+                ],
+                "postDebugTask": "Delete Lockfile"
+            }
+        ]
+    },
+    "tasks": {
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "label": "Delete Lockfile",
+                "command": "rm -f /mnt/nfs/pictures/.lock",
+                "type": "shell",
+                "problemMatcher": [],
+                "isBackground": true
+            }
+        ]
     }
 }
