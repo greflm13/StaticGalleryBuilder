@@ -15,6 +15,7 @@
 - **Folder Exclusion:** Ability to exclude specific folders from processing.
 - **Selective File Extensions:** Ability to specify which file extensions to include in the gallery.
 - **Ignore Other Files:** Option to ignore files other than those specified by the included extensions.
+- **Info Tooltips:** Display additional information as tooltips for images if an `info` file is present in the directory.
 
 ## Requirements
 
@@ -43,48 +44,49 @@ The script supports several command-line options to customize its behavior. Belo
 
 - `-h, --help`: Show the help message and exit.
 - `-p ROOT, --root-directory ROOT`: Specify the root folder where the images are stored. This option is required.
-- `-w WEBROOT, --web-root-url WEBROOT`: Specify the web root URL where the images will be accessible. This option is required.
-- `-t TITLE, --site-title TITLE`: Specify the title for the root directory HTML file. This option is required.
+- `-w URL, --web-root-url URL`: Specify the base URL for the web root of the image hosting site. This option is required.
+- `-t TITLE, --site-title TITLE`: Specify the title of the image hosting site. This option is required.
 - `-r, --regenerate-thumbnails`: Regenerate thumbnails even if they already exist.
-- `-n, --non-interactive-mode`: Disable interactive mode, which is useful for automated workflows.
-- `--use-fancy-folders`: Use fancy folders instead of the default Apache directory listing.
-- `-l LICENSE, --license-type LICENSE`: Specify a license for the content. Options are `cc-zero`, `cc-by`, `cc-by-sa`, `cc-by-nd`, `cc-by-nc`, `cc-by-nc-sa`, and `cc-by-nc-nd`.
-- `-a AUTHOR, --author-name AUTHOR`: Specify the author of the content. Default is "Author".
-- `-e EXTENSION, --file-extensions EXTENSION`: Specify file extensions to include. This option can be used multiple times.
-- `--theme-path THEME`: Specify the path to a custom CSS theme file. Default is `themes/default.css`.
-- `--ignore-other-files`: Ignore files other than those specified by the included extensions.
-- `--exclude-folder EXCLUDE`: Exclude folders from processing. Only provide the basename of the folders you want to exclude. This option can be used multiple times.
+- `-n, --non-interactive-mode`: Run in non-interactive mode, disabling progress bars.
+- `-l LICENSE, --license-type LICENSE`: Specify the license type for the images. Choices are `cc-zero`, `cc-by`, `cc-by-sa`, `cc-by-nd`, `cc-by-nc`, `cc-by-nc-sa`, and `cc-by-nc-nd`.
+- `-a AUTHOR, --author-name AUTHOR`: Specify the name of the author of the images. Default is "Author".
+- `-e EXTENSION, --file-extensions EXTENSION`: Specify the file extensions to include. This option can be specified multiple times.
+- `--theme-path PATH`: Specify the path to the CSS theme file. Default is the provided default theme.
+- `--use-fancy-folders`: Enable fancy folder view instead of the default Apache directory listing.
+- `--ignore-other-files`: Ignore files that do not match the specified extensions.
+- `--exclude-folder FOLDER`: Specify folders to exclude from processing. This option can be specified multiple times.
+- `--version`: Show the version number of the script and exit.
 
-### Example
+### Examples
 
 To generate HTML files and thumbnails for a directory `/data/pictures` and host them on `https://pictures.example.com`, run:
 
 ```sh
-./generate_html.py -p /data/pictures -w https://pictures.example.com -t "My Photo Gallery"
+./builder.py -p /data/pictures -w https://pictures.example.com -t "My Photo Gallery"
 ```
 
 To regenerate thumbnails and run in non-interactive mode:
 
 ```sh
-./generate_html.py -p /data/pictures -w https://pictures.example.com -t "My Photo Gallery" -r -n
+./builder.py -p /data/pictures -w https://pictures.example.com -t "My Photo Gallery" -r -n
 ```
 
 To include a license and author:
 
 ```sh
-./generate_html.py -p /data/pictures -w https://pictures.example.com -t "My Photo Gallery" -l cc-by -a "John Doe"
+./builder.py -p /data/pictures -w https://pictures.example.com -t "My Photo Gallery" -l cc-by -a "John Doe"
 ```
 
 To specify a custom CSS theme:
 
 ```sh
-./generate_html.py -p /data/pictures -w https://pictures.example.com -t "My Photo Gallery" --theme-path custom_theme.css
+./builder.py -p /data/pictures -w https://pictures.example.com -t "My Photo Gallery" --theme-path custom_theme.css
 ```
 
 To exclude specific folders and specify file extensions:
 
 ```sh
-./generate_html.py -p /data/pictures -w https://pictures.example.com -t "My Photo Gallery" --exclude-folder Archives --exclude-folders Temp -e .jpg -e .jpeg -e .png
+./builder.py -p /data/pictures -w https://pictures.example.com -t "My Photo Gallery" --exclude-folder Archives --exclude-folder Temp -e .jpg -e .jpeg -e .png
 ```
 
 ## Notes
