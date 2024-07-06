@@ -130,11 +130,20 @@ figure {
   display: block;
 }
 
+.attribution {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  font-size: xx-small;
+  padding: 6px;
+}
+
 .license {
   position: fixed;
   bottom: 0;
   width: 100%;
-  padding: 12px;
+  padding: 6px;
+  min-height: calc(6.75pt + 12px);
 }
 
 .navbar {
