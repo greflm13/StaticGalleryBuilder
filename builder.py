@@ -193,7 +193,6 @@ def list_folder(folder: str, title: str) -> None:
         if not args.non_interactive_mode:
             imgpbar.update(1)
             pbar.update(0)
-    imgpbar.close()
     if not contains_files and not args.use_fancy_folders:
         return
     if images or (args.use_fancy_folders and not contains_files) or (args.use_fancy_folders and args.ignore_other_files):
