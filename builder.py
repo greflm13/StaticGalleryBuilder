@@ -143,11 +143,8 @@ def list_folder(folder: str, title: str) -> None:
     if not args.non_interactive_mode:
         pbar.desc = f"Generating HTML files - {folder}"
         pbar.update(0)
-    beforelist = time.time()
     items = os.listdir(folder)
     items.sort()
-    listtime = time.time() - beforelist
-    print(f"Listing folder {folder} took {listtime:.2f} seconds")
     images: List[Dict[str, Any]] = []
     subfolders: List[Dict[str, str]] = []
     foldername = folder.removeprefix(args.root_directory)
@@ -156,6 +153,7 @@ def list_folder(folder: str, title: str) -> None:
     if not os.path.exists(os.path.join(args.root_directory, ".thumbnails", foldername)):
         os.mkdir(os.path.join(args.root_directory, ".thumbnails", foldername))
     contains_files = False
+    imgpbar = tqdm(total=len(items), desc=f"Getting image info - {folder}", unit="files", ascii=True, dynamic_ncols=True)
     for item in items:
         if item not in EXCLUDES:
             if os.path.isdir(os.path.join(folder, item)):
@@ -172,7 +170,6 @@ def list_folder(folder: str, title: str) -> None:
                 extsplit = os.path.splitext(item)
                 contains_files = True
                 if extsplit[1].lower() in args.file_extensions:
-                    beforeimage = time.time()
                     with Image.open(os.path.join(folder, item)) as img:
                         width, height = img.size
                     image = {
@@ -192,12 +189,14 @@ def list_folder(folder: str, title: str) -> None:
                             else:
                                 image["raw"] = f"{args.web_root_url}{baseurl}{url}"
                     images.append(image)
-                    imagetime = time.time() - beforeimage
-                    print(f"Getting infos for {os.path.join(folder, item)} took {imagetime:.2f} seconds")
                 if item == "info":
                     with open(os.path.join(folder, item), encoding="utf-8") as f:
                         _info = f.read()
                         info[urllib.parse.quote(folder)] = _info
+        imgpbar.update(1)
+    imgpbar.close()
+    if not contains_files and not args.use_fancy_folders:
+        return
     if not args.non_interactive_mode:
         pbar.desc = f"Generating HTML files - {folder}"
         pbar.update(0)
@@ -280,7 +279,7 @@ def main() -> None:
             pbar.update(0)
             pbar.close()
 
-            pbar = tqdm(total=total, desc="Generating HTML files", unit="files", ascii=True, dynamic_ncols=True)
+            pbar = tqdm(total=total, desc="Generating HTML files", unit="folders", ascii=True, dynamic_ncols=True)
             list_folder(args.root_directory, args.site_title)
             pbar.desc = "Generating html files"
             pbar.update(0)
