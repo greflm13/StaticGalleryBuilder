@@ -26,7 +26,7 @@ DEFAULT_AUTHOR = "Author"
 VERSION = "1.8.0"
 RAW_EXTENSIONS = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
 IMG_EXTENSIONS = [".jpg", ".jpeg"]
-EXCLUDES = [".lock", "index.html", ".thumbnails", ".static"]
+EXCLUDES = [".lock", "index.html", "sizelist.json", ".thumbnails", ".static"]
 NOT_LIST = ["*/Galleries/*", "Archives"]
 # fmt: on
 
@@ -141,8 +141,11 @@ def get_total_folders(folder: str, _total: int = 0) -> int:
 
 def list_folder(folder: str, title: str) -> None:
     sizelist: Dict[Dict[str, int], Dict[str, int]] = {}
-    with open(os.path.join(folder, "sizelist.json"), "w+", encoding="utf-8") as sizelistfile:
-        sizelist = json.loads(sizelistfile.read())
+    with open(os.path.join(folder, "sizelist.json"), "r+", encoding="utf-8") as sizelistfile:
+        try:
+            sizelist = json.loads(sizelistfile.read())
+        except json.decoder.JSONDecodeError:
+            sizelist = {}
         items = os.listdir(folder)
         items.sort()
         images: List[Dict[str, Any]] = []
@@ -172,11 +175,9 @@ def list_folder(folder: str, title: str) -> None:
                     contains_files = True
                     if extsplit[1].lower() in args.file_extensions:
                         if not sizelist.get(item):
-                            print("fuck")
                             with Image.open(os.path.join(folder, item)) as img:
                                 width, height = img.size
                             sizelist[item] = {"width": width, "height": height}
-                        print(sizelist)
 
                         image = {
                             "url": f"{args.web_root_url}{baseurl}{urllib.parse.quote(item)}",
@@ -202,7 +203,9 @@ def list_folder(folder: str, title: str) -> None:
             if not args.non_interactive_mode:
                 imgpbar.update(1)
                 pbar.update(0)
+        sizelistfile.seek(0)
         sizelistfile.write(json.dumps(sizelist, indent=4))
+        sizelistfile.truncate()
         if not contains_files and not args.use_fancy_folders:
             return
         if images or (args.use_fancy_folders and not contains_files) or (args.use_fancy_folders and args.ignore_other_files):

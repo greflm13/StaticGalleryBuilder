@@ -63,7 +63,7 @@
         "version": "0.2.0",
         "configurations": [
             {
-                "name": "Python Debugger: Current File",
+                "name": "Testfolder",
                 "type": "debugpy",
                 "request": "launch",
                 "program": "${workspaceFolder}/builder.py",
@@ -81,6 +81,26 @@
                     "-n"
                 ],
                 "postDebugTask": "Delete Lockfile"
+            },
+            {
+                "name": "woek",
+                "type": "debugpy",
+                "request": "launch",
+                "program": "${workspaceFolder}/builder.py",
+                "console": "integratedTerminal",
+                "args": [
+                    "-p",
+                    "/home/user/woek/Pictures",
+                    "-w",
+                    "file:///home/user/woek/Pictures",
+                    "-t",
+                    "Pictures",
+                    "--theme",
+                    "themes/kjoe.css",
+                    "--use-fancy-folders",
+                    "-n"
+                ],
+                "postDebugTask": "Delete Lockfile 2"
             }
         ]
     },
@@ -90,6 +110,13 @@
             {
                 "label": "Delete Lockfile",
                 "command": "rm -f ${workspaceFolder}/test/.lock",
+                "type": "shell",
+                "problemMatcher": [],
+                "isBackground": true
+            },
+            {
+                "label": "Delete Lockfile 2",
+                "command": "rm -f /home/user/woek/Pictures/.lock",
                 "type": "shell",
                 "problemMatcher": [],
                 "isBackground": true
