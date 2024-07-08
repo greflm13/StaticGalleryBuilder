@@ -168,11 +168,14 @@ def list_folder(folder: str, title: str) -> None:
                 extsplit = os.path.splitext(item)
                 contains_files = True
                 if extsplit[1].lower() in args.file_extensions:
-                    image = {
-                        "url": f"{args.web_root_url}{baseurl}{urllib.parse.quote(item)}",
-                        "thumbnail": f"{args.web_root_url}.thumbnails/{baseurl}{urllib.parse.quote(extsplit[0])}.jpg",
-                        "name": item,
-                    }
+                    with Image.open(os.path.join(folder, item)) as img:
+                        image = {
+                            "url": f"{args.web_root_url}{baseurl}{urllib.parse.quote(item)}",
+                            "thumbnail": f"{args.web_root_url}.thumbnails/{baseurl}{urllib.parse.quote(extsplit[0])}.jpg",
+                            "name": item,
+                            "width": img.width,
+                            "height": img.height,
+                        }
                     if not os.path.exists(os.path.join(args.root_directory, ".thumbnails", foldername, item)):
                         thumbnails.append((folder, item))
                     for raw in RAW_EXTENSIONS:
@@ -228,6 +231,7 @@ def list_folder(folder: str, title: str) -> None:
                 subdirectories=subfolders,
                 images=image_chunks,
                 info=_info,
+                allimages=images,
             )
             f.write(content)
     else:

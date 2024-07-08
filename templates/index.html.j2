@@ -10,6 +10,12 @@
   {%- if theme %}
   <link rel="stylesheet" href="{{ theme }}">
   {%- endif %}
+  {%- if images %}
+  <link rel="stylesheet" href="{{ root }}.static/pswp/photoswipe.css">
+  <link rel="stylesheet" href="{{ root }}.static/pswp/default-skin/default-skin.css">
+  <script src="{{ root }}.static/pswp/photoswipe.min.js"></script>
+  <script src="{{ root }}.static/pswp/photoswipe-ui-default.min.js"></script>
+  {%- endif %}
 </head>
 
 <body>
@@ -43,15 +49,21 @@
     {%- endif %}
   </div>
   {% if images %}
+  {%- set ns = namespace(count = 0) -%}
   <div class="row">
     {%- for imageblock in images %}
     <div class="column">
       {%- for image in imageblock %}
       <figure>
-        <a href="{{ image.url }}"><img src="{{ image.thumbnail }}" alt="{{ image.name }}" /></a>
-        <figcaption class="caption">{{ image.name }}{% if image.tiff %}
-          <a href="{{ image.tiff }}">TIFF</a>{% endif %}{% if image.raw %}
-          <a href="{{ image.raw }}">RAW</a>{% endif %}
+        <img src="{{ image.thumbnail }}" alt="{{ image.name }}" onclick="openSwipe({{ ns.count }})" />
+        {%- set ns.count = ns.count + 1 %}
+        <figcaption class="caption">{{ image.name }}
+          {%- if image.tiff %}
+          <a href="{{ image.tiff }}">TIFF</a>
+          {%- endif %}
+          {%- if image.raw %}
+          <a href="{{ image.raw }}">RAW</a>
+          {%- endif %}
         </figcaption>
       </figure>
       {%- endfor %}
@@ -86,6 +98,61 @@
     <span class="attribution">Made with <a href="https://github.com/greflm13/StaticGalleryBuilder" target="_blank">StaticGalleryBuilder</a></a> by <a href="https://github.com/greflm13"
         target="_blank">Flo Greistorfer</a>.</span>
   </div>
+  {%- endif %}
+  {% if images %}
+  <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="pswp__bg"></div>
+    <div class="pswp__scroll-wrap">
+      <div class="pswp__container">
+        <div class="pswp__item"></div>
+        <div class="pswp__item"></div>
+        <div class="pswp__item"></div>
+      </div>
+      <div class="pswp__ui pswp__ui--hidden">
+        <div class="pswp__top-bar">
+          <div class="pswp__counter"></div>
+          <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+          <button class="pswp__button pswp__button--share" title="Share"></button>
+          <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+          <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+          <div class="pswp__preloader">
+            <div class="pswp__preloader__icn">
+              <div class="pswp__preloader__cut">
+                <div class="pswp__preloader__donut"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+          <div class="pswp__share-tooltip"></div>
+        </div>
+        <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+        </button>
+        <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+        </button>
+        <div class="pswp__caption">
+          <div class="pswp__caption__center"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    var pswpElement = document.querySelectorAll('.pswp')[0];
+    var items = [
+      {%- for image in allimages %}
+      { src: "{{ image.url }}", w: {{ image.width }}, h: {{ image.height }}, msrc: "{{ image.thumbnail }}" },
+      {%- endfor %}
+    ];
+    function openSwipe(img) {
+      // define options (if needed)
+      var options = {
+        // optionName: 'option value'
+        index: img // start at first slide
+      };
+      var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, options);
+      gallery.init();
+    }
+  </script>
   {%- endif %}
 </body>
 
