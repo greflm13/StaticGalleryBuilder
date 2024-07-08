@@ -16,13 +16,13 @@
   background-color: #0d0e0e;
 }
 
-.license {
+.footer {
   color: #e8e6e3;
   background-color: #313537;
   font-weight: 500;
 }
 
-.license a {
+.footer a {
   color: #5483ef;
   text-decoration: none;
 }

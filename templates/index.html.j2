@@ -61,7 +61,7 @@
   {%- endif %}
   {% if license %}
   {%- if 'CC' in license.type %}
-  <div class="license" xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/">
+  <div class="footer" xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/">
     {%- if license.type == 'CC0 1.0' %}
     <a property="dct:title" rel="cc:attributionURL" href="{{ root }}">{{ license.project }}</a> by <span property="cc:attributionName">{{ license.author }}</span> is marked with
     <a href="{{ license.url }}" target="_blank" rel="license noopener noreferrer" style="display: inline-block">CC0 1.0
@@ -77,13 +77,13 @@
       {%- endfor %}
     </a>
     {%- endif %}
-    <span class="attribution">Made with <a href="https://github.com/greflm13/simple-picture-server" target="_blank">Static Gallery Website Builder</a></a> by <a href="https://github.com/greflm13"
+    <span class="attribution">Made with <a href="https://github.com/greflm13/StaticGalleryBuilder" target="_blank">StaticGalleryBuilder</a></a> by <a href="https://github.com/greflm13"
         target="_blank">Flo Greistorfer</a>.</span>
   </div>
   {%- endif %}
   {%- else %}
-  <div class="license">
-    <span class="attribution">Made with <a href="https://github.com/greflm13/simple-picture-server" target="_blank">Static Gallery Website Builder</a></a> by <a href="https://github.com/greflm13"
+  <div class="footer">
+    <span class="attribution">Made with <a href="https://github.com/greflm13/StaticGalleryBuilder" target="_blank">StaticGalleryBuilder</a></a> by <a href="https://github.com/greflm13"
         target="_blank">Flo Greistorfer</a>.</span>
   </div>
   {%- endif %}
