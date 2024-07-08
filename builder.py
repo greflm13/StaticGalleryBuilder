@@ -170,7 +170,6 @@ def list_folder(folder: str, title: str) -> None:
                 if extsplit[1].lower() in args.file_extensions:
                     with Image.open(os.path.join(folder, item)) as img:
                         width, height = img.size
-                        img.close()
                     image = {
                         "url": f"{args.web_root_url}{baseurl}{urllib.parse.quote(item)}",
                         "thumbnail": f"{args.web_root_url}.thumbnails/{baseurl}{urllib.parse.quote(extsplit[0])}.jpg",
