@@ -70,9 +70,9 @@
                 "console": "integratedTerminal",
                 "args": [
                     "-p",
-                    "/mnt/nfs/pictures",
+                    "/home/user/Pictures",
                     "-w",
-                    "https://pictures.sorogon.eu",
+                    "file:///home/user/Pictures",
                     "-t",
                     "Pictures",
                     "--theme",
@@ -89,7 +89,7 @@
         "tasks": [
             {
                 "label": "Delete Lockfile",
-                "command": "rm -f /mnt/nfs/pictures/.lock",
+                "command": "rm -f /home/user/Pictures/.lock",
                 "type": "shell",
                 "problemMatcher": [],
                 "isBackground": true

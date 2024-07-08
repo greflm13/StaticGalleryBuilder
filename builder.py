@@ -3,6 +3,7 @@ import os
 import argparse
 import urllib.parse
 import shutil
+import fnmatch
 from multiprocessing import Pool
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -25,7 +26,7 @@ VERSION = "1.7.0"
 RAW_EXTENSIONS = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
 IMG_EXTENSIONS = [".jpg", ".jpeg"]
 EXCLUDES = [".lock", "index.html", ".thumbnails", ".static"]
-NOT_LIST = ["Galleries", "Archives"]
+NOT_LIST = ["*/Galleries/*", "Archives"]
 # fmt: on
 
 # Initialize Jinja2 environment
@@ -63,7 +64,7 @@ def parse_arguments() -> Args:
     parser.add_argument("--theme-path", help="Path to the CSS theme file.", default=DEFAULT_THEME_PATH, type=str, dest="theme_path", metavar="PATH")
     parser.add_argument("--use-fancy-folders", help="Enable fancy folder view instead of the default Apache directory listing.", action="store_true", default=False, dest="use_fancy_folders")
     parser.add_argument("--ignore-other-files", help="Ignore files that do not match the specified extensions.", action="store_true", default=False, dest="ignore_other_files")
-    parser.add_argument("--exclude-folder", help="Folders to exclude from processing (can be specified multiple times).", action="append", dest="exclude_folders", metavar="FOLDER")
+    parser.add_argument("--exclude-folder", help="Folders to exclude from processing, globs supported (can be specified multiple times).", action="append", dest="exclude_folders", metavar="FOLDER")
     parser.add_argument("--version", action="version", version=f"%(prog)s {VERSION}")
     parser.add_argument("--generate-help-preview", action=HelpPreviewAction, path="help.svg")
     parsed_args = parser.parse_args()
@@ -152,7 +153,12 @@ def list_folder(folder: str, title: str) -> None:
                 subfolder = {"url": f"{args.web_root_url}{baseurl}{urllib.parse.quote(item)}", "name": item}
                 subfolders.append(subfolder)
                 if item not in args.exclude_folders:
-                    list_folder(os.path.join(folder, item), os.path.join(folder, item).removeprefix(args.root_directory))
+                    skip = False
+                    for exclude in args.exclude_folders:
+                        if fnmatch.fnmatchcase(os.path.join(folder, item), exclude):
+                            skip = True
+                    if not skip:
+                        list_folder(os.path.join(folder, item), os.path.join(folder, item).removeprefix(args.root_directory))
             else:
                 extsplit = os.path.splitext(item)
                 contains_files = True
@@ -237,9 +243,9 @@ def main() -> None:
         exit()
 
     try:
+        Path(os.path.join(args.root_directory, ".lock")).touch()
         if not os.path.exists(os.path.join(args.root_directory, ".thumbnails")):
             os.mkdir(os.path.join(args.root_directory, ".thumbnails"))
-        Path(os.path.join(args.root_directory, ".lock")).touch()
 
         print("Copying static files...")
         copy_static_files(args)
