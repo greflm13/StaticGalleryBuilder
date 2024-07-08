@@ -171,8 +171,8 @@ def list_folder(folder: str, title: str) -> None:
             else:
                 extsplit = os.path.splitext(item)
                 contains_files = True
-                beforeimage = time.time()
                 if extsplit[1].lower() in args.file_extensions:
+                    beforeimage = time.time()
                     with Image.open(os.path.join(folder, item)) as img:
                         width, height = img.size
                     image = {
@@ -192,11 +192,11 @@ def list_folder(folder: str, title: str) -> None:
                             else:
                                 image["raw"] = f"{args.web_root_url}{baseurl}{url}"
                     images.append(image)
+                    imagetime = time.time() - beforeimage
                 if item == "info":
                     with open(os.path.join(folder, item), encoding="utf-8") as f:
                         _info = f.read()
                         info[urllib.parse.quote(folder)] = _info
-                imagetime = time.time() - beforeimage
                 print(f"Getting infos for {os.path.join(folder, item)} took {imagetime:.2f} seconds")
     if not args.non_interactive_mode:
         pbar.desc = f"Generating HTML files - {folder}"
