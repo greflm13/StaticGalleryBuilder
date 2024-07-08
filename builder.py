@@ -129,7 +129,12 @@ def get_total_folders(folder: str, _total: int = 0) -> int:
         if item not in EXCLUDES:
             if os.path.isdir(os.path.join(folder, item)):
                 if item not in args.exclude_folders:
-                    _total = get_total_folders(os.path.join(folder, item), _total)
+                    skip = False
+                    for exclude in args.exclude_folders:
+                        if fnmatch.fnmatchcase(os.path.join(folder, item), exclude):
+                            skip = True
+                    if not skip:
+                        _total = get_total_folders(os.path.join(folder, item), _total)
     return _total
 
 
