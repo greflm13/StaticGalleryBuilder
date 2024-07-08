@@ -70,9 +70,9 @@
                 "console": "integratedTerminal",
                 "args": [
                     "-p",
-                    "/home/user/Pictures",
+                    "${workspaceFolder}/test",
                     "-w",
-                    "file:///home/user/Pictures",
+                    "file://${workspaceFolder}/test",
                     "-t",
                     "Pictures",
                     "--theme",
@@ -89,7 +89,7 @@
         "tasks": [
             {
                 "label": "Delete Lockfile",
-                "command": "rm -f /home/user/Pictures/.lock",
+                "command": "rm -f ${workspaceFolder}/test/.lock",
                 "type": "shell",
                 "problemMatcher": [],
                 "isBackground": true
