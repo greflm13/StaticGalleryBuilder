@@ -192,6 +192,7 @@ def list_folder(folder: str, title: str) -> None:
                         info[urllib.parse.quote(folder)] = _info
         if not args.non_interactive_mode:
             imgpbar.update(1)
+            pbar.update(0)
     imgpbar.close()
     if not contains_files and not args.use_fancy_folders:
         return
@@ -200,9 +201,7 @@ def list_folder(folder: str, title: str) -> None:
         with open(os.path.join(folder, "index.html"), "w", encoding="utf-8") as f:
             _info: List[str] = None
             header = os.path.basename(folder) or title
-            parent = (
-                None if not foldername else f"{args.web_root_url}{urllib.parse.quote(foldername.removesuffix(folder.split('/')[-1] + '/'))}"
-            )
+            parent = None if not foldername else f"{args.web_root_url}{urllib.parse.quote(foldername.removesuffix(folder.split('/')[-1] + '/'))}"
             license_info: cclicense.License = (
                 {
                     "project": args.site_title,
