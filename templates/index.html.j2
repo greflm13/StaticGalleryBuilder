@@ -152,6 +152,10 @@
       var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, options);
       gallery.init();
     }
+    if (window.location.href.indexOf("pid=") > -1) {
+      var pid = window.location.href.split('pid=')[1].split('#')[0];
+      openSwipe(parseInt(pid));
+    }
   </script>
   {%- endif %}
 </body>
