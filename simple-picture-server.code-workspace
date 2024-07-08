@@ -2,7 +2,7 @@
     "folders": [
         {
             "path": "./",
-            "name": "Simple Picture Server"
+            "name": "StaticGalleryBuilder"
         }
     ],
     "settings": {
