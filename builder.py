@@ -4,6 +4,7 @@ import argparse
 import urllib.parse
 import shutil
 import fnmatch
+import time
 from multiprocessing import Pool
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -142,8 +143,11 @@ def list_folder(folder: str, title: str) -> None:
     if not args.non_interactive_mode:
         pbar.desc = f"Generating HTML files - {folder}"
         pbar.update(0)
+    beforelist = time.time()
     items = os.listdir(folder)
     items.sort()
+    listtime = time.time() - beforelist
+    print(f"\nListing folder {folder} took {listtime:.2f} seconds")
     images: List[Dict[str, Any]] = []
     subfolders: List[Dict[str, str]] = []
     foldername = folder.removeprefix(args.root_directory)
@@ -167,6 +171,7 @@ def list_folder(folder: str, title: str) -> None:
             else:
                 extsplit = os.path.splitext(item)
                 contains_files = True
+                beforeimage = time.time()
                 if extsplit[1].lower() in args.file_extensions:
                     with Image.open(os.path.join(folder, item)) as img:
                         width, height = img.size
@@ -191,6 +196,8 @@ def list_folder(folder: str, title: str) -> None:
                     with open(os.path.join(folder, item), encoding="utf-8") as f:
                         _info = f.read()
                         info[urllib.parse.quote(folder)] = _info
+                imagetime = time.time() - beforeimage
+                print(f"Getting infos for {os.path.join(folder, item)} took {imagetime:.2f} seconds")
     if not args.non_interactive_mode:
         pbar.desc = f"Generating HTML files - {folder}"
         pbar.update(0)
