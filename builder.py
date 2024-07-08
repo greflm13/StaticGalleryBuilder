@@ -150,7 +150,9 @@ def list_folder(folder: str, title: str) -> None:
     if not os.path.exists(os.path.join(args.root_directory, ".thumbnails", foldername)):
         os.mkdir(os.path.join(args.root_directory, ".thumbnails", foldername))
     contains_files = False
-    imgpbar = tqdm(total=len(items), desc=f"Getting image info - {folder}", unit="files", ascii=True, dynamic_ncols=True)
+    if not args.non_interactive_mode:
+        imgpbar = tqdm(total=len(items), desc=f"Getting image info - {folder}", unit="files", ascii=True, dynamic_ncols=True)
+        imgpbar.update(0)
     for item in items:
         if item not in EXCLUDES:
             if os.path.isdir(os.path.join(folder, item)):
