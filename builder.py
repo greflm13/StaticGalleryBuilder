@@ -169,14 +169,15 @@ def list_folder(folder: str, title: str) -> None:
                 contains_files = True
                 if extsplit[1].lower() in args.file_extensions:
                     with Image.open(os.path.join(folder, item)) as img:
-                        image = {
-                            "url": f"{args.web_root_url}{baseurl}{urllib.parse.quote(item)}",
-                            "thumbnail": f"{args.web_root_url}.thumbnails/{baseurl}{urllib.parse.quote(extsplit[0])}.jpg",
-                            "name": item,
-                            "width": img.width,
-                            "height": img.height,
-                        }
+                        width, height = img.size
                         img.close()
+                    image = {
+                        "url": f"{args.web_root_url}{baseurl}{urllib.parse.quote(item)}",
+                        "thumbnail": f"{args.web_root_url}.thumbnails/{baseurl}{urllib.parse.quote(extsplit[0])}.jpg",
+                        "name": item,
+                        "width": width,
+                        "height": height,
+                    }
                     if not os.path.exists(os.path.join(args.root_directory, ".thumbnails", foldername, item)):
                         thumbnails.append((folder, item))
                     for raw in RAW_EXTENSIONS:
