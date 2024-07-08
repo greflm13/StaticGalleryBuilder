@@ -141,11 +141,12 @@ def get_total_folders(folder: str, _total: int = 0) -> int:
 
 def list_folder(folder: str, title: str) -> None:
     sizelist: Dict[Dict[str, int], Dict[str, int]] = {}
+    if not os.path.exists(os.path.join(folder, "sizelist.json")):
+        sizelistfile = open(os.path.join(folder, "sizelist.json"), "x", encoding="utf-8")
+        sizelistfile.write("{}")
+        sizelistfile.close()
     with open(os.path.join(folder, "sizelist.json"), "r+", encoding="utf-8") as sizelistfile:
-        try:
-            sizelist = json.loads(sizelistfile.read())
-        except json.decoder.JSONDecodeError:
-            sizelist = {}
+        sizelist = json.loads(sizelistfile.read())
         items = os.listdir(folder)
         items.sort()
         images: List[Dict[str, Any]] = []
