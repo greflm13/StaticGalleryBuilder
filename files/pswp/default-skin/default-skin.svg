@@ -1,1 +1,131 @@
-<svg width="264" height="88" viewBox="0 0 264 88" xmlns="http://www.w3.org/2000/svg"><title>default-skin 2</title><g fill="none" fill-rule="evenodd"><g><path d="M67.002 59.5v3.768c-6.307.84-9.184 5.75-10.002 9.732 2.22-2.83 5.564-5.098 10.002-5.098V71.5L73 65.585 67.002 59.5z" id="Shape" fill="#fff"/><g fill="#fff"><path d="M13 29v-5h2v3h3v2h-5zM13 15h5v2h-3v3h-2v-5zM31 15v5h-2v-3h-3v-2h5zM31 29h-5v-2h3v-3h2v5z" id="Shape"/></g><g fill="#fff"><path d="M62 24v5h-2v-3h-3v-2h5zM62 20h-5v-2h3v-3h2v5zM70 20v-5h2v3h3v2h-5zM70 24h5v2h-3v3h-2v-5z"/></g><path d="M20.586 66l-5.656-5.656 1.414-1.414L22 64.586l5.656-5.656 1.414 1.414L23.414 66l5.656 5.656-1.414 1.414L22 67.414l-5.656 5.656-1.414-1.414L20.586 66z" fill="#fff"/><path d="M111.785 65.03L110 63.5l3-3.5h-10v-2h10l-3-3.5 1.785-1.468L117 59l-5.215 6.03z" fill="#fff"/><path d="M152.215 65.03L154 63.5l-3-3.5h10v-2h-10l3-3.5-1.785-1.468L147 59l5.215 6.03z" fill="#fff"/><g><path id="Rectangle-11" fill="#fff" d="M160.957 28.543l-3.25-3.25-1.413 1.414 3.25 3.25z"/><path d="M152.5 27c3.038 0 5.5-2.462 5.5-5.5s-2.462-5.5-5.5-5.5-5.5 2.462-5.5 5.5 2.462 5.5 5.5 5.5z" id="Oval-1" stroke="#fff" stroke-width="1.5"/><path fill="#fff" d="M150 21h5v1h-5z"/></g><g><path d="M116.957 28.543l-1.414 1.414-3.25-3.25 1.414-1.414 3.25 3.25z" fill="#fff"/><path d="M108.5 27c3.038 0 5.5-2.462 5.5-5.5s-2.462-5.5-5.5-5.5-5.5 2.462-5.5 5.5 2.462 5.5 5.5 5.5z" stroke="#fff" stroke-width="1.5"/><path fill="#fff" d="M106 21h5v1h-5z"/><path fill="#fff" d="M109.043 19.008l-.085 5-1-.017.085-5z"/></g></g></g></svg>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="264"
+   height="88"
+   viewBox="0 0 264 88"
+   version="1.1"
+   id="svg12"
+   sodipodi:docname="default-skin.svg"
+   inkscape:version="1.3.2 (091e20ef0f, 2023-11-25, custom)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <defs
+     id="defs12" />
+  <sodipodi:namedview
+     id="namedview12"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="true"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="true"
+     inkscape:deskcolor="#d1d1d1"
+     showborder="true"
+     borderlayer="true"
+     inkscape:zoom="3.0855569"
+     inkscape:cx="95.606729"
+     inkscape:cy="65.142212"
+     inkscape:window-width="1896"
+     inkscape:window-height="1016"
+     inkscape:window-x="1932"
+     inkscape:window-y="52"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g11" />
+  <title
+     id="title1">default-skin 2</title>
+  <g
+     fill="none"
+     fill-rule="evenodd"
+     id="g12">
+    <g
+       id="g11">
+      <g
+         fill="#fff"
+         id="g1">
+        <path
+           d="M13 29v-5h2v3h3v2h-5zM13 15h5v2h-3v3h-2v-5zM31 15v5h-2v-3h-3v-2h5zM31 29h-5v-2h3v-3h2v5z"
+           id="path1" />
+      </g>
+      <g
+         fill="#fff"
+         id="g2">
+        <path
+           d="M62 24v5h-2v-3h-3v-2h5zM62 20h-5v-2h3v-3h2v5zM70 20v-5h2v3h3v2h-5zM70 24h5v2h-3v3h-2v-5z"
+           id="path2" />
+      </g>
+      <path
+         d="M20.586 66l-5.656-5.656 1.414-1.414L22 64.586l5.656-5.656 1.414 1.414L23.414 66l5.656 5.656-1.414 1.414L22 67.414l-5.656 5.656-1.414-1.414L20.586 66z"
+         fill="#fff"
+         id="path3" />
+      <path
+         d="M111.785 65.03L110 63.5l3-3.5h-10v-2h10l-3-3.5 1.785-1.468L117 59l-5.215 6.03z"
+         fill="#fff"
+         id="path4" />
+      <path
+         d="M152.215 65.03L154 63.5l-3-3.5h10v-2h-10l3-3.5-1.785-1.468L147 59l5.215 6.03z"
+         fill="#fff"
+         id="path5" />
+      <g
+         id="g6">
+        <path
+           id="Rectangle-11"
+           fill="#fff"
+           d="M160.957 28.543l-3.25-3.25-1.413 1.414 3.25 3.25z" />
+        <path
+           d="M152.5 27c3.038 0 5.5-2.462 5.5-5.5s-2.462-5.5-5.5-5.5-5.5 2.462-5.5 5.5 2.462 5.5 5.5 5.5z"
+           id="Oval-1"
+           stroke="#fff"
+           stroke-width="1.5" />
+        <path
+           fill="#fff"
+           d="M150 21h5v1h-5z"
+           id="path6" />
+      </g>
+      <g
+         id="g10">
+        <path
+           d="M116.957 28.543l-1.414 1.414-3.25-3.25 1.414-1.414 3.25 3.25z"
+           fill="#fff"
+           id="path7" />
+        <path
+           d="M108.5 27c3.038 0 5.5-2.462 5.5-5.5s-2.462-5.5-5.5-5.5-5.5 2.462-5.5 5.5 2.462 5.5 5.5 5.5z"
+           stroke="#fff"
+           stroke-width="1.5"
+           id="path8" />
+        <path
+           fill="#fff"
+           d="M106 21h5v1h-5z"
+           id="path9" />
+        <path
+           fill="#fff"
+           d="M109.043 19.008l-.085 5-1-.017.085-5z"
+           id="path10" />
+      </g>
+      <g
+         id="g14">
+        <path
+           id="Shape"
+           style="fill:#ffffff"
+           d="M 63.708984 57.572266 L 63.708984 66.917969 L 62.773438 66.917969 L 59.173828 66.917969 L 65.089844 72.916016 L 71.173828 66.917969 L 67.40625 66.917969 L 66.640625 66.917969 L 66.640625 57.572266 L 63.708984 57.572266 z " />
+        <path
+           id="rect13"
+           style="fill:#ffffff;stroke:#ffffff;stroke-width:0.649;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+           d="m 56.24391,72.078606 v 3.51729 h 17.859837 v -3.51729 h -1.210961 v 2.324677 H 57.456705 v -2.324677 z" />
+      </g>
+    </g>
+  </g>
+  <metadata
+     id="metadata12">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:title>default-skin 2</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+</svg>
