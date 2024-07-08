@@ -4,7 +4,7 @@ import argparse
 import urllib.parse
 import shutil
 import fnmatch
-import time
+import json
 from multiprocessing import Pool
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -140,106 +140,119 @@ def get_total_folders(folder: str, _total: int = 0) -> int:
 
 
 def list_folder(folder: str, title: str) -> None:
-    items = os.listdir(folder)
-    items.sort()
-    images: List[Dict[str, Any]] = []
-    subfolders: List[Dict[str, str]] = []
-    foldername = folder.removeprefix(args.root_directory)
-    foldername = f"{foldername}/" if foldername else ""
-    baseurl = urllib.parse.quote(foldername)
-    if not os.path.exists(os.path.join(args.root_directory, ".thumbnails", foldername)):
-        os.mkdir(os.path.join(args.root_directory, ".thumbnails", foldername))
-    contains_files = False
-    if not args.non_interactive_mode:
-        imgpbar = tqdm(total=len(items), desc=f"Getting image info - {folder}", unit="files", ascii=True, dynamic_ncols=True)
-    for item in items:
-        if item not in EXCLUDES:
-            if os.path.isdir(os.path.join(folder, item)):
-                subfolder = {"url": f"{args.web_root_url}{baseurl}{urllib.parse.quote(item)}", "name": item}
-                subfolders.append(subfolder)
-                if item not in args.exclude_folders:
-                    skip = False
-                    for exclude in args.exclude_folders:
-                        if fnmatch.fnmatchcase(os.path.join(folder, item), exclude):
-                            skip = True
-                    if not skip:
-                        list_folder(os.path.join(folder, item), os.path.join(folder, item).removeprefix(args.root_directory))
-            else:
-                extsplit = os.path.splitext(item)
-                contains_files = True
-                if extsplit[1].lower() in args.file_extensions:
-                    with Image.open(os.path.join(folder, item)) as img:
-                        width, height = img.size
-                    image = {
-                        "url": f"{args.web_root_url}{baseurl}{urllib.parse.quote(item)}",
-                        "thumbnail": f"{args.web_root_url}.thumbnails/{baseurl}{urllib.parse.quote(extsplit[0])}.jpg",
-                        "name": item,
-                        "width": width,
-                        "height": height,
-                    }
-                    if not os.path.exists(os.path.join(args.root_directory, ".thumbnails", foldername, item)):
-                        thumbnails.append((folder, item))
-                    for raw in RAW_EXTENSIONS:
-                        if os.path.exists(os.path.join(folder, extsplit[0] + raw)):
-                            url = urllib.parse.quote(extsplit[0]) + raw
-                            if raw in (".tif", ".tiff"):
-                                image["tiff"] = f"{args.web_root_url}{baseurl}{url}"
-                            else:
-                                image["raw"] = f"{args.web_root_url}{baseurl}{url}"
-                    images.append(image)
-                if item == "info":
-                    with open(os.path.join(folder, item), encoding="utf-8") as f:
-                        _info = f.read()
-                        info[urllib.parse.quote(folder)] = _info
+    sizelist: Dict[Dict[str, int], Dict[str, int]] = {}
+    with open(os.path.join(folder, "sizelist.json"), "w+", encoding="utf-8") as sizelistfile:
+        sizelist = json.loads(sizelistfile.read())
+        items = os.listdir(folder)
+        items.sort()
+        images: List[Dict[str, Any]] = []
+        subfolders: List[Dict[str, str]] = []
+        foldername = folder.removeprefix(args.root_directory)
+        foldername = f"{foldername}/" if foldername else ""
+        baseurl = urllib.parse.quote(foldername)
+        if not os.path.exists(os.path.join(args.root_directory, ".thumbnails", foldername)):
+            os.mkdir(os.path.join(args.root_directory, ".thumbnails", foldername))
+        contains_files = False
         if not args.non_interactive_mode:
-            imgpbar.update(1)
-            pbar.update(0)
-    if not contains_files and not args.use_fancy_folders:
-        return
-    if images or (args.use_fancy_folders and not contains_files) or (args.use_fancy_folders and args.ignore_other_files):
-        image_chunks = np.array_split(images, 8) if images else []
-        with open(os.path.join(folder, "index.html"), "w", encoding="utf-8") as f:
-            _info: List[str] = None
-            header = os.path.basename(folder) or title
-            parent = None if not foldername else f"{args.web_root_url}{urllib.parse.quote(foldername.removesuffix(folder.split('/')[-1] + '/'))}"
-            license_info: cclicense.License = (
-                {
-                    "project": args.site_title,
-                    "author": args.author_name,
-                    "type": cclicense.licensenameswitch(args.license_type),
-                    "url": cclicense.licenseurlswitch(args.license_type),
-                    "pics": cclicense.licensepicswitch(args.license_type),
-                }
-                if args.license_type
-                else None
-            )
-            if urllib.parse.quote(folder) in info:
-                _info = []
-                _infolst = info[urllib.parse.quote(folder)].split("\n")
-                for i in _infolst:
-                    if len(i) > 1:
-                        _info.append(i)
-            html = env.get_template("index.html.j2")
-            content = html.render(
-                title=title,
-                favicon=f"{args.web_root_url}{FAVICON_PATH}",
-                stylesheet=f"{args.web_root_url}{GLOBAL_CSS_PATH}",
-                theme=f"{args.web_root_url}.static/theme.css",
-                root=args.web_root_url,
-                parent=parent,
-                header=header,
-                license=license_info,
-                subdirectories=subfolders,
-                images=image_chunks,
-                info=_info,
-                allimages=images,
-            )
-            f.write(content)
-    else:
-        if os.path.exists(os.path.join(folder, "index.html")):
-            os.remove(os.path.join(folder, "index.html"))
-    if not args.non_interactive_mode:
-        pbar.update(1)
+            imgpbar = tqdm(total=len(items), desc=f"Getting image info - {folder}", unit="files", ascii=True, dynamic_ncols=True)
+        for item in items:
+            if item not in EXCLUDES:
+                if os.path.isdir(os.path.join(folder, item)):
+                    subfolder = {"url": f"{args.web_root_url}{baseurl}{urllib.parse.quote(item)}", "name": item}
+                    subfolders.append(subfolder)
+                    if item not in args.exclude_folders:
+                        skip = False
+                        for exclude in args.exclude_folders:
+                            if fnmatch.fnmatchcase(os.path.join(folder, item), exclude):
+                                skip = True
+                        if not skip:
+                            list_folder(os.path.join(folder, item), os.path.join(folder, item).removeprefix(args.root_directory))
+                else:
+                    extsplit = os.path.splitext(item)
+                    contains_files = True
+                    if extsplit[1].lower() in args.file_extensions:
+                        if not sizelist.get(item):
+                            print("fuck")
+                            with Image.open(os.path.join(folder, item)) as img:
+                                width, height = img.size
+                            sizelist[item] = {"width": width, "height": height}
+                        print(sizelist)
+
+                        image = {
+                            "url": f"{args.web_root_url}{baseurl}{urllib.parse.quote(item)}",
+                            "thumbnail": f"{args.web_root_url}.thumbnails/{baseurl}{urllib.parse.quote(extsplit[0])}.jpg",
+                            "name": item,
+                            "width": sizelist[item]["width"],
+                            "height": sizelist[item]["height"],
+                        }
+                        if not os.path.exists(os.path.join(args.root_directory, ".thumbnails", foldername, item)):
+                            thumbnails.append((folder, item))
+                        for raw in RAW_EXTENSIONS:
+                            if os.path.exists(os.path.join(folder, extsplit[0] + raw)):
+                                url = urllib.parse.quote(extsplit[0]) + raw
+                                if raw in (".tif", ".tiff"):
+                                    image["tiff"] = f"{args.web_root_url}{baseurl}{url}"
+                                else:
+                                    image["raw"] = f"{args.web_root_url}{baseurl}{url}"
+                        images.append(image)
+                    if item == "info":
+                        with open(os.path.join(folder, item), encoding="utf-8") as f:
+                            _info = f.read()
+                            info[urllib.parse.quote(folder)] = _info
+            if not args.non_interactive_mode:
+                imgpbar.update(1)
+                pbar.update(0)
+        sizelistfile.write(json.dumps(sizelist, indent=4))
+        if not contains_files and not args.use_fancy_folders:
+            return
+        if images or (args.use_fancy_folders and not contains_files) or (args.use_fancy_folders and args.ignore_other_files):
+            image_chunks = np.array_split(images, 8) if images else []
+            with open(os.path.join(folder, "index.html"), "w", encoding="utf-8") as f:
+                _info: List[str] = None
+                header = os.path.basename(folder) or title
+                parent = (
+                    None
+                    if not foldername
+                    else f"{args.web_root_url}{urllib.parse.quote(foldername.removesuffix(folder.split('/')[-1] + '/'))}"
+                )
+                license_info: cclicense.License = (
+                    {
+                        "project": args.site_title,
+                        "author": args.author_name,
+                        "type": cclicense.licensenameswitch(args.license_type),
+                        "url": cclicense.licenseurlswitch(args.license_type),
+                        "pics": cclicense.licensepicswitch(args.license_type),
+                    }
+                    if args.license_type
+                    else None
+                )
+                if urllib.parse.quote(folder) in info:
+                    _info = []
+                    _infolst = info[urllib.parse.quote(folder)].split("\n")
+                    for i in _infolst:
+                        if len(i) > 1:
+                            _info.append(i)
+                html = env.get_template("index.html.j2")
+                content = html.render(
+                    title=title,
+                    favicon=f"{args.web_root_url}{FAVICON_PATH}",
+                    stylesheet=f"{args.web_root_url}{GLOBAL_CSS_PATH}",
+                    theme=f"{args.web_root_url}.static/theme.css",
+                    root=args.web_root_url,
+                    parent=parent,
+                    header=header,
+                    license=license_info,
+                    subdirectories=subfolders,
+                    images=image_chunks,
+                    info=_info,
+                    allimages=images,
+                )
+                f.write(content)
+        else:
+            if os.path.exists(os.path.join(folder, "index.html")):
+                os.remove(os.path.join(folder, "index.html"))
+        if not args.non_interactive_mode:
+            pbar.update(1)
 
 
 def main() -> None:
