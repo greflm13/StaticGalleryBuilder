@@ -193,7 +193,8 @@ def list_folder(folder: str, title: str) -> None:
                     with open(os.path.join(folder, item), encoding="utf-8") as f:
                         _info = f.read()
                         info[urllib.parse.quote(folder)] = _info
-        imgpbar.update(1)
+        if not args.non_interactive_mode:
+            imgpbar.update(1)
     imgpbar.close()
     if not contains_files and not args.use_fancy_folders:
         return
