@@ -26,7 +26,7 @@ DEFAULT_AUTHOR = "Author"
 VERSION = "1.8.0"
 RAW_EXTENSIONS = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
 IMG_EXTENSIONS = [".jpg", ".jpeg"]
-EXCLUDES = [".lock", "index.html", "sizelist.json", ".thumbnails", ".static"]
+EXCLUDES = [".lock", "index.html", ".sizelist.json", ".thumbnails", ".static"]
 NOT_LIST = ["*/Galleries/*", "Archives"]
 # fmt: on
 
@@ -141,11 +141,11 @@ def get_total_folders(folder: str, _total: int = 0) -> int:
 
 def list_folder(folder: str, title: str) -> None:
     sizelist: Dict[Dict[str, int], Dict[str, int]] = {}
-    if not os.path.exists(os.path.join(folder, "sizelist.json")):
-        sizelistfile = open(os.path.join(folder, "sizelist.json"), "x", encoding="utf-8")
+    if not os.path.exists(os.path.join(folder, ".sizelist.json")):
+        sizelistfile = open(os.path.join(folder, ".sizelist.json"), "x", encoding="utf-8")
         sizelistfile.write("{}")
         sizelistfile.close()
-    with open(os.path.join(folder, "sizelist.json"), "r+", encoding="utf-8") as sizelistfile:
+    with open(os.path.join(folder, ".sizelist.json"), "r+", encoding="utf-8") as sizelistfile:
         sizelist = json.loads(sizelistfile.read())
         items = os.listdir(folder)
         items.sort()
