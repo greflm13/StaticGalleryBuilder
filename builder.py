@@ -147,7 +147,7 @@ def list_folder(folder: str, title: str) -> None:
     items = os.listdir(folder)
     items.sort()
     listtime = time.time() - beforelist
-    print(f"\nListing folder {folder} took {listtime:.2f} seconds")
+    print(f"Listing folder {folder} took {listtime:.2f} seconds")
     images: List[Dict[str, Any]] = []
     subfolders: List[Dict[str, str]] = []
     foldername = folder.removeprefix(args.root_directory)
@@ -193,11 +193,11 @@ def list_folder(folder: str, title: str) -> None:
                                 image["raw"] = f"{args.web_root_url}{baseurl}{url}"
                     images.append(image)
                     imagetime = time.time() - beforeimage
+                    print(f"Getting infos for {os.path.join(folder, item)} took {imagetime:.2f} seconds")
                 if item == "info":
                     with open(os.path.join(folder, item), encoding="utf-8") as f:
                         _info = f.read()
                         info[urllib.parse.quote(folder)] = _info
-                print(f"Getting infos for {os.path.join(folder, item)} took {imagetime:.2f} seconds")
     if not args.non_interactive_mode:
         pbar.desc = f"Generating HTML files - {folder}"
         pbar.update(0)
