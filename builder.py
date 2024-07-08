@@ -140,9 +140,6 @@ def get_total_folders(folder: str, _total: int = 0) -> int:
 
 
 def list_folder(folder: str, title: str) -> None:
-    if not args.non_interactive_mode:
-        pbar.desc = f"Generating HTML files - {folder}"
-        pbar.update(0)
     items = os.listdir(folder)
     items.sort()
     images: List[Dict[str, Any]] = []
@@ -198,9 +195,6 @@ def list_folder(folder: str, title: str) -> None:
     imgpbar.close()
     if not contains_files and not args.use_fancy_folders:
         return
-    if not args.non_interactive_mode:
-        pbar.desc = f"Generating HTML files - {folder}"
-        pbar.update(0)
     if images or (args.use_fancy_folders and not contains_files) or (args.use_fancy_folders and args.ignore_other_files):
         image_chunks = np.array_split(images, 8) if images else []
         with open(os.path.join(folder, "index.html"), "w", encoding="utf-8") as f:
@@ -282,8 +276,6 @@ def main() -> None:
 
             pbar = tqdm(total=total, desc="Generating HTML files", unit="folders", ascii=True, dynamic_ncols=True)
             list_folder(args.root_directory, args.site_title)
-            pbar.desc = "Generating html files"
-            pbar.update(0)
             pbar.close()
 
             with Pool(os.cpu_count()) as pool:
