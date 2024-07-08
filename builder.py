@@ -152,7 +152,6 @@ def list_folder(folder: str, title: str) -> None:
     contains_files = False
     if not args.non_interactive_mode:
         imgpbar = tqdm(total=len(items), desc=f"Getting image info - {folder}", unit="files", ascii=True, dynamic_ncols=True)
-        imgpbar.update(0)
     for item in items:
         if item not in EXCLUDES:
             if os.path.isdir(os.path.join(folder, item)):
