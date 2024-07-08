@@ -176,6 +176,7 @@ def list_folder(folder: str, title: str) -> None:
                             "width": img.width,
                             "height": img.height,
                         }
+                        img.close()
                     if not os.path.exists(os.path.join(args.root_directory, ".thumbnails", foldername, item)):
                         thumbnails.append((folder, item))
                     for raw in RAW_EXTENSIONS:
