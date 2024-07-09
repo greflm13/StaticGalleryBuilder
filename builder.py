@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 from jinja2 import Environment, FileSystemLoader
 from tqdm.auto import tqdm
-from PIL import Image
+from PIL import Image, ImageOps, ExifTags
 from rich_argparse import RichHelpFormatter, HelpPreviewAction
 
 try:
@@ -31,7 +31,7 @@ FAVICON_PATH = ".static/favicon.ico"
 GLOBAL_CSS_PATH = ".static/global.css"
 DEFAULT_THEME_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), "themes", "default.css")
 DEFAULT_AUTHOR = "Author"
-VERSION = "1.9.8"
+VERSION = "1.9.9"
 RAW_EXTENSIONS = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
 IMG_EXTENSIONS = [".jpg", ".jpeg"]
 EXCLUDES = [".lock", "index.html", "manifest.json", ".sizelist.json", ".thumbnails", ".static"]
@@ -206,7 +206,8 @@ def generate_thumbnail(arguments: Tuple[str, str]) -> None:
     path = os.path.join(args.root_directory, ".thumbnails", folder.removeprefix(args.root_directory), os.path.splitext(item)[0]) + ".jpg"
     if not os.path.exists(path) or args.regenerate_thumbnails:
         try:
-            with Image.open(os.path.join(folder, item)) as img:
+            with Image.open(os.path.join(folder, item)) as imgfile:
+                img = ImageOps.exif_transpose(imgfile)
                 img.thumbnail((512, 512))
                 img.save(path, "JPEG", quality=75, optimize=True)
         except OSError:
@@ -272,9 +273,20 @@ def list_folder(folder: str, title: str) -> None:
                     contains_files = True
                     if extsplit[1].lower() in args.file_extensions:
                         if not sizelist.get(item):
+                            exifdata = {}
                             with Image.open(os.path.join(folder, item)) as img:
+                                exif = img.getexif()
                                 width, height = img.size
-                            sizelist[item] = {"width": width, "height": height}
+
+                            for key, val in exif.items():
+                                if key in ExifTags.TAGS:
+                                    exifdata[ExifTags.TAGS[key]] = val
+                                else:
+                                    exifdata[key] = val
+                            if exifdata != {} and (exifdata["Orientation"] == 6 or exifdata["Orientation"] == 8):
+                                sizelist[item] = {"width": height, "height": width}
+                            else:
+                                sizelist[item] = {"width": width, "height": height}
 
                         image = {
                             "url": f"{args.web_root_url}{baseurl}{urllib.parse.quote(item)}",
