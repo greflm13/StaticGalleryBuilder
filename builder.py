@@ -31,7 +31,7 @@ FAVICON_PATH = ".static/favicon.ico"
 GLOBAL_CSS_PATH = ".static/global.css"
 DEFAULT_THEME_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), "themes", "default.css")
 DEFAULT_AUTHOR = "Author"
-VERSION = "1.9.9"
+VERSION = "1.9.10"
 RAW_EXTENSIONS = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
 IMG_EXTENSIONS = [".jpg", ".jpeg"]
 EXCLUDES = [".lock", "index.html", "manifest.json", ".sizelist.json", ".thumbnails", ".static"]
@@ -43,6 +43,7 @@ ICON_SIZES = ["36x36", "48x48", "72x72", "96x96", "144x144", "192x192", "512x512
 env = Environment(loader=FileSystemLoader(os.path.join(os.path.abspath(os.path.dirname(__file__)), "templates")))
 thumbnails: List[Tuple[str, str]] = []
 info: Dict[str, str] = {}
+pbardict: Dict[str, tqdm] = {}
 
 
 class Icon:
@@ -247,7 +248,7 @@ def list_folder(folder: str, title: str) -> None:
             os.mkdir(os.path.join(args.root_directory, ".thumbnails", foldername))
         contains_files = False
         if not args.non_interactive_mode:
-            imgpbar = tqdm(total=len(items), desc=f"Getting image info - {folder}", unit="files", ascii=True, dynamic_ncols=True)
+            pbardict[folder] = tqdm(total=len(items), desc=f"Getting image infos - {folder}", unit="files", ascii=True, dynamic_ncols=True)
         for item in items:
             if item not in EXCLUDES:
                 if os.path.isdir(os.path.join(folder, item)):
@@ -302,8 +303,9 @@ def list_folder(folder: str, title: str) -> None:
                             _info = f.read()
                             info[urllib.parse.quote(folder)] = _info
             if not args.non_interactive_mode:
-                imgpbar.update(1)
+                pbardict[folder].update(1)
                 pbar.update(0)
+        pbardict[folder].close()
         sizelistfile.seek(0)
         sizelistfile.write(json.dumps(sizelist, indent=4))
         sizelistfile.truncate()
