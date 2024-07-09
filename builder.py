@@ -18,9 +18,9 @@ try:
     import cairosvg
     from io import BytesIO
 
-    svgsupport = True
-except:
-    svgsupport = False
+    SVGSUPPORT = True
+except ImportError:
+    SVGSUPPORT = False
 
 import cclicense
 
@@ -31,7 +31,7 @@ FAVICON_PATH = ".static/favicon.ico"
 GLOBAL_CSS_PATH = ".static/global.css"
 DEFAULT_THEME_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), "themes", "default.css")
 DEFAULT_AUTHOR = "Author"
-VERSION = "1.9.11"
+VERSION = "1.9.12"
 RAW_EXTENSIONS = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
 IMG_EXTENSIONS = [".jpg", ".jpeg"]
 EXCLUDES = [".lock", "index.html", "manifest.json", ".sizelist.json", ".thumbnails", ".static"]
@@ -106,8 +106,7 @@ def parse_arguments() -> Args:
 # fmt: on
 
 
-def init_globals(_args: Args) -> Args:
-    global RAW_EXTENSIONS
+def init_globals(_args: Args, raw: list[str]) -> Args:
     if not _args.file_extensions:
         _args.file_extensions = IMG_EXTENSIONS
     if not _args.exclude_folders:
@@ -115,9 +114,9 @@ def init_globals(_args: Args) -> Args:
     _args.root_directory = _args.root_directory.rstrip("/") + "/"
     _args.web_root_url = _args.web_root_url.rstrip("/") + "/"
 
-    RAW_EXTENSIONS = [ext.lower() for ext in RAW_EXTENSIONS] + [ext.upper() for ext in RAW_EXTENSIONS]
+    raw = [ext.lower() for ext in raw] + [ext.upper() for ext in raw]
 
-    return _args
+    return _args, raw
 
 
 def copy_static_files(_args: Args) -> None:
@@ -133,7 +132,7 @@ def copy_static_files(_args: Args) -> None:
 def webmanifest(_args: Args) -> None:
     icons: List[Icon] = []
     files = os.listdir(os.path.join(STATIC_FILES_DIR, "icons"))
-    if svgsupport and any(file.endswith(".svg") for file in files):
+    if SVGSUPPORT and any(file.endswith(".svg") for file in files):
         svg = [file for file in files if file.endswith(".svg")][0]
         icons.append(
             {"src": f"{_args.web_root_url}.static/icons/{svg}", "type": "image/svg+xml", "sizes": "512x512", "purpose": "maskable"}
@@ -182,7 +181,7 @@ def webmanifest(_args: Args) -> None:
             print("No icons found in the static/icons folder!")
             return
 
-    with open(os.path.join(_args.root_directory, ".static", "theme.css")) as f:
+    with open(os.path.join(_args.root_directory, ".static", "theme.css"), "r", encoding="utf-8") as f:
         content = f.read()
     background_color = (
         content.replace("body{", "body {").split("body {")[1].split("}")[0].split("background-color:")[1].split(";")[0].strip()
@@ -202,10 +201,10 @@ def webmanifest(_args: Args) -> None:
         f.write(content)
 
 
-def generate_thumbnail(arguments: Tuple[str, str]) -> None:
-    folder, item = arguments
-    path = os.path.join(args.root_directory, ".thumbnails", folder.removeprefix(args.root_directory), os.path.splitext(item)[0]) + ".jpg"
-    if not os.path.exists(path) or args.regenerate_thumbnails:
+def generate_thumbnail(arguments: Tuple[str, str, str, bool]) -> None:
+    folder, item, root_directory, regenerate_thumbnails = arguments
+    path = os.path.join(root_directory, ".thumbnails", folder.removeprefix(root_directory), os.path.splitext(item)[0]) + ".jpg"
+    if not os.path.exists(path) or regenerate_thumbnails:
         if os.path.exists(path):
             os.remove(path)
         try:
@@ -217,29 +216,29 @@ def generate_thumbnail(arguments: Tuple[str, str]) -> None:
             print(f"Failed to generate thumbnail for {os.path.join(folder, item)}")
 
 
-def get_total_folders(folder: str, _total: int = 0) -> int:
+def get_total_folders(folder: str, _args: Args, _total: int = 0) -> int:
 
     _total += 1
 
-    pbar.desc = f"Traversing filesystem - {folder}"
-    pbar.update(1)
+    pbardict["traversingbar"].desc = f"Traversing filesystem - {folder}"
+    pbardict["traversingbar"].update(1)
 
     items = os.listdir(folder)
     items.sort()
     for item in items:
         if item not in EXCLUDES:
             if os.path.isdir(os.path.join(folder, item)):
-                if item not in args.exclude_folders:
+                if item not in _args.exclude_folders:
                     skip = False
-                    for exclude in args.exclude_folders:
+                    for exclude in _args.exclude_folders:
                         if fnmatch.fnmatchcase(os.path.join(folder, item), exclude):
                             skip = True
                     if not skip:
-                        _total = get_total_folders(os.path.join(folder, item), _total)
+                        _total = get_total_folders(os.path.join(folder, item), _args, _total)
     return _total
 
 
-def list_folder(folder: str, title: str) -> None:
+def list_folder(folder: str, title: str, _args: Args, raw: list[str]) -> None:
     sizelist: Dict[Dict[str, int], Dict[str, int]] = {}
     if not os.path.exists(os.path.join(folder, ".sizelist.json")):
         sizelistfile = open(os.path.join(folder, ".sizelist.json"), "x", encoding="utf-8")
@@ -251,31 +250,33 @@ def list_folder(folder: str, title: str) -> None:
         items.sort()
         images: List[Dict[str, Any]] = []
         subfolders: List[Dict[str, str]] = []
-        foldername = folder.removeprefix(args.root_directory)
+        foldername = folder.removeprefix(_args.root_directory)
         foldername = f"{foldername}/" if foldername else ""
         baseurl = urllib.parse.quote(foldername)
-        if not os.path.exists(os.path.join(args.root_directory, ".thumbnails", foldername)):
-            os.mkdir(os.path.join(args.root_directory, ".thumbnails", foldername))
+        if not os.path.exists(os.path.join(_args.root_directory, ".thumbnails", foldername)):
+            os.mkdir(os.path.join(_args.root_directory, ".thumbnails", foldername))
         contains_files = False
-        if not args.non_interactive_mode:
+        if not _args.non_interactive_mode:
             pbardict[folder] = tqdm(total=len(items), desc=f"Getting image infos - {folder}", unit="files", ascii=True, dynamic_ncols=True)
         for item in items:
             if item not in EXCLUDES:
                 if os.path.isdir(os.path.join(folder, item)):
-                    subfolder = {"url": f"{args.web_root_url}{baseurl}{urllib.parse.quote(item)}", "name": item}
+                    subfolder = {"url": f"{_args.web_root_url}{baseurl}{urllib.parse.quote(item)}", "name": item}
                     subfolders.append(subfolder)
-                    if item not in args.exclude_folders:
+                    if item not in _args.exclude_folders:
                         skip = False
-                        for exclude in args.exclude_folders:
+                        for exclude in _args.exclude_folders:
                             if fnmatch.fnmatchcase(os.path.join(folder, item), exclude):
                                 skip = True
                         if not skip:
-                            list_folder(os.path.join(folder, item), os.path.join(folder, item).removeprefix(args.root_directory))
+                            list_folder(
+                                os.path.join(folder, item), os.path.join(folder, item).removeprefix(_args.root_directory), _args, raw
+                            )
                 else:
                     extsplit = os.path.splitext(item)
                     contains_files = True
-                    if extsplit[1].lower() in args.file_extensions:
-                        if not sizelist.get(item) or args.regenerate_thumbnails:
+                    if extsplit[1].lower() in _args.file_extensions:
+                        if not sizelist.get(item) or _args.regenerate_thumbnails:
                             exifdata = {}
                             with Image.open(os.path.join(folder, item)) as img:
                                 exif = img.getexif()
@@ -292,37 +293,37 @@ def list_folder(folder: str, title: str) -> None:
                                 sizelist[item] = {"width": width, "height": height}
 
                         image = {
-                            "url": f"{args.web_root_url}{baseurl}{urllib.parse.quote(item)}",
-                            "thumbnail": f"{args.web_root_url}.thumbnails/{baseurl}{urllib.parse.quote(extsplit[0])}.jpg",
+                            "url": f"{_args.web_root_url}{baseurl}{urllib.parse.quote(item)}",
+                            "thumbnail": f"{_args.web_root_url}.thumbnails/{baseurl}{urllib.parse.quote(extsplit[0])}.jpg",
                             "name": item,
                             "width": sizelist[item]["width"],
                             "height": sizelist[item]["height"],
                         }
-                        if not os.path.exists(os.path.join(args.root_directory, ".thumbnails", foldername, item)):
-                            thumbnails.append((folder, item))
-                        for raw in RAW_EXTENSIONS:
-                            if os.path.exists(os.path.join(folder, extsplit[0] + raw)):
-                                url = urllib.parse.quote(extsplit[0]) + raw
-                                if raw in (".tif", ".tiff"):
-                                    image["tiff"] = f"{args.web_root_url}{baseurl}{url}"
+                        if not os.path.exists(os.path.join(_args.root_directory, ".thumbnails", foldername, item)):
+                            thumbnails.append((folder, item, _args.root_directory, _args.regenerate_thumbnails))
+                        for _raw in raw:
+                            if os.path.exists(os.path.join(folder, extsplit[0] + _raw)):
+                                url = urllib.parse.quote(extsplit[0]) + _raw
+                                if _raw in (".tif", ".tiff"):
+                                    image["tiff"] = f"{_args.web_root_url}{baseurl}{url}"
                                 else:
-                                    image["raw"] = f"{args.web_root_url}{baseurl}{url}"
+                                    image["raw"] = f"{_args.web_root_url}{baseurl}{url}"
                         images.append(image)
                     if item == "info":
                         with open(os.path.join(folder, item), encoding="utf-8") as f:
                             _info = f.read()
                             info[urllib.parse.quote(folder)] = _info
-            if not args.non_interactive_mode:
+            if not _args.non_interactive_mode:
                 pbardict[folder].update(1)
-                pbar.update(0)
-        if not args.non_interactive_mode:
+                pbardict["htmlbar"].update(0)
+        if not _args.non_interactive_mode:
             pbardict[folder].close()
         sizelistfile.seek(0)
         sizelistfile.write(json.dumps(sizelist, indent=4))
         sizelistfile.truncate()
-        if not contains_files and not args.use_fancy_folders:
+        if not contains_files and not _args.use_fancy_folders:
             return
-        if images or (args.use_fancy_folders and not contains_files) or (args.use_fancy_folders and args.ignore_other_files):
+        if images or (_args.use_fancy_folders and not contains_files) or (_args.use_fancy_folders and _args.ignore_other_files):
             image_chunks = np.array_split(images, 8) if images else []
             with open(os.path.join(folder, "index.html"), "w", encoding="utf-8") as f:
                 _info: List[str] = None
@@ -330,17 +331,17 @@ def list_folder(folder: str, title: str) -> None:
                 parent = (
                     None
                     if not foldername
-                    else f"{args.web_root_url}{urllib.parse.quote(foldername.removesuffix(folder.split('/')[-1] + '/'))}"
+                    else f"{_args.web_root_url}{urllib.parse.quote(foldername.removesuffix(folder.split('/')[-1] + '/'))}"
                 )
                 license_info: cclicense.License = (
                     {
-                        "project": args.site_title,
-                        "author": args.author_name,
-                        "type": cclicense.licensenameswitch(args.license_type),
-                        "url": cclicense.licenseurlswitch(args.license_type),
-                        "pics": cclicense.licensepicswitch(args.license_type),
+                        "project": _args.site_title,
+                        "author": _args.author_name,
+                        "type": cclicense.licensenameswitch(_args.license_type),
+                        "url": cclicense.licenseurlswitch(_args.license_type),
+                        "pics": cclicense.licensepicswitch(_args.license_type),
                     }
-                    if args.license_type
+                    if _args.license_type
                     else None
                 )
                 if urllib.parse.quote(folder) in info:
@@ -352,10 +353,10 @@ def list_folder(folder: str, title: str) -> None:
                 html = env.get_template("index.html.j2")
                 content = html.render(
                     title=title,
-                    favicon=f"{args.web_root_url}{FAVICON_PATH}",
-                    stylesheet=f"{args.web_root_url}{GLOBAL_CSS_PATH}",
-                    theme=f"{args.web_root_url}.static/theme.css",
-                    root=args.web_root_url,
+                    favicon=f"{_args.web_root_url}{FAVICON_PATH}",
+                    stylesheet=f"{_args.web_root_url}{GLOBAL_CSS_PATH}",
+                    theme=f"{_args.web_root_url}.static/theme.css",
+                    root=_args.web_root_url,
                     parent=parent,
                     header=header,
                     license=license_info,
@@ -363,21 +364,19 @@ def list_folder(folder: str, title: str) -> None:
                     images=image_chunks,
                     info=_info,
                     allimages=images,
-                    webmanifest=args.generate_webmanifest,
+                    webmanifest=_args.generate_webmanifest,
                 )
                 f.write(content)
         else:
             if os.path.exists(os.path.join(folder, "index.html")):
                 os.remove(os.path.join(folder, "index.html"))
-        if not args.non_interactive_mode:
-            pbar.update(1)
+        if not _args.non_interactive_mode:
+            pbardict["htmlbar"].update(1)
 
 
 def main() -> None:
-    global args, pbar
-
     args = parse_arguments()
-    args = init_globals(args)
+    args, raw = init_globals(args, RAW_EXTENSIONS)
 
     if os.path.exists(os.path.join(args.root_directory, ".lock")):
         print("Another instance of this program is running.")
@@ -396,20 +395,20 @@ def main() -> None:
 
         if args.non_interactive_mode:
             print("Generating HTML files...")
-            list_folder(args.root_directory, args.site_title)
+            list_folder(args.root_directory, args.site_title, args, raw)
             with Pool(os.cpu_count()) as pool:
                 print("Generating thumbnails...")
                 pool.map(generate_thumbnail, thumbnails)
         else:
-            pbar = tqdm(desc="Traversing filesystem", unit="folders", ascii=True, dynamic_ncols=True)
-            total = get_total_folders(args.root_directory)
-            pbar.desc = "Traversing filesystem"
-            pbar.update(0)
-            pbar.close()
+            pbardict["traversingbar"] = tqdm(desc="Traversing filesystem", unit="folders", ascii=True, dynamic_ncols=True)
+            total = get_total_folders(args.root_directory, args)
+            pbardict["traversingbar"].desc = "Traversing filesystem"
+            pbardict["traversingbar"].update(0)
+            pbardict["traversingbar"].close()
 
-            pbar = tqdm(total=total, desc="Generating HTML files", unit="folders", ascii=True, dynamic_ncols=True)
-            list_folder(args.root_directory, args.site_title)
-            pbar.close()
+            pbardict["htmlbar"] = tqdm(total=total, desc="Generating HTML files", unit="folders", ascii=True, dynamic_ncols=True)
+            list_folder(args.root_directory, args.site_title, args, raw)
+            pbardict["htmlbar"].close()
 
             with Pool(os.cpu_count()) as pool:
                 for _ in tqdm(
