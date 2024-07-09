@@ -272,7 +272,7 @@ def list_folder(folder: str, title: str) -> None:
                     extsplit = os.path.splitext(item)
                     contains_files = True
                     if extsplit[1].lower() in args.file_extensions:
-                        if not sizelist.get(item):
+                        if not sizelist.get(item) or args.regenerate_thumbnails:
                             exifdata = {}
                             with Image.open(os.path.join(folder, item)) as img:
                                 exif = img.getexif()
