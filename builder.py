@@ -128,7 +128,7 @@ def webmanifest(_args: Args) -> None:
     files = os.listdir(os.path.join(STATIC_FILES_DIR, "icons"))
     if svgsupport and any(file.endswith(".svg") for file in files):
         svg = [file for file in files if file.endswith(".svg")][0]
-        icons.append({"src": f"{_args.web_root_url}.static/icons/{svg}", "type": "image/svg+xml", "sizes": "any"})
+        icons.append({"src": f"{_args.web_root_url}.static/icons/{svg}", "type": "image/svg+xml", "sizes": "512x512"})
         for size in ICON_SIZES:
             tmpimg = BytesIO()
             sizes = size.split("x")
