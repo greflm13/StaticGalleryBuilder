@@ -135,7 +135,9 @@ def webmanifest(_args: Args) -> None:
     files = os.listdir(os.path.join(STATIC_FILES_DIR, "icons"))
     if svgsupport and any(file.endswith(".svg") for file in files):
         svg = [file for file in files if file.endswith(".svg")][0]
-        icons.append({"src": f"{_args.web_root_url}.static/icons/{svg}", "type": "image/svg+xml", "sizes": "512x512", "purpose": "maskable"})
+        icons.append(
+            {"src": f"{_args.web_root_url}.static/icons/{svg}", "type": "image/svg+xml", "sizes": "512x512", "purpose": "maskable"}
+        )
         icons.append({"src": f"{_args.web_root_url}.static/icons/{svg}", "type": "image/svg+xml", "sizes": "512x512", "purpose": "any"})
         for size in ICON_SIZES:
             tmpimg = BytesIO()
@@ -172,7 +174,9 @@ def webmanifest(_args: Args) -> None:
                 continue
             with Image.open(os.path.join(STATIC_FILES_DIR, "icons", icon)) as iconfile:
                 iconsize = f"{iconfile.size[0]}x{iconfile.size[1]}"
-            icons.append({"src": f"{_args.web_root_url}.static/icons/{icon}", "sizes": iconsize, "type": "image/png", "purpose": "maskable"})
+            icons.append(
+                {"src": f"{_args.web_root_url}.static/icons/{icon}", "sizes": iconsize, "type": "image/png", "purpose": "maskable"}
+            )
             icons.append({"src": f"{_args.web_root_url}.static/icons/{icon}", "sizes": iconsize, "type": "image/png", "purpose": "any"})
         if len(icons) == 0:
             print("No icons found in the static/icons folder!")
@@ -180,8 +184,12 @@ def webmanifest(_args: Args) -> None:
 
     with open(os.path.join(_args.root_directory, ".static", "theme.css")) as f:
         content = f.read()
-    background_color = content.replace("body{", "body {").split("body {")[1].split("}")[0].split("background-color:")[1].split(";")[0].strip()
-    theme_color = content.replace(".navbar{", "navbar {").split(".navbar {")[1].split("}")[0].split("background-color:")[1].split(";")[0].strip()
+    background_color = (
+        content.replace("body{", "body {").split("body {")[1].split("}")[0].split("background-color:")[1].split(";")[0].strip()
+    )
+    theme_color = (
+        content.replace(".navbar{", "navbar {").split(".navbar {")[1].split("}")[0].split("background-color:")[1].split(";")[0].strip()
+    )
     with open(os.path.join(_args.root_directory, ".static", "manifest.json"), "w", encoding="utf-8") as f:
         manifest = env.get_template("manifest.json.j2")
         content = manifest.render(
@@ -305,7 +313,8 @@ def list_folder(folder: str, title: str) -> None:
             if not args.non_interactive_mode:
                 pbardict[folder].update(1)
                 pbar.update(0)
-        pbardict[folder].close()
+        if not args.non_interactive_mode:
+            pbardict[folder].close()
         sizelistfile.seek(0)
         sizelistfile.write(json.dumps(sizelist, indent=4))
         sizelistfile.truncate()
@@ -316,7 +325,11 @@ def list_folder(folder: str, title: str) -> None:
             with open(os.path.join(folder, "index.html"), "w", encoding="utf-8") as f:
                 _info: List[str] = None
                 header = os.path.basename(folder) or title
-                parent = None if not foldername else f"{args.web_root_url}{urllib.parse.quote(foldername.removesuffix(folder.split('/')[-1] + '/'))}"
+                parent = (
+                    None
+                    if not foldername
+                    else f"{args.web_root_url}{urllib.parse.quote(foldername.removesuffix(folder.split('/')[-1] + '/'))}"
+                )
                 license_info: cclicense.License = (
                     {
                         "project": args.site_title,
