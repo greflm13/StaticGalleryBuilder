@@ -121,7 +121,7 @@
                     "-t",
                     "Pictures",
                     "--theme",
-                    "themes/cornflower.css",
+                    "themes/ivy.css",
                     "--use-fancy-folders",
                     "--web-manifest",
                     "-n",
