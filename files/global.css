@@ -147,8 +147,9 @@ figure {
 
 .column img {
   margin-top: 20px;
-  vertical-align: middle;
   width: 100%;
+  display: block;
+  overflow: hidden;
   aspect-ratio: 1 / 1;
   object-fit: contain;
 }
