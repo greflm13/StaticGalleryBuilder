@@ -151,7 +151,7 @@ def webmanifest(_args: Args) -> None:
                 continue
             with Image.open(os.path.join(STATIC_FILES_DIR, "icons", icon)) as iconfile:
                 iconsize = f"{iconfile.size[0]}x{iconfile.size[1]}"
-            icons.append({"src": f"{_args.web_root_url}/.static/icons/{icon}", "sizes": iconsize, "type": "image/png"})
+            icons.append({"src": f"{_args.web_root_url}.static/icons/{icon}", "sizes": iconsize, "type": "image/png"})
         if len(icons) == 0:
             print("No icons found in the static/icons folder!")
             return
