@@ -123,8 +123,10 @@ def copy_static_files(_args: Args) -> None:
     if os.path.exists(os.path.join(_args.root_directory, ".static")):
         print("Removing existing .static folder...")
         shutil.rmtree(os.path.join(_args.root_directory, ".static"))
-    shutil.copytree(STATIC_FILES_DIR, os.path.join(_args.root_directory, ".static"), dirs_exist_ok=True)
-    shutil.copyfile(_args.theme_path, os.path.join(_args.root_directory, ".static", "theme.css"))
+    if not os.path.exists(os.path.join(_args.root_directory, ".static")):
+        print("Copying static files...")
+        shutil.copytree(STATIC_FILES_DIR, os.path.join(_args.root_directory, ".static"), dirs_exist_ok=True)
+        shutil.copyfile(_args.theme_path, os.path.join(_args.root_directory, ".static", "theme.css"))
 
 
 def webmanifest(_args: Args) -> None:
@@ -369,7 +371,6 @@ def main() -> None:
         if not os.path.exists(os.path.join(args.root_directory, ".thumbnails")):
             os.mkdir(os.path.join(args.root_directory, ".thumbnails"))
 
-        print("Copying static files...")
         copy_static_files(args)
 
         if args.generate_webmanifest:
