@@ -1,5 +1,7 @@
 {
     "name": "{{ name }}",
+    "short_name": "{{ short_name }}",
+    "description": "{{ name }} - A static web gallery - made with StaticGalleryBuilder (https://github.com/greflm13/StaticGalleryBuilder)",
     "icons": [
         {% for icon in icons -%}
         {
@@ -10,7 +12,7 @@
         }{% if not loop.last %},{% endif %}
         {%- endfor %}
     ],
-    "id": "{{ id }}",
+    "id": "/",
     "start_url": "/",
     "background_color": "{{ background_color }}",
     "display": "standalone",

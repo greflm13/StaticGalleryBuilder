@@ -31,7 +31,7 @@ FAVICON_PATH = ".static/favicon.ico"
 GLOBAL_CSS_PATH = ".static/global.css"
 DEFAULT_THEME_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), "themes", "default.css")
 DEFAULT_AUTHOR = "Author"
-VERSION = "1.9.0"
+VERSION = "1.9.1"
 RAW_EXTENSIONS = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
 IMG_EXTENSIONS = [".jpg", ".jpeg"]
 EXCLUDES = [".lock", "index.html", "manifest.json", ".sizelist.json", ".thumbnails", ".static"]
@@ -128,7 +128,7 @@ def webmanifest(_args: Args) -> None:
     files = os.listdir(os.path.join(STATIC_FILES_DIR, "icons"))
     if svgsupport and any(file.endswith(".svg") for file in files):
         svg = [file for file in files if file.endswith(".svg")][0]
-        icons.append({"src": f"/icons/svg", "type": "image/svg+xml", "sizes": "any"})
+        icons.append({"src": f"{_args.web_root_url}/icons/{svg}", "type": "image/svg+xml", "sizes": "any"})
         for size in ICON_SIZES:
             tmpimg = BytesIO()
             sizes = size.split("x")
@@ -142,19 +142,18 @@ def webmanifest(_args: Args) -> None:
             )
             with Image.open(tmpimg) as iconfile:
                 iconfile.save(iconpath, format="PNG")
-            icons.append({"src": iconpath, "sizes": size, "type": "image/png"})
+            icons.append({"src": f"{_args.web_root_url}/.static/icons/{os.path.splitext(svg)[0] + "-" + size + ".png"}", "sizes": size, "type": "image/png"})
     else:
         for icon in os.listdir(os.path.join(STATIC_FILES_DIR, "icons")):
             if not icon.endswith(".png"):
                 continue
             with Image.open(os.path.join(STATIC_FILES_DIR, "icons", icon)) as iconfile:
                 iconsize = f"{iconfile.size[0]}x{iconfile.size[1]}"
-            icons.append({"src": f".static/pwa/icons/{icon}", "sizes": iconsize, "type": "image/png"})
+            icons.append({"src": f"{_args.web_root_url}/.static/icons/{icon}", "sizes": iconsize, "type": "image/png"})
         if len(icons) == 0:
             print("No icons found in the static/icons folder!")
             return
 
-    site_id = urllib.parse.quote(_args.web_root_url.replace("https://", "").replace("http://", "").replace("/", ""))
     with open(os.path.join(_args.root_directory, ".static", "theme.css")) as f:
         content = f.read()
     background_color = (
@@ -163,12 +162,12 @@ def webmanifest(_args: Args) -> None:
     theme_color = (
         content.replace(".navbar{", "navbar {").split(".navbar {")[1].split("}")[0].split("background-color:")[1].split(";")[0].strip()
     )
-    with open(os.path.join(_args.root_directory, "manifest.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(_args.root_directory, ".static", "manifest.json"), "w", encoding="utf-8") as f:
         manifest = env.get_template("manifest.json.j2")
         content = manifest.render(
-            name=_args.site_title,
+            name=_args.web_root_url.replace("https://", "").replace("http://", "").replace("/", ""),
+            short_name=_args.site_title,
             icons=icons,
-            id=site_id,
             background_color=background_color,
             theme_color=theme_color,
         )
