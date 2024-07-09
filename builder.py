@@ -31,7 +31,7 @@ FAVICON_PATH = ".static/favicon.ico"
 GLOBAL_CSS_PATH = ".static/global.css"
 DEFAULT_THEME_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), "themes", "default.css")
 DEFAULT_AUTHOR = "Author"
-VERSION = "1.9.2"
+VERSION = "1.9.3"
 RAW_EXTENSIONS = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
 IMG_EXTENSIONS = [".jpg", ".jpeg"]
 EXCLUDES = [".lock", "index.html", "manifest.json", ".sizelist.json", ".thumbnails", ".static"]
@@ -49,6 +49,7 @@ class Icon:
     src: str
     type: str
     sizes: str
+    purpose: str
 
 
 class Args:
@@ -128,7 +129,10 @@ def webmanifest(_args: Args) -> None:
     files = os.listdir(os.path.join(STATIC_FILES_DIR, "icons"))
     if svgsupport and any(file.endswith(".svg") for file in files):
         svg = [file for file in files if file.endswith(".svg")][0]
-        icons.append({"src": f"{_args.web_root_url}.static/icons/{svg}", "type": "image/svg+xml", "sizes": "512x512"})
+        icons.append(
+            {"src": f"{_args.web_root_url}.static/icons/{svg}", "type": "image/svg+xml", "sizes": "512x512", "purpose": "maskable"}
+        )
+        icons.append({"src": f"{_args.web_root_url}.static/icons/{svg}", "type": "image/svg+xml", "sizes": "512x512", "purpose": "any"})
         for size in ICON_SIZES:
             tmpimg = BytesIO()
             sizes = size.split("x")
@@ -143,7 +147,20 @@ def webmanifest(_args: Args) -> None:
             with Image.open(tmpimg) as iconfile:
                 iconfile.save(iconpath, format="PNG")
             icons.append(
-                {"src": f"{_args.web_root_url}.static/icons/{os.path.splitext(svg)[0]}-{size}.png", "sizes": size, "type": "image/png"}
+                {
+                    "src": f"{_args.web_root_url}.static/icons/{os.path.splitext(svg)[0]}-{size}.png",
+                    "sizes": size,
+                    "type": "image/png",
+                    "purpose": "maskable",
+                }
+            )
+            icons.append(
+                {
+                    "src": f"{_args.web_root_url}.static/icons/{os.path.splitext(svg)[0]}-{size}.png",
+                    "sizes": size,
+                    "type": "image/png",
+                    "purpose": "any",
+                }
             )
     else:
         for icon in os.listdir(os.path.join(STATIC_FILES_DIR, "icons")):
@@ -151,7 +168,10 @@ def webmanifest(_args: Args) -> None:
                 continue
             with Image.open(os.path.join(STATIC_FILES_DIR, "icons", icon)) as iconfile:
                 iconsize = f"{iconfile.size[0]}x{iconfile.size[1]}"
-            icons.append({"src": f"{_args.web_root_url}.static/icons/{icon}", "sizes": iconsize, "type": "image/png"})
+            icons.append(
+                {"src": f"{_args.web_root_url}.static/icons/{icon}", "sizes": iconsize, "type": "image/png", "purpose": "maskable"}
+            )
+            icons.append({"src": f"{_args.web_root_url}.static/icons/{icon}", "sizes": iconsize, "type": "image/png", "purpose": "any"})
         if len(icons) == 0:
             print("No icons found in the static/icons folder!")
             return

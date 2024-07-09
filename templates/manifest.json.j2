@@ -8,7 +8,7 @@
             "src": "{{ icon.src }}",
             "sizes": "{{ icon.sizes }}",
             "type": "{{ icon.type }}",
-            "purpose": "maskable"
+            "purpose": "{{ icon.purpose }}"
         }{% if not loop.last %},{% endif %}
         {%- endfor %}
     ],
