@@ -42,6 +42,11 @@
   background-color: #313537;
 }
 
+.column img {
+  background-color: #0c0d0e;
+}
+
+
 body {
   color: #e8e6e3;
   background-color: #181a1b;

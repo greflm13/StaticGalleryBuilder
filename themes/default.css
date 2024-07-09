@@ -42,6 +42,11 @@
   background-color: #ddd;
 }
 
+.column img {
+  background-color: #888;
+}
+
+
 body {
   color: #000;
   background-color: #fff;
