@@ -31,7 +31,7 @@ FAVICON_PATH = ".static/favicon.ico"
 GLOBAL_CSS_PATH = ".static/global.css"
 DEFAULT_THEME_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), "themes", "default.css")
 DEFAULT_AUTHOR = "Author"
-VERSION = "1.9.3"
+VERSION = "1.9.4"
 RAW_EXTENSIONS = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
 IMG_EXTENSIONS = [".jpg", ".jpeg"]
 EXCLUDES = [".lock", "index.html", "manifest.json", ".sizelist.json", ".thumbnails", ".static"]
@@ -120,7 +120,11 @@ def init_globals(_args: Args) -> Args:
 
 
 def copy_static_files(_args: Args) -> None:
+    if os.path.exists(os.path.join(_args.root_directory, ".static")):
+        shutil.rmtree(os.path.join(_args.root_directory, ".static"))
     shutil.copytree(STATIC_FILES_DIR, os.path.join(_args.root_directory, ".static"), dirs_exist_ok=True)
+    if os.path.exists(os.path.join(_args.root_directory, ".static", "theme.css")):
+        os.remove(os.path.join(_args.root_directory, ".static", "theme.css"))
     shutil.copyfile(_args.theme_path, os.path.join(_args.root_directory, ".static", "theme.css"))
 
 
