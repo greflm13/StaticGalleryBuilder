@@ -29,6 +29,30 @@
         "gitblame.inlineMessageEnabled": true,
         "gitblame.inlineMessageFormat": "${author.name}, ${time.ago} • ${commit.summary}",
         "gitblame.statusBarMessageFormat": "${author.name} (${time.ago})",
+        "html.format.templating": true,
+        "html.format.wrapAttributes": "preserve",
+        "html.format.wrapLineLength": 200,
+        "html.format.indentHandlebars": true,
+        "html.suggest.html5": true,
+        "html.hover.documentation": true,
+        "html.validate.scripts": true,
+        "html.validate.styles": true,
+        "prettier.htmlWhitespaceSensitivity": "css",
+        "json.schemaDownload.enable": true,
+        "json.schemas": [
+            {
+                "fileMatch": [
+                    "manifest.json.j2"
+                ],
+                "url": "https://json.schemastore.org/web-manifest-combined.json"
+            }
+        ],
+        "emmet.includeLanguages": {
+            "jinja-html": "html",
+            "jinja-css": "css",
+            "jinja-js": "javascript",
+            "jinja-json": "json"
+        },
         "[python]": {
             "editor.defaultFormatter": "ms-python.black-formatter"
         },
@@ -41,10 +65,9 @@
         "[jinja-css]": {
             "editor.defaultFormatter": "vscode.css-language-features"
         },
-        "html.format.templating": true,
-        "html.format.wrapAttributes": "preserve",
-        "html.format.wrapLineLength": 200,
-        "html.format.indentHandlebars": true
+        "[jinja-js]": {
+            "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
     },
     "extensions": {
         "recommendations": [
@@ -76,8 +99,9 @@
                     "-t",
                     "Pictures",
                     "--theme",
-                    "themes/kjoe.css",
+                    "themes/default.css",
                     "--use-fancy-folders",
+                    "--web-manifest",
                     "-n"
                 ],
                 "postDebugTask": "Delete Lockfile"
@@ -98,6 +122,7 @@
                     "--theme",
                     "themes/kjoe.css",
                     "--use-fancy-folders",
+                    "--web-manifest",
                     "-n"
                 ],
                 "postDebugTask": "Delete Lockfile 2"

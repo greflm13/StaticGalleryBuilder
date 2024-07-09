@@ -14,6 +14,14 @@ from tqdm.auto import tqdm
 from PIL import Image
 from rich_argparse import RichHelpFormatter, HelpPreviewAction
 
+try:
+    import cairosvg
+    from io import BytesIO
+
+    svgsupport = True
+except:
+    svgsupport = False
+
 import cclicense
 
 # fmt: off
@@ -23,11 +31,12 @@ FAVICON_PATH = ".static/favicon.ico"
 GLOBAL_CSS_PATH = ".static/global.css"
 DEFAULT_THEME_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), "themes", "default.css")
 DEFAULT_AUTHOR = "Author"
-VERSION = "1.8.1"
+VERSION = "1.9.0"
 RAW_EXTENSIONS = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
 IMG_EXTENSIONS = [".jpg", ".jpeg"]
-EXCLUDES = [".lock", "index.html", ".sizelist.json", ".thumbnails", ".static"]
+EXCLUDES = [".lock", "index.html", "manifest.json", ".sizelist.json", ".thumbnails", ".static"]
 NOT_LIST = ["*/Galleries/*", "Archives"]
+ICON_SIZES = ["36x36", "48x48", "72x72", "96x96", "144x144", "192x192", "512x512"]
 # fmt: on
 
 # Initialize Jinja2 environment
@@ -36,19 +45,26 @@ thumbnails: List[Tuple[str, str]] = []
 info: Dict[str, str] = {}
 
 
+class Icon:
+    src: str
+    type: str
+    sizes: str
+
+
 class Args:
-    root_directory: str
-    web_root_url: str
-    site_title: str
-    regenerate_thumbnails: bool
-    non_interactive_mode: bool
-    use_fancy_folders: bool
-    license_type: Optional[str]
     author_name: str
-    file_extensions: List[str]
-    theme_path: str
-    ignore_other_files: bool
     exclude_folders: List[str]
+    file_extensions: List[str]
+    generate_webmanifest: bool
+    ignore_other_files: bool
+    license_type: Optional[str]
+    non_interactive_mode: bool
+    regenerate_thumbnails: bool
+    root_directory: str
+    site_title: str
+    theme_path: str
+    use_fancy_folders: bool
+    web_root_url: str
 
 
 # fmt: off
@@ -62,6 +78,7 @@ def parse_arguments() -> Args:
     parser.add_argument("-l", "--license-type", help="Specify the license type for the images.", choices=["cc-zero", "cc-by", "cc-by-sa", "cc-by-nd", "cc-by-nc", "cc-by-nc-sa", "cc-by-nc-nd"], default=None, dest="license_type", metavar="LICENSE")
     parser.add_argument("-a", "--author-name", help="Name of the author of the images.", default=DEFAULT_AUTHOR, type=str, dest="author_name", metavar="AUTHOR")
     parser.add_argument("-e", "--file-extensions", help="File extensions to include (can be specified multiple times).", action="append", dest="file_extensions", metavar="EXTENSION")
+    parser.add_argument("-m", "--web-manifest", help="Generate a web manifest file.", action="store_true", default=False, dest="generate_webmanifest")
     parser.add_argument("--theme-path", help="Path to the CSS theme file.", default=DEFAULT_THEME_PATH, type=str, dest="theme_path", metavar="PATH")
     parser.add_argument("--use-fancy-folders", help="Enable fancy folder view instead of the default Apache directory listing.", action="store_true", default=False, dest="use_fancy_folders")
     parser.add_argument("--ignore-other-files", help="Ignore files that do not match the specified extensions.", action="store_true", default=False, dest="ignore_other_files")
@@ -70,18 +87,19 @@ def parse_arguments() -> Args:
     parser.add_argument("--generate-help-preview", action=HelpPreviewAction, path="help.svg")
     parsed_args = parser.parse_args()
     _args = Args()
-    _args.root_directory = parsed_args.root_directory
-    _args.web_root_url = parsed_args.web_root_url
-    _args.site_title = parsed_args.site_title
-    _args.regenerate_thumbnails = parsed_args.regenerate_thumbnails
-    _args.non_interactive_mode = parsed_args.non_interactive_mode
-    _args.use_fancy_folders = parsed_args.use_fancy_folders
-    _args.license_type = parsed_args.license_type
     _args.author_name = parsed_args.author_name
-    _args.file_extensions = parsed_args.file_extensions
-    _args.theme_path = parsed_args.theme_path
-    _args.ignore_other_files = parsed_args.ignore_other_files
     _args.exclude_folders = parsed_args.exclude_folders
+    _args.file_extensions = parsed_args.file_extensions
+    _args.generate_webmanifest = parsed_args.generate_webmanifest
+    _args.ignore_other_files = parsed_args.ignore_other_files
+    _args.license_type = parsed_args.license_type
+    _args.non_interactive_mode = parsed_args.non_interactive_mode
+    _args.regenerate_thumbnails = parsed_args.regenerate_thumbnails
+    _args.root_directory = parsed_args.root_directory
+    _args.site_title = parsed_args.site_title
+    _args.theme_path = parsed_args.theme_path
+    _args.use_fancy_folders = parsed_args.use_fancy_folders
+    _args.web_root_url = parsed_args.web_root_url
     return _args
 # fmt: on
 
@@ -103,6 +121,58 @@ def init_globals(_args: Args) -> Args:
 def copy_static_files(_args: Args) -> None:
     shutil.copytree(STATIC_FILES_DIR, os.path.join(_args.root_directory, ".static"), dirs_exist_ok=True)
     shutil.copyfile(_args.theme_path, os.path.join(_args.root_directory, ".static", "theme.css"))
+
+
+def webmanifest(_args: Args) -> None:
+    icons: List[Icon] = []
+    files = os.listdir(os.path.join(STATIC_FILES_DIR, "icons"))
+    if svgsupport and any(file.endswith(".svg") for file in files):
+        svg = [file for file in files if file.endswith(".svg")][0]
+        icons.append({"src": f"/icons/svg", "type": "image/svg+xml", "sizes": "any"})
+        for size in ICON_SIZES:
+            tmpimg = BytesIO()
+            sizes = size.split("x")
+            iconpath = os.path.join(_args.root_directory, ".static", "icons", os.path.splitext(svg)[0] + "-" + size + ".png")
+            cairosvg.svg2png(
+                url=os.path.join(STATIC_FILES_DIR, "icons", svg),
+                write_to=tmpimg,
+                output_width=int(sizes[0]),
+                output_height=int(sizes[1]),
+                scale=1,
+            )
+            with Image.open(tmpimg) as iconfile:
+                iconfile.save(iconpath, format="PNG")
+            icons.append({"src": iconpath, "sizes": size, "type": "image/png"})
+    else:
+        for icon in os.listdir(os.path.join(STATIC_FILES_DIR, "icons")):
+            if not icon.endswith(".png"):
+                continue
+            with Image.open(os.path.join(STATIC_FILES_DIR, "icons", icon)) as iconfile:
+                iconsize = f"{iconfile.size[0]}x{iconfile.size[1]}"
+            icons.append({"src": f".static/pwa/icons/{icon}", "sizes": iconsize, "type": "image/png"})
+        if len(icons) == 0:
+            print("No icons found in the static/icons folder!")
+            return
+
+    site_id = urllib.parse.quote(_args.web_root_url.replace("https://", "").replace("http://", "").replace("/", ""))
+    with open(os.path.join(_args.root_directory, ".static", "theme.css")) as f:
+        content = f.read()
+    background_color = (
+        content.replace("body{", "body {").split("body {")[1].split("}")[0].split("background-color:")[1].split(";")[0].strip()
+    )
+    theme_color = (
+        content.replace(".navbar{", "navbar {").split(".navbar {")[1].split("}")[0].split("background-color:")[1].split(";")[0].strip()
+    )
+    with open(os.path.join(_args.root_directory, "manifest.json"), "w", encoding="utf-8") as f:
+        manifest = env.get_template("manifest.json.j2")
+        content = manifest.render(
+            name=_args.site_title,
+            icons=icons,
+            id=site_id,
+            background_color=background_color,
+            theme_color=theme_color,
+        )
+        f.write(content)
 
 
 def generate_thumbnail(arguments: Tuple[str, str]) -> None:
@@ -250,6 +320,7 @@ def list_folder(folder: str, title: str) -> None:
                     images=image_chunks,
                     info=_info,
                     allimages=images,
+                    webmanifest=args.generate_webmanifest,
                 )
                 f.write(content)
         else:
@@ -276,6 +347,10 @@ def main() -> None:
 
         print("Copying static files...")
         copy_static_files(args)
+
+        if args.generate_webmanifest:
+            print("Generating webmanifest...")
+            webmanifest(args)
 
         if args.non_interactive_mode:
             print("Generating HTML files...")

@@ -1,0 +1,19 @@
+{
+    "name": "{{ name }}",
+    "icons": [
+        {% for icon in icons -%}
+        {
+            "src": "{{ icon.src }}",
+            "sizes": "{{ icon.sizes }}",
+            "type": "{{ icon.type }}",
+            "purpose": "maskable"
+        }{% if not loop.last %},{% endif %}
+        {%- endfor %}
+    ],
+    "id": "{{ id }}",
+    "start_url": "/",
+    "background_color": "{{ background_color }}",
+    "display": "standalone",
+    "scope": "/",
+    "theme_color": "{{ theme_color }}"
+}

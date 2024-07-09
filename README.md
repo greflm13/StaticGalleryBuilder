@@ -16,6 +16,7 @@
 - **Selective File Extensions:** Ability to specify which file extensions to include in the gallery.
 - **Ignore Other Files:** Option to ignore files other than those specified by the included extensions.
 - **Info Tooltips:** Display additional information as tooltips for images if an `info` file is present in the directory.
+- **Generate Web Manifest:** Ability to generate a web manifest file for PWA (Progressive Web App) support.
 
 ## Requirements
 
@@ -25,13 +26,14 @@
 - `Jinja2` library
 - `Pillow` library
 - `rich_argparse` library
+- `cairosvg` library (for SVG to PNG icon conversion)
 
 ## Installation
 
 Install the required libraries using pip:
 
 ```sh
-pip install numpy tqdm Jinja2 Pillow rich-argparse
+pip install numpy tqdm Jinja2 Pillow rich-argparse cairosvg
 ```
 
 ## Usage
@@ -56,6 +58,7 @@ The script supports several command-line options to customize its behavior. Belo
 - `--ignore-other-files`: Ignore files that do not match the specified extensions.
 - `--exclude-folder FOLDER`: Specify folders to exclude from processing. This option can be specified multiple times.
 - `--version`: Show the version number of the script and exit.
+- `-m, --web-manifest`: Generate a web manifest file.
 
 ### Examples
 
@@ -87,6 +90,12 @@ To exclude specific folders and specify file extensions:
 
 ```sh
 ./builder.py -p /data/pictures -w https://pictures.example.com -t "My Photo Gallery" --exclude-folder Archives --exclude-folder Temp -e .jpg -e .jpeg -e .png
+```
+
+To generate a web manifest file:
+
+```sh
+./builder.py -p /data/pictures -w https://pictures.example.com -t "My Photo Gallery" -m
 ```
 
 ## Notes
