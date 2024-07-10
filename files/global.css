@@ -147,7 +147,7 @@ figure {
   opacity: 1;
 }
 
-/* Create four equal columns that sits next to each other */
+/* Create eight equal columns that sits next to each other */
 .column {
   -ms-flex: 12.5%;
   flex: 12.5%;
@@ -206,6 +206,14 @@ figure {
   .navbar {
     font-size: small;
   }
+
+  .navbar li a {
+    padding: 10px 8px;
+  }
+
+  .navbar li .header {
+    padding: 10px 8px;
+  }
 }
 
 /* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
@@ -226,6 +234,14 @@ figure {
   }
 
   .navbar {
-    font-size: smaller;
+    font-size: xx-small;
+  }
+
+  .navbar li a {
+    padding: 8px 7px;
+  }
+
+  .navbar li .header {
+    padding: 8px 7px;
   }
 }
