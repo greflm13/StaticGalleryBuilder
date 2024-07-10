@@ -77,7 +77,7 @@ def copy_static_files(_args: Args) -> None:
     shutil.copyfile(_args.theme_path, os.path.join(static_dir, "theme.css"))
 
 
-def generate_thumbnail(arguments: Tuple[str, str, str, bool]) -> None:
+def generate_thumbnail(arguments: Tuple[str, str, str]) -> None:
     """
     Generate a thumbnail for a given image.
 
@@ -86,7 +86,7 @@ def generate_thumbnail(arguments: Tuple[str, str, str, bool]) -> None:
     arguments : Tuple[str, str, str, bool]
         A tuple containing the folder, item, root directory, and regenerate thumbnails flag.
     """
-    folder, item, root_directory, regenerate_thumbnails = arguments
+    folder, item, root_directory = arguments
     path = os.path.join(root_directory, ".thumbnails", folder.removeprefix(root_directory), item) + ".jpg"
     oldpath = os.path.join(root_directory, ".thumbnails", folder.removeprefix(root_directory), os.path.splitext(item)[0]) + ".jpg"
     if os.path.exists(oldpath):
@@ -94,9 +94,7 @@ def generate_thumbnail(arguments: Tuple[str, str, str, bool]) -> None:
             shutil.move(oldpath, path)
         except FileNotFoundError:
             pass
-    if not os.path.exists(path) or regenerate_thumbnails:
-        if os.path.exists(path):
-            os.remove(path)
+    if not os.path.exists(path):
         try:
             with Image.open(os.path.join(folder, item)) as imgfile:
                 imgrgb = imgfile.convert("RGB")

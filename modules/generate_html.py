@@ -113,8 +113,11 @@ def process_image(item: str, folder: str, _args: Args, baseurl: str, sizelist: D
         "width": sizelist[item]["width"],
         "height": sizelist[item]["height"],
     }
-    if not os.path.exists(os.path.join(_args.root_directory, ".thumbnails", baseurl, item)):
-        thumbnails.append((folder, item, _args.root_directory, _args.regenerate_thumbnails))
+    path = os.path.join(_args.root_directory, ".thumbnails", baseurl, item + ".jpg")
+    if not os.path.exists(path) or _args.regenerate_thumbnails:
+        if os.path.exists(path):
+            os.remove(path)
+        thumbnails.append((folder, item, _args.root_directory))
 
     for _raw in raw:
         if os.path.exists(os.path.join(folder, extsplit[0] + _raw)):
