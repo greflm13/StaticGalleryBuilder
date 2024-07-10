@@ -151,9 +151,13 @@ def icons(_args: Args) -> None:
     with Image.open(tmpimg) as iconfile:
         iconfile.save(os.path.join(iconspath, "icon.png"))
     if shutil.which("magick"):
-        os.system(f'magick {os.path.join(iconspath, "icon.png")} -define icon:auto-resize=16,32,48,64,72,96,144,192 {os.path.join(_args.root_directory, ".static", "favicon.ico")}')
+        os.system(
+            f'magick {os.path.join(iconspath, "icon.png")} -define icon:auto-resize=16,32,48,64,72,96,144,192 {os.path.join(_args.root_directory, ".static", "favicon.ico")}'
+        )
     else:
-        os.system(f"convert {os.path.join(iconspath, "icon.png")} -define icon:auto-resize=16,32,48,64,72,96,144,192 {os.path.join(_args.root_directory, ".static", "favicon.ico")}")
+        os.system(
+            f'convert {os.path.join(iconspath, "icon.png")} -define icon:auto-resize=16,32,48,64,72,96,144,192 {os.path.join(_args.root_directory, ".static", "favicon.ico")}'
+        )
 
 
 def webmanifest(_args: Args) -> None:
