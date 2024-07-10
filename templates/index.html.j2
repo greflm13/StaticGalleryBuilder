@@ -146,6 +146,8 @@
       { src: "{{ image.url }}", w: {{ image.width }}, h: {{ image.height }}, msrc: "{{ image.thumbnail }}" },
       {%- endfor %}
     ];
+    var re = /pid=(\d+)/;
+
     function openSwipe(img) {
       // define options (if needed)
       var options = {
@@ -155,8 +157,9 @@
       var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, options);
       gallery.init();
     }
-    if (window.location.href.indexOf("pid=") > -1) {
-      var pid = window.location.href.split('pid=')[1].split('#')[0];
+
+    if (re.test(window.location.href)) {
+      var pid = window.location.href.match(re)[1];
       openSwipe(parseInt(pid));
     }
   </script>

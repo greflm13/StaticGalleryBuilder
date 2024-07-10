@@ -31,7 +31,7 @@ FAVICON_PATH = ".static/favicon.ico"
 GLOBAL_CSS_PATH = ".static/global.css"
 DEFAULT_THEME_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), "themes", "default.css")
 DEFAULT_AUTHOR = "Author"
-VERSION = "1.9.12"
+VERSION = "1.9.13"
 RAW_EXTENSIONS = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
 IMG_EXTENSIONS = [".jpg", ".jpeg"]
 EXCLUDES = [".lock", "index.html", "manifest.json", ".sizelist.json", ".thumbnails", ".static"]
@@ -321,6 +321,8 @@ def list_folder(folder: str, title: str, _args: Args, raw: list[str]) -> None:
         sizelistfile.seek(0)
         sizelistfile.write(json.dumps(sizelist, indent=4))
         sizelistfile.truncate()
+        if os.path.exists(os.path.join(folder, ".sizelist.json")) and sizelist == {}:
+            os.remove(os.path.join(folder, ".sizelist.json"))
         if not contains_files and not _args.use_fancy_folders:
             return
         if images or (_args.use_fancy_folders and not contains_files) or (_args.use_fancy_folders and _args.ignore_other_files):
@@ -370,6 +372,8 @@ def list_folder(folder: str, title: str, _args: Args, raw: list[str]) -> None:
         else:
             if os.path.exists(os.path.join(folder, "index.html")):
                 os.remove(os.path.join(folder, "index.html"))
+            if os.path.exists(os.path.join(folder, ".sizelist.json")):
+                os.remove(os.path.join(folder, ".sizelist.json"))
         if not _args.non_interactive_mode:
             pbardict["htmlbar"].update(1)
 
