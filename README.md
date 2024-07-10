@@ -17,6 +17,7 @@
 - **Ignore Other Files:** Option to ignore files other than those specified by the included extensions.
 - **Info Tooltips:** Display additional information as tooltips for images if an `info` file is present in the directory.
 - **Generate Web Manifest:** Ability to generate a web manifest file for PWA (Progressive Web App) support.
+- **Generate on the fly icons:** If `cairosvg` is installed the script will generate icons from the css theme colors automatically.
 
 ## Requirements
 

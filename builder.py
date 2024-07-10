@@ -5,6 +5,7 @@ import urllib.parse
 import shutil
 import fnmatch
 import json
+import re
 from multiprocessing import Pool
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -31,7 +32,7 @@ FAVICON_PATH = ".static/favicon.ico"
 GLOBAL_CSS_PATH = ".static/global.css"
 DEFAULT_THEME_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), "themes", "default.css")
 DEFAULT_AUTHOR = "Author"
-VERSION = "1.9.14"
+VERSION = "1.10.0"
 RAW_EXTENSIONS = [".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr", ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos", ".mrw", ".nef", ".nrw", ".obm", ".orf", ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rwl", ".rw2", ".rwz", ".sr2", ".srf", ".srw", ".tif", ".tiff", ".x3f"]
 IMG_EXTENSIONS = [".jpg", ".jpeg"]
 EXCLUDES = [".lock", "index.html", "manifest.json", ".sizelist.json", ".thumbnails", ".static"]
@@ -129,9 +130,35 @@ def copy_static_files(_args: Args) -> None:
         shutil.copyfile(_args.theme_path, os.path.join(_args.root_directory, ".static", "theme.css"))
 
 
+def icons(_args: Args) -> None:
+    pattern = r"--color([1-4]):\s*(#[0-9a-f]+);"
+    colorscheme = {}
+    iconspath = os.path.join(_args.root_directory, ".static", "icons")
+    with open(_args.theme_path, "r") as f:
+        filecontent = f.read()
+    matches = re.findall(pattern, filecontent)
+    for match in matches:
+        colorscheme["color" + match[0]] = match[1]
+    svg = env.get_template("icon.svg.j2")
+    content = svg.render(colorscheme=colorscheme)
+    with open(os.path.join(iconspath, "icon.svg"), "w+") as f:
+        f.write(content)
+    if not SVGSUPPORT:
+        print("Please install cairosvg to generate favicon from svg icon.")
+        return
+    tmpimg = BytesIO()
+    cairosvg.svg2png(bytestring=content, write_to=tmpimg)
+    with Image.open(tmpimg) as iconfile:
+        iconfile.save(os.path.join(iconspath, "icon.png"))
+    if shutil.which("magick"):
+        os.system(f'magick {os.path.join(iconspath, "icon.png")} -define icon:auto-resize=16,32,48,64,72,96,144,192 {os.path.join(_args.root_directory, ".static", "favicon.ico")}')
+    else:
+        os.system(f"convert {os.path.join(iconspath, "icon.png")} -define icon:auto-resize=16,32,48,64,72,96,144,192 {os.path.join(_args.root_directory, ".static", "favicon.ico")}")
+
+
 def webmanifest(_args: Args) -> None:
     icons: List[Icon] = []
-    files = os.listdir(os.path.join(STATIC_FILES_DIR, "icons"))
+    files = os.listdir(os.path.join(_args.root_directory, ".static", "icons"))
     if SVGSUPPORT and any(file.endswith(".svg") for file in files):
         svg = [file for file in files if file.endswith(".svg")][0]
         icons.append(
@@ -143,7 +170,7 @@ def webmanifest(_args: Args) -> None:
             sizes = size.split("x")
             iconpath = os.path.join(_args.root_directory, ".static", "icons", os.path.splitext(svg)[0] + "-" + size + ".png")
             cairosvg.svg2png(
-                url=os.path.join(STATIC_FILES_DIR, "icons", svg),
+                url=os.path.join(_args.root_directory, ".static", "icons", svg),
                 write_to=tmpimg,
                 output_width=int(sizes[0]),
                 output_height=int(sizes[1]),
@@ -261,7 +288,10 @@ def list_folder(folder: str, title: str, _args: Args, raw: list[str]) -> None:
         for item in items:
             if item not in EXCLUDES:
                 if os.path.isdir(os.path.join(folder, item)):
-                    subfolder = {"url": f"{_args.web_root_url}{baseurl}{urllib.parse.quote(item)}", "name": item}
+                    if _args.web_root_url.startswith("file://"):
+                        subfolder = {"url": f"{_args.web_root_url}{baseurl}{urllib.parse.quote(item)}/index.html", "name": item}
+                    else:
+                        subfolder = {"url": f"{_args.web_root_url}{baseurl}{urllib.parse.quote(item)}", "name": item}
                     subfolders.append(subfolder)
                     if item not in _args.exclude_folders:
                         skip = False
@@ -335,6 +365,8 @@ def list_folder(folder: str, title: str, _args: Args, raw: list[str]) -> None:
                     if not foldername
                     else f"{_args.web_root_url}{urllib.parse.quote(foldername.removesuffix(folder.split('/')[-1] + '/'))}"
                 )
+                if parent and _args.web_root_url.startswith("file://"):
+                    parent += "index.html"
                 license_info: cclicense.License = (
                     {
                         "project": _args.site_title,
@@ -392,6 +424,8 @@ def main() -> None:
             os.mkdir(os.path.join(args.root_directory, ".thumbnails"))
 
         copy_static_files(args)
+
+        icons(args)
 
         if args.generate_webmanifest:
             print("Generating webmanifest...")

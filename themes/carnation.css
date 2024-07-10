@@ -1,31 +1,42 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
 
+* {
+  --color1: #8b0000;
+  --color2: #b22222;
+  --color3: #ff4500;
+  --color4: #6e0000;
+  --bcolor1: #ebebeb;
+  --bcolor2: #191919;
+  --bcolor3: #171717;
+  --bcolor4: #0a0a0a;
+}
+
 .navbar {
   font-weight: bold;
-  color: #ebebeb;
-  background-color: #8B0000;
+  color: var(--bcolor1);
+  background-color: var(--color1);
   font-weight: 900;
 }
 
 .navbar li a {
   font-weight: 800;
-  color: #ebebeb;
+  color: var(--bcolor1);
 }
 
 /* Change the link color on hover */
 .navbar li a:hover {
   text-decoration: none;
-  background-color: #B22222;
+  background-color: var(--color2);
 }
 
 .footer {
-  color: #ebebeb;
-  background-color: #FF4500;
+  color: var(--bcolor1);
+  background-color: var(--color3);
   font-weight: 700;
 }
 
 .footer a {
-  color: #8B0000;
+  color: var(--color4);
   text-decoration: none;
 }
 
@@ -35,12 +46,12 @@
 
 .folders img {
   content: url("data:image/svg+xml,%3Csvg width='800px' height='800px' viewBox='0 0 1024 1024' class='icon' version='1.1' xmlns='http://www.w3.org/2000/svg' fill='%23000000'%3E%3Cg id='SVGRepo_bgCarrier' stroke-width='0' /%3E%3Cg id='SVGRepo_tracerCarrier' stroke-linecap='round' stroke-linejoin='round' /%3E%3Cg id='SVGRepo_iconCarrier'%3E%3Cpath d='M853.333333 256H469.333333l-85.333333-85.333333H170.666667c-46.933333 0-85.333333 38.4-85.333334 85.333333v170.666667h853.333334v-85.333334c0-46.933333-38.4-85.333333-85.333334-85.333333z' fill='%238B0000' /%3E%3Cpath d='M853.333333 256H170.666667c-46.933333 0-85.333333 38.4-85.333334 85.333333v426.666667c0 46.933333 38.4 85.333333 85.333334 85.333333h682.666666c46.933333 0 85.333333-38.4 85.333334-85.333333V341.333333c0-46.933333-38.4-85.333333-85.333334-85.333333z' fill='%23B22222' /%3E%3C/g%3E%3C/svg%3E");
-  fill: #8B0000;
+  fill: var(--color1);
 }
 
 .folders a {
   font-weight: 800;
-  color: #ebebeb;
+  color: var(--bcolor1);
   text-decoration: none;
 }
 
@@ -50,7 +61,7 @@
 
 .row a {
   font-weight: 800;
-  color: #B22222;
+  color: var(--color2);
   text-decoration: none;
 }
 
@@ -60,16 +71,16 @@
 
 .tooltiptext {
   font-weight: 600;
-  background-color: #191313;
+  background-color: var(--bcolor2);
 }
 
 .column img {
-  background-color: #0a0a0a;
+  background-color: var(--bcolor4);
 }
 
 body {
-  color: #ebebeb;
-  background-color: #171717;
+  color: var(--bcolor1);
+  background-color: var(--bcolor3);
   font-family: "Montserrat", sans-serif;
   font-optical-sizing: auto;
   font-weight: 700;
