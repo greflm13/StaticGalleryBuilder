@@ -91,7 +91,7 @@ def generate_thumbnail(arguments: Tuple[str, str, str, bool]) -> None:
     oldpath = os.path.join(root_directory, ".thumbnails", folder.removeprefix(root_directory), os.path.splitext(item)[0]) + ".jpg"
     if os.path.exists(oldpath):
         try:
-            os.rename(oldpath, path)
+            shutil.move(oldpath, path)
         except FileNotFoundError:
             pass
     if not os.path.exists(path) or regenerate_thumbnails:
