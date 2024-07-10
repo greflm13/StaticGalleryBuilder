@@ -16,7 +16,7 @@ from modules.generate_html import list_folder, EXCLUDES
 # fmt: off
 # Constants
 STATIC_FILES_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), "files")
-VERSION = "2.0.0"
+VERSION = "2.0.1"
 RAW_EXTENSIONS = [
     ".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr",
     ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos",

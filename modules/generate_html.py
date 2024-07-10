@@ -175,6 +175,9 @@ def generate_html(folder: str, title: str, _args: Args, raw: List[str]) -> None:
 
     if should_generate_html(images, contains_files, _args):
         create_html_file(folder, title, foldername, images, subfolders, _args)
+    else:
+        if os.path.exists(os.path.join(folder, "index.html")):
+            os.remove(os.path.join(folder, "index.html"))
 
     if not _args.non_interactive_mode:
         pbardict["htmlbar"].update(1)
