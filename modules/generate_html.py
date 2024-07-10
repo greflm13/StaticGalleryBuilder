@@ -142,6 +142,7 @@ def generate_html(folder: str, title: str, _args: Args, raw: List[str]) -> None:
     sizelist = initialize_sizelist(folder)
     items = sorted(os.listdir(folder))
 
+    contains_files = False
     images = []
     subfolders = []
     foldername = folder.removeprefix(_args.root_directory)
@@ -158,6 +159,7 @@ def generate_html(folder: str, title: str, _args: Args, raw: List[str]) -> None:
             if os.path.isdir(os.path.join(folder, item)):
                 process_subfolder(item, folder, baseurl, subfolders, _args, raw)
             else:
+                contains_files = True
                 if os.path.splitext(item)[1].lower() in _args.file_extensions:
                     images.append(process_image(item, folder, _args, baseurl, sizelist, raw))
                 if item == "info":
@@ -171,7 +173,7 @@ def generate_html(folder: str, title: str, _args: Args, raw: List[str]) -> None:
 
     update_sizelist(sizelist, folder)
 
-    if should_generate_html(images, _args):
+    if should_generate_html(images, contains_files, _args):
         create_html_file(folder, title, foldername, images, subfolders, _args)
 
     if not _args.non_interactive_mode:
@@ -226,7 +228,7 @@ def process_info_file(folder: str, item: str) -> None:
         info[urllib.parse.quote(folder)] = f.read()
 
 
-def should_generate_html(images: List[Dict[str, Any]], _args: Args) -> bool:
+def should_generate_html(images: List[Dict[str, Any]], contains_files, _args: Args) -> bool:
     """
     Determines if HTML should be generated.
 
@@ -237,7 +239,7 @@ def should_generate_html(images: List[Dict[str, Any]], _args: Args) -> bool:
     Returns:
         bool: True if HTML should be generated, False otherwise.
     """
-    return images or (_args.use_fancy_folders and (not images or _args.ignore_other_files))
+    return images or (_args.use_fancy_folders and not contains_files) or (_args.use_fancy_folders and _args.ignore_other_files)
 
 
 def create_html_file(
