@@ -34,17 +34,17 @@
           {{ infoline }}<br />
           {%- endfor -%}
         </span></li>
-      {%- endif -%}
-      <li style="position: absolute; left: 50%; transform: translateX(-50%);"><span class="header">{{ header }}</span></li>
+      {%- endif %}
+      <li class="title"><span class="header">{{ header }}</span></li>
       {%- if license %}
-      <li style="float:right"><a href="{{ license.url }}" target="_blank">License</a></li>
+      <li class="license"><a href="{{ license.url }}" target="_blank">License</a></li>
       {%- endif %}
     </ul>
     {% if subdirectories %}
     <div class="folders">
       {%- for subdirectory in subdirectories %}
       <figure>
-        <a href="{{ subdirectory.url }}"><img /></a>
+        <a href="{{ subdirectory.url }}"><img alt="{{ subdirectory.name }}" /></a>
         <figcaption><a href="{{ subdirectory.url }}">{{ subdirectory.name }}</a></figcaption>
       </figure>
       {%- endfor %}
@@ -98,8 +98,9 @@
   {%- endif %}
   {%- else %}
   <div class="footer">
-    <span class="attribution">Made with <a href="https://github.com/greflm13/StaticGalleryBuilder" target="_blank">StaticGalleryBuilder</a></a> by <a href="https://github.com/greflm13"
-        target="_blank">Flo Greistorfer</a>.</span>
+    <span class="attribution">Made with <a href="https://github.com/greflm13/StaticGalleryBuilder" target="_blank" rel="noopener noreferrer">StaticGalleryBuilder</a></a> by <a
+        href="https://github.com/greflm13"
+        target="_blank" rel="noopener noreferrer">Flo Greistorfer</a>.</span>
   </div>
   {%- endif %}
   {% if images %}

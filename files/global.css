@@ -106,6 +106,16 @@ figure {
   text-decoration: none;
 }
 
+.navbar .title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.navbar .license {
+  float: right;
+}
+
 .navbar li .header {
   display: block;
   text-align: center;

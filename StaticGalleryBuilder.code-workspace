@@ -1,96 +1,29 @@
 {
-    "folders": [
-        {
-            "path": "./",
-            "name": "StaticGalleryBuilder"
-        }
-    ],
-    "settings": {
-        "files.associations": {
-            "**/*.html.j2": "jinja-html",
-            "**/*.css.j2": "jinja-css",
-            "**/*.css": "css",
-        },
-        "python.analysis.inlayHints.callArgumentNames": "off",
-        "python.analysis.inlayHints.functionReturnTypes": false,
-        "python.analysis.inlayHints.variableTypes": false,
-        "pylint.args": [
-            "--disable=C0111",
-            "--disable=C0301",
-            "--good-names-rgxs=^[_a-z][_a-z0-9]?$"
-        ],
-        "editor.formatOnSave": false,
-        "black-formatter.interpreter": [
-            "/usr/bin/python3"
-        ],
-        "black-formatter.args": [
-            "-l 140"
-        ],
-        "gitblame.inlineMessageEnabled": true,
-        "gitblame.inlineMessageFormat": "${author.name}, ${time.ago} • ${commit.summary}",
-        "gitblame.statusBarMessageFormat": "${author.name} (${time.ago})",
-        "html.format.templating": true,
-        "html.format.wrapAttributes": "preserve",
-        "html.format.wrapLineLength": 200,
-        "html.format.indentHandlebars": true,
-        "html.suggest.html5": true,
-        "html.hover.documentation": true,
-        "html.validate.scripts": true,
-        "html.validate.styles": true,
-        "prettier.htmlWhitespaceSensitivity": "css",
-        "json.schemaDownload.enable": true,
-        "json.schemas": [
-            {
-                "fileMatch": [
-                    "manifest.json.j2"
-                ],
-                "url": "https://json.schemastore.org/web-manifest-combined.json"
-            }
-        ],
-        "emmet.includeLanguages": {
-            "jinja-html": "html",
-            "jinja-css": "css",
-            "jinja-js": "javascript",
-            "jinja-json": "json"
-        },
-        "[python]": {
-            "editor.defaultFormatter": "ms-python.black-formatter"
-        },
-        "[css]": {
-            "editor.defaultFormatter": "vscode.css-language-features"
-        },
-        "[jinja-html]": {
-            "editor.defaultFormatter": "vscode.html-language-features"
-        },
-        "[jinja-css]": {
-            "editor.defaultFormatter": "vscode.css-language-features"
-        },
-        "[jinja-js]": {
-            "editor.defaultFormatter": "esbenp.prettier-vscode"
-        },
-    },
     "extensions": {
         "recommendations": [
+            "esbenp.prettier-vscode",
+            "ms-edgedevtools.vscode-edge-devtools",
             "ms-python.black-formatter",
-            "ms-python.python",
-            "ms-python.vscode-pylance",
             "ms-python.debugpy",
             "ms-python.pylint",
+            "ms-python.python",
+            "ms-python.vscode-pylance",
             "samuelcolvin.jinjahtml",
-            "vscode.html-language-features",
             "vscode.css-language-features",
+            "vscode.html-language-features",
             "waderyan.gitblame",
-        ]
+        ],
     },
+    "folders": [
+        {
+            "name": "StaticGalleryBuilder",
+            "path": "./",
+        },
+    ],
     "launch": {
         "version": "0.2.0",
         "configurations": [
             {
-                "name": "Testfolder",
-                "type": "debugpy",
-                "request": "launch",
-                "program": "${workspaceFolder}/builder.py",
-                "console": "integratedTerminal",
                 "args": [
                     "-p",
                     "${workspaceFolder}/test",
@@ -105,14 +38,14 @@
                     "-n",
                     "-r"
                 ],
-                "postDebugTask": "Delete Lockfile"
+                "console": "integratedTerminal",
+                "name": "Testfolder",
+                "postDebugTask": "Delete Lockfile",
+                "program": "${workspaceFolder}/builder.py",
+                "request": "launch",
+                "type": "debugpy",
             },
             {
-                "name": "woek",
-                "type": "debugpy",
-                "request": "launch",
-                "program": "${workspaceFolder}/builder.py",
-                "console": "integratedTerminal",
                 "args": [
                     "-p",
                     "/home/user/woek/Pictures",
@@ -125,29 +58,98 @@
                     "--use-fancy-folders",
                     "--web-manifest",
                     "-n",
-                    "-r"
+                    "-r",
                 ],
-                "postDebugTask": "Delete Lockfile 2"
-            }
-        ]
+                "console": "integratedTerminal",
+                "name": "woek",
+                "postDebugTask": "Delete Lockfile 2",
+                "program": "${workspaceFolder}/builder.py",
+                "request": "launch",
+                "type": "debugpy",
+            },
+        ],
+    },
+    "settings": {
+        "[css]": {
+            "editor.defaultFormatter": "vscode.css-language-features",
+        },
+        "[jinja-css]": {
+            "editor.defaultFormatter": "vscode.css-language-features",
+        },
+        "[jinja-html]": {
+            "editor.defaultFormatter": "vscode.html-language-features",
+        },
+        "[jinja-js]": {
+            "editor.defaultFormatter": "esbenp.prettier-vscode",
+        },
+        "[python]": {
+            "editor.defaultFormatter": "ms-python.black-formatter",
+        },
+        "black-formatter.args": [
+            "-l 140",
+        ],
+        "black-formatter.interpreter": [
+            "/usr/bin/python3",
+        ],
+        "editor.formatOnSave": false,
+        "emmet.includeLanguages": {
+            "jinja-css": "css",
+            "jinja-html": "html",
+            "jinja-js": "javascript",
+            "jinja-json": "json",
+        },
+        "files.associations": {
+            "**/*.css.j2": "jinja-css",
+            "**/*.css": "css",
+            "**/*.html.j2": "jinja-html",
+        },
+        "gitblame.inlineMessageEnabled": true,
+        "gitblame.inlineMessageFormat": "${author.name}, ${time.ago} • ${commit.summary}",
+        "gitblame.statusBarMessageFormat": "${author.name} (${time.ago})",
+        "html.format.indentHandlebars": true,
+        "html.format.templating": true,
+        "html.format.wrapAttributes": "preserve",
+        "html.format.wrapLineLength": 200,
+        "html.hover.documentation": true,
+        "html.suggest.html5": true,
+        "html.validate.scripts": true,
+        "html.validate.styles": true,
+        "json.schemaDownload.enable": true,
+        "json.schemas": [
+            {
+                "fileMatch": [
+                    "manifest.json.j2",
+                ],
+                "url": "https://json.schemastore.org/web-manifest-combined.json",
+            },
+        ],
+        "prettier.htmlWhitespaceSensitivity": "css",
+        "pylint.args": [
+            "--disable=C0111",
+            "--disable=C0301",
+            "--good-names-rgxs=^[_a-z][_a-z0-9]?$",
+        ],
+        "python.analysis.inlayHints.callArgumentNames": "off",
+        "python.analysis.inlayHints.functionReturnTypes": false,
+        "python.analysis.inlayHints.variableTypes": false,
     },
     "tasks": {
         "version": "2.0.0",
         "tasks": [
             {
-                "label": "Delete Lockfile",
                 "command": "rm -f ${workspaceFolder}/test/.lock",
-                "type": "shell",
+                "isBackground": true,
+                "label": "Delete Lockfile",
                 "problemMatcher": [],
-                "isBackground": true
+                "type": "shell",
             },
             {
-                "label": "Delete Lockfile 2",
                 "command": "rm -f /home/user/woek/Pictures/.lock",
-                "type": "shell",
+                "isBackground": true,
+                "label": "Delete Lockfile 2",
                 "problemMatcher": [],
-                "isBackground": true
-            }
-        ]
-    }
+                "type": "shell",
+            },
+        ],
+    },
 }
