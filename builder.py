@@ -131,6 +131,7 @@ def copy_static_files(_args: Args) -> None:
 
 
 def icons(_args: Args) -> None:
+    print("Generating icons...")
     pattern = r"--color([1-4]):\s*(#[0-9a-f]+);"
     colorscheme = {}
     iconspath = os.path.join(_args.root_directory, ".static", "icons")
