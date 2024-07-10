@@ -35,6 +35,8 @@
                     "themes/default.css",
                     "--use-fancy-folders",
                     "--web-manifest",
+                    "-l",
+                    "cc-by-nc-sa",
                     "-n",
                     "-m",
                     "-r"

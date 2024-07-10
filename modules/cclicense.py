@@ -1,4 +1,21 @@
 class License:
+    """
+    A class to represent a Creative Commons license.
+
+    Attributes:
+    -----------
+    project : str
+        The name of the project.
+    author : str
+        The author of the work.
+    type : str
+        The type of the license.
+    url : str
+        The URL of the license.
+    pics : list of str
+        A list of URLs to the license images.
+    """
+
     project: str
     author: str
     type: str
@@ -7,6 +24,19 @@ class License:
 
 
 def licenseurlswitch(cclicense: str) -> str:
+    """
+    Get the URL for a given Creative Commons license type.
+
+    Parameters:
+    -----------
+    cclincense : str
+        The license type identifier.
+
+    Returns:
+    --------
+    str
+        The URL associated with the specified license type.
+    """
     switch = {
         "cc-zero": "https://creativecommons.org/publicdomain/zero/1.0/",
         "cc-by": "https://creativecommons.org/licenses/by/4.0/",
@@ -21,6 +51,19 @@ def licenseurlswitch(cclicense: str) -> str:
 
 
 def licensenameswitch(cclicense: str) -> str:
+    """
+    Get the name for a given Creative Commons license type.
+
+    Parameters:
+    -----------
+    cclincense : str
+        The license type identifier.
+
+    Returns:
+    --------
+    str
+        The name associated with the specified license type.
+    """
     switch = {
         "cc-zero": "CC0 1.0",
         "cc-by": "CC BY 4.0",
@@ -35,6 +78,19 @@ def licensenameswitch(cclicense: str) -> str:
 
 
 def licensepicswitch(cclicense: str) -> list[str]:
+    """
+    Get the list of image URLs for a given Creative Commons license type.
+
+    Parameters:
+    -----------
+    cclincense : str
+        The license type identifier.
+
+    Returns:
+    --------
+    list of str
+        A list of URLs to the license images.
+    """
     switch = {
         "cc-zero": [
             "https://mirrors.creativecommons.org/presskit/icons/cc.svg",
