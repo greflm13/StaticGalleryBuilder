@@ -22,13 +22,13 @@ body {
 
 .navbar {
   font-weight: 600;
-  color: var(--bcolor1);
+  color: var(--bcolor2);
   background-color: var(--color1);
 }
 
 .navbar li a {
   font-weight: 400;
-  color: var(--bcolor1);
+  color: var(--bcolor2);
 }
 
 /* Change the link color on hover */
@@ -38,7 +38,7 @@ body {
 }
 
 .footer {
-  color: var(--bcolor1);
+  color: var(--bcolor2);
   background-color: var(--color3);
   font-weight: 600;
 }

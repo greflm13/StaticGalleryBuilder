@@ -8,7 +8,6 @@
   --bcolor1: #2C2C2C; /* Very Dark Gray */
   --bcolor2: #D3D3D3; /* Light Gray */
   --bcolor3: #1C1C1C; /* Very Dark Gray */
-  --bcolor4: #4B0082; /* Indigo */
 }
 
 .navbar {
@@ -31,7 +30,7 @@
 }
 
 .footer {
-  color: var(--bcolor2);
+  color: var(--bcolor1);
   background-color: var(--color3);
   font-weight: 500;
   font-family: "Poppins", sans-serif;
@@ -81,7 +80,7 @@
 }
 
 .column img {
-  background-color: var(--bcolor4);
+  background-color: var(--bcolor1);
 }
 
 #totop:hover {

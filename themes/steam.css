@@ -8,7 +8,6 @@
   --bcolor1: #FFFFFF; /* White */
   --bcolor2: #1b2838; /* Dark Blue */
   --bcolor3: #171a21; /* Dark Gray */
-  --bcolor4: #66c0f4; /* Light Blue */
 }
 
 .navbar {
@@ -81,7 +80,7 @@
 }
 
 .column img {
-  background-color: var(--bcolor4);
+  background-color: var(--bcolor2);
 }
 
 #totop:hover {

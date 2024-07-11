@@ -13,14 +13,14 @@
 
 .navbar {
   font-weight: 600;
-  color: var(--bcolor1);
+  color: var(--bcolor2);
   background-color: var(--color1);
   font-family: "Montserrat", sans-serif;
 }
 
 .navbar li a {
   font-weight: 500;
-  color: var(--bcolor1);
+  color: var(--bcolor2);
   font-family: "Montserrat", sans-serif;
 }
 
@@ -31,14 +31,14 @@
 }
 
 .footer {
-  color: var(--bcolor1);
+  color: var(--bcolor2);
   background-color: var(--color3);
   font-weight: 500;
   font-family: "Montserrat", sans-serif;
 }
 
 .footer a {
-  color: var(--color4);
+  color: var(--color2);
   text-decoration: none;
   font-weight: 400;
 }
@@ -54,7 +54,7 @@
 
 .folders a {
   font-weight: 600;
-  color: var(--bcolor1);
+  color: var(--bcolor2);
   text-decoration: none;
   font-family: "Montserrat", sans-serif;
 }
