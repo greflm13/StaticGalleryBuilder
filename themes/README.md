@@ -32,72 +32,72 @@ Replace the SVG data URI (`url("data:image/svg+xml,...")`) with your desired SVG
 
 ### Alpenglow Theme
 
-![Alpenglow Theme](./alpenglow.png)
+![Alpenglow Theme](screenshots/alpenglow.png)
 
 ### Aritim Dark Theme
 
-![Aritim Dark Theme](./aritim-dark.png)
+![Aritim Dark Theme](screenshots/aritim-dark.png)
 
 ### Aritim Theme
 
-![Aritim Theme](./aritim.png)
+![Aritim Theme](screenshots/aritim.png)
 
 ### Autumn Theme
 
-![Autumn Theme](./autumn.png)
+![Autumn Theme](screenshots/autumn.png)
 
 ### Carnation Theme
 
-![Carnation Theme](./carnation.png)
+![Carnation Theme](screenshots/carnation.png)
 
 ### Catpuccino Theme
 
-![Catpuccin Theme](./catpuccin.png)
+![Catpuccin Theme](screenshots/catpuccin.png)
 
 ### Cornflower Theme
 
-![Cornflower Theme](./cornflower.png)
+![Cornflower Theme](screenshots/cornflower.png)
 
 ### Default Dark Theme
 
-![Default Dark Theme](./default-dark.png)
+![Default Dark Theme](screenshots/default-dark.png)
 
 ### Default Theme
 
-![Default Theme](./default.png)
+![Default Theme](screenshots/default.png)
 
 ### Ivy Theme
 
-![Ivy Theme](./ivy.png)
+![Ivy Theme](screenshots/ivy.png)
 
 ### Kjoe Theme
 
-![Kjoe Theme](./kjoe.png)
+![Kjoe Theme](screenshots/kjoe.png)
 
 ### Monokai Vibrant Theme
 
-![Monokai Vibrant Theme](./monokai-vibrant.png)
+![Monokai Vibrant Theme](screenshots/monokai-vibrant.png)
 
 ### Rainbow Theme
 
-![Rainbow Theme](./rainbow.png)
+![Rainbow Theme](screenshots/rainbow.png)
 
 ### Spring Theme
 
-![Spring Theme](./spring.png)
+![Spring Theme](screenshots/spring.png)
 
 ### Steam Theme
 
-![Steam Theme](./steam.png)
+![Steam Theme](screenshots/steam.png)
 
 ### Summer Theme
 
-![Summer Theme](./summer.png)
+![Summer Theme](screenshots/summer.png)
 
 ### Sunflower Theme
 
-![Sunflower Theme](./sunflower.png)
+![Sunflower Theme](screenshots/sunflower.png)
 
 ### Winter Theme
 
-![Winter Theme](./winter.png)
+![Winter Theme](screenshots/winter.png)
