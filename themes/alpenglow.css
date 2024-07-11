@@ -1,0 +1,97 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@200;400;600;800&display=swap");
+
+* {
+  --color1: #FFADAD; /* Soft Pink */
+  --color2: #FF6363; /* Vivid Pink */
+  --color3: #FF9F1C; /* Orange */
+  --color4: #FF6F91; /* Coral Pink */
+  --bcolor1: #FFFFFF; /* White */
+  --bcolor2: #1E1E1E; /* Almost Black */
+  --bcolor3: #2E2E2E; /* Dark Gray */
+  --bcolor4: #4B4B4B; /* Medium Gray */
+}
+
+body {
+  color: var(--bcolor1);
+  background-color: var(--bcolor3);
+  font-family: "Roboto Slab", serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.navbar {
+  font-weight: 600;
+  color: var(--bcolor1);
+  background-color: var(--color1);
+}
+
+.navbar li a {
+  font-weight: 400;
+  color: var(--bcolor1);
+}
+
+/* Change the link color on hover */
+.navbar li a:hover {
+  text-decoration: none;
+  background-color: var(--color2);
+}
+
+.footer {
+  color: var(--bcolor1);
+  background-color: var(--color3);
+  font-weight: 600;
+}
+
+.footer a {
+  color: var(--color4);
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: none;
+}
+
+.folders img {
+  content: url("data:image/svg+xml,%3Csvg width='800px' height='800px' viewBox='0 0 1024 1024' class='icon' version='1.1' xmlns='http://www.w3.org/2000/svg' fill='%23000000'%3E%3Cg id='SVGRepo_bgCarrier' stroke-width='0' /%3E%3Cg id='SVGRepo_tracerCarrier' stroke-linecap='round' stroke-linejoin='round' /%3E%3Cg id='SVGRepo_iconCarrier'%3E%3Cpath d='M853.333333 256H469.333333l-85.333333-85.333333H170.666667c-46.933333 0-85.333333 38.4-85.333334 85.333333v170.666667h853.333334v-85.333334c0-46.933333-38.4-85.333333-85.333334-85.333333z' fill='%23FF6F91' /%3E%3Cpath d='M853.333333 256H170.666667c-46.933333 0-85.333333 38.4-85.333334 85.333333v426.666667c0 46.933333 38.4 85.333333 85.333334 85.333333h682.666666c46.933333 0 85.333333-38.4 85.333334-85.333333V341.333333c0-46.933333-38.4-85.333333-85.333334-85.333333z' fill='%23FFADAD' /%3E%3C/g%3E%3C/svg%3E");
+  fill: var(--color1);
+}
+
+.folders a {
+  font-weight: 400;
+  color: var(--bcolor1);
+  text-decoration: none;
+}
+
+.folders a:hover {
+  text-decoration: none;
+}
+
+.row a {
+  font-weight: 400;
+  color: var(--color2);
+  text-decoration: none;
+}
+
+.row a:hover {
+  text-decoration: underline;
+}
+
+.tooltiptext {
+  font-weight: 200;
+  background-color: var(--bcolor2);
+}
+
+.column img {
+  background-color: var(--bcolor4);
+}
+
+#totop:hover {
+  background-color: var(--color2);
+}
+
+#totop {
+  background-color: var(--color1);
+  color: var(--bcolor1);
+  font-weight: 400;
+}
