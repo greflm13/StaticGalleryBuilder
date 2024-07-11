@@ -78,6 +78,12 @@
   background-color: var(--bcolor4);
 }
 
+#totop {
+  background-color: var(--color1);
+  color: var(--bcolor1);
+  font-weight: 800;
+}
+
 body {
   color: var(--bcolor1);
   background-color: var(--bcolor3);

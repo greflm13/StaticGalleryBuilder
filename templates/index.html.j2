@@ -94,6 +94,7 @@
     {%- endif %}
     <span class="attribution">Made with <a href="https://github.com/greflm13/StaticGalleryBuilder" target="_blank">StaticGalleryBuilder</a></a> by <a href="https://github.com/greflm13"
         target="_blank">Flo Greistorfer</a>.</span>
+    <button onclick="topFunction()" id="totop" title="Back to Top">Back to Top</button>
   </div>
   {%- endif %}
   {%- else %}
@@ -101,6 +102,7 @@
     <span class="attribution">Made with <a href="https://github.com/greflm13/StaticGalleryBuilder" target="_blank" rel="noopener noreferrer">StaticGalleryBuilder</a></a> by <a
         href="https://github.com/greflm13"
         target="_blank" rel="noopener noreferrer">Flo Greistorfer</a>.</span>
+    <button onclick="topFunction()" id="totop" title="Back to Top">Back to Top</button>
   </div>
   {%- endif %}
   {% if images %}
@@ -150,10 +152,8 @@
     var re = /pid=(\d+)/;
 
     function openSwipe(img) {
-      // define options (if needed)
       var options = {
-        // optionName: 'option value'
-        index: img // start at first slide
+        index: img
       };
       var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, options);
       gallery.init();
@@ -162,6 +162,23 @@
     if (re.test(window.location.href)) {
       var pid = window.location.href.match(re)[1];
       openSwipe(parseInt(pid));
+    }
+
+    let totopbutton = document.getElementById("totop");
+
+    window.onscroll = function () { scrollFunction() };
+
+    function scrollFunction() {
+      if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+        totopbutton.style.display = "block";
+      } else {
+        totopbutton.style.display = "none";
+      }
+    }
+
+    function topFunction() {
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
     }
   </script>
   {%- endif %}
