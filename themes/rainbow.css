@@ -80,6 +80,10 @@
   background-color: var(--bcolor4);
 }
 
+#totop:hover {
+  background-color: var(--color3);
+}
+
 #totop {
   background-color: var(--color2);
   color: var(--bcolor4);

@@ -78,6 +78,10 @@
   background-color: var(--bcolor4);
 }
 
+#totop:hover {
+  background-color: var(--color2);
+}
+
 #totop {
   background-color: var(--color1);
 }
