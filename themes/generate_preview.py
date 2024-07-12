@@ -44,6 +44,16 @@ def take_screenshot(html_file, css_file, output_file):
         driver.quit()
 
 
+def write_readme(_folder_path: str, themes: list[str]):
+    with open(os.path.join(_folder_path, "README.md"), "r", encoding="utf-8") as f:
+        readme = f.read()
+    readmehead = readme.split("## Previews of included themes")[0]
+    readmehead += f"""## Previews of included themes
+{ "".join([f'\n### {theme}\n\n![{theme}](screenshots/{theme}.png) |\n' for theme in themes]) }"""
+    with open(os.path.join(_folder_path, "README.md"), "w", encoding="utf-8") as f:
+        f.write(readmehead)
+
+
 def main(_folder_path):
     html_file = "/mnt/nfs/pictures/Analog/Example/index.html"
 
@@ -52,14 +62,19 @@ def main(_folder_path):
         print(f'Error: Folder path "{_folder_path}" does not exist.')
         return
 
+    themes = []
     # Iterate over all files in the folder
     for filename in sorted(os.listdir(_folder_path)):
         if filename.endswith(".css"):
+            themes.append(os.path.splitext(filename)[0])
             css_file = os.path.join(_folder_path, filename)
             output_file = os.path.join(_folder_path, "screenshots", f"{os.path.splitext(filename)[0]}.png")
 
             # Take screenshot for this CSS file
             take_screenshot(html_file, css_file, output_file)
+
+    # Write the README file with the new previews
+    write_readme(_folder_path, themes)
 
 
 if __name__ == "__main__":

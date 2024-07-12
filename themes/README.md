@@ -30,74 +30,74 @@ Replace the SVG data URI (`url("data:image/svg+xml,...")`) with your desired SVG
 
 ## Previews of included themes
 
-### Alpenglow Theme
+### alpenglow
 
-![Alpenglow Theme](screenshots/alpenglow.png)
+![alpenglow](screenshots/alpenglow.png) |
 
-### Aritim Dark Theme
+### aritim-dark
 
-![Aritim Dark Theme](screenshots/aritim-dark.png)
+![aritim-dark](screenshots/aritim-dark.png) |
 
-### Aritim Theme
+### aritim
 
-![Aritim Theme](screenshots/aritim.png)
+![aritim](screenshots/aritim.png) |
 
-### Autumn Theme
+### autumn
 
-![Autumn Theme](screenshots/autumn.png)
+![autumn](screenshots/autumn.png) |
 
-### Carnation Theme
+### carnation
 
-![Carnation Theme](screenshots/carnation.png)
+![carnation](screenshots/carnation.png) |
 
-### Catpuccino Theme
+### catpuccin
 
-![Catpuccin Theme](screenshots/catpuccin.png)
+![catpuccin](screenshots/catpuccin.png) |
 
-### Cornflower Theme
+### cornflower
 
-![Cornflower Theme](screenshots/cornflower.png)
+![cornflower](screenshots/cornflower.png) |
 
-### Default Dark Theme
+### default-dark
 
-![Default Dark Theme](screenshots/default-dark.png)
+![default-dark](screenshots/default-dark.png) |
 
-### Default Theme
+### default
 
-![Default Theme](screenshots/default.png)
+![default](screenshots/default.png) |
 
-### Ivy Theme
+### ivy
 
-![Ivy Theme](screenshots/ivy.png)
+![ivy](screenshots/ivy.png) |
 
-### Kjoe Theme
+### kjoe
 
-![Kjoe Theme](screenshots/kjoe.png)
+![kjoe](screenshots/kjoe.png) |
 
-### Monokai Vibrant Theme
+### monokai-vibrant
 
-![Monokai Vibrant Theme](screenshots/monokai-vibrant.png)
+![monokai-vibrant](screenshots/monokai-vibrant.png) |
 
-### Rainbow Theme
+### rainbow
 
-![Rainbow Theme](screenshots/rainbow.png)
+![rainbow](screenshots/rainbow.png) |
 
-### Spring Theme
+### spring
 
-![Spring Theme](screenshots/spring.png)
+![spring](screenshots/spring.png) |
 
-### Steam Theme
+### steam
 
-![Steam Theme](screenshots/steam.png)
+![steam](screenshots/steam.png) |
 
-### Summer Theme
+### summer
 
-![Summer Theme](screenshots/summer.png)
+![summer](screenshots/summer.png) |
 
-### Sunflower Theme
+### sunflower
 
-![Sunflower Theme](screenshots/sunflower.png)
+![sunflower](screenshots/sunflower.png) |
 
-### Winter Theme
+### winter
 
-![Winter Theme](screenshots/winter.png)
+![winter](screenshots/winter.png) |
