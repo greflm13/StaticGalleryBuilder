@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 import os
+import re
 import shutil
 import fnmatch
+import urllib.parse
 from multiprocessing import Pool
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -10,13 +12,14 @@ from tqdm.auto import tqdm
 from PIL import Image, ImageOps
 
 from modules.argumentparser import parse_arguments, Args
-from modules.svg_handling import icons, webmanifest
+from modules.svg_handling import icons, webmanifest, extract_colorscheme
 from modules.generate_html import list_folder, EXCLUDES
 
 # fmt: off
 # Constants
 STATIC_FILES_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), "files")
-VERSION = "2.0.1"
+SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
+VERSION = "2.2.0"
 RAW_EXTENSIONS = [
     ".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr",
     ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos",
@@ -74,7 +77,32 @@ def copy_static_files(_args: Args) -> None:
 
     print("Copying static files...")
     shutil.copytree(STATIC_FILES_DIR, static_dir, dirs_exist_ok=True)
-    shutil.copyfile(_args.theme_path, os.path.join(static_dir, "theme.css"))
+    with open(_args.theme_path, "r", encoding="utf-8") as f:
+        theme = f.read()
+    split = theme.split(".foldericon {")
+    split2 = split[1].split("}", maxsplit=1)
+    themehead = split[0]
+    themetail = split2[1]
+    foldericon = split2[0].strip()
+    foldericon = re.sub(r"/\*.*\*/", "", foldericon)
+    for match in re.finditer(r"content: (.*);", foldericon):
+        foldericon = match[1]
+        foldericon = foldericon.replace('"', "")
+        break
+    if "url" in foldericon:
+        shutil.copyfile(_args.theme_path, os.path.join(static_dir, "theme.css"))
+        return
+    with open(os.path.join(SCRIPT_DIR, foldericon), "r", encoding="utf-8") as f:
+        svg = f.read()
+    if "svg.j2" in foldericon:
+        colorscheme = extract_colorscheme(_args.theme_path)
+        svg = svg.replace("{{ color1 }}", colorscheme["color1"])
+        svg = svg.replace("{{ color2 }}", colorscheme["color2"])
+        svg = svg.replace("{{ color3 }}", colorscheme["color3"])
+        svg = svg.replace("{{ color4 }}", colorscheme["color4"])
+    svg = urllib.parse.quote(svg)
+    with open(os.path.join(static_dir, "theme.css"), "x", encoding="utf-8") as f:
+        f.write(themehead + '\n.foldericon {\n  content: url("data:image/svg+xml,' + svg + '");\n}\n' + themetail)
 
 
 def generate_thumbnail(arguments: Tuple[str, str, str]) -> None:

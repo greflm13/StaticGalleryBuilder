@@ -32,7 +32,7 @@
                     "-t",
                     "Pictures",
                     "--theme",
-                    "themes/default.css",
+                    "themes/summer.css",
                     "--use-fancy-folders",
                     "--web-manifest",
                     "-l",
@@ -78,7 +78,7 @@
                 ],
                 "console": "integratedTerminal",
                 "name": "Generate Themes previews",
-                "program": "${workspaceFolder}/themes/generate_preview.py",
+                "program": "${workspaceFolder}/generate_previews.py",
                 "request": "launch",
                 "type": "debugpy",
             }
