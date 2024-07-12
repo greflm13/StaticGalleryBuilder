@@ -57,7 +57,7 @@
                     "-t",
                     "Pictures",
                     "--theme",
-                    "themes/steam.css",
+                    "themes/catpuccin.css",
                     "--use-fancy-folders",
                     "--web-manifest",
                     "-n",
@@ -73,7 +73,8 @@
             },
             {
                 "args": [
-                    "${workspaceFolder}/themes"
+                    "${workspaceFolder}/themes",
+                    "https://pictures.sorogon.eu/Analog/Example/"
                 ],
                 "console": "integratedTerminal",
                 "name": "Generate Themes previews",
