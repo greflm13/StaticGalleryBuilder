@@ -41,7 +41,7 @@
 }
 
 .foldericon {
-  content: "themes/icons/folder-2.svg.j2";
+  content: "themes/icons/subfolder.svg.j2";
 }
 
 .folders a {
