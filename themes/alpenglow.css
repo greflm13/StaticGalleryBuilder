@@ -1,50 +1,52 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@200;400;600;800&display=swap");
+@import url('https://fonts.cdnfonts.com/css/metropolis-2');
 
 * {
-  --color1: #FFADAD; /* Soft Pink */
-  --color2: #FF6363; /* Vivid Pink */
-  --color3: #FF9F1C; /* Orange */
-  --color4: #FF6F91; /* Coral Pink */
-  --bcolor1: #FFFFFF; /* White */
-  --bcolor2: #1E1E1E; /* Almost Black */
-  --bcolor3: #2E2E2E; /* Dark Gray */
-  --bcolor4: #4B4B4B; /* Medium Gray */
+  --color1: #FFA769;
+  --color2: #FC4CA0;
+  --color3: #7542E5;
+  --color4: #FF4AD9;
+  --color5: #5F2ECA;
+  --color6: #7033CA;
+  --color7: #FF778E;
+  --bcolor1: #e2d9f8;
+  --bcolor2: #20123A;
+  --bcolor3: #2B1753;
+  --bcolor4: #321C64;
 }
 
 body {
   color: var(--bcolor1);
   background-color: var(--bcolor3);
-  font-family: "Roboto Slab", serif;
+  font-family: "Metropolis", sans-serif;
   font-optical-sizing: auto;
-  font-weight: 400;
+  font-weight: 500;
   font-style: normal;
 }
 
 .navbar {
-  font-weight: 600;
-  color: var(--bcolor2);
-  background-color: var(--color1);
+  font-weight: 800;
+  color: var(--bcolor1);
+  background-color: var(--color3);
 }
 
 .navbar li a {
-  font-weight: 400;
-  color: var(--bcolor2);
+  font-weight: 800;
+  color: var(--bcolor1);
 }
 
-/* Change the link color on hover */
 .navbar li a:hover {
   text-decoration: none;
-  background-color: var(--color2);
+  background-color: var(--color4);
 }
 
 .footer {
   color: var(--bcolor2);
-  background-color: var(--color3);
+  background-color: var(--color1);
   font-weight: 600;
 }
 
 .footer a {
-  color: var(--color4);
+  color: var(--color2);
   text-decoration: none;
 }
 
@@ -53,11 +55,11 @@ body {
 }
 
 .foldericon {
-  content: "themes/icons/subfolder.svg.j2";
+  content: "themes/icons/folder-2.svg.j2";
 }
 
 .folders a {
-  font-weight: 400;
+  font-weight: 500;
   color: var(--bcolor1);
   text-decoration: none;
 }
@@ -67,8 +69,8 @@ body {
 }
 
 .row a {
-  font-weight: 400;
-  color: var(--color2);
+  font-weight: 500;
+  color: var(--color7);
   text-decoration: none;
 }
 
@@ -77,20 +79,20 @@ body {
 }
 
 .tooltiptext {
-  font-weight: 200;
+  font-weight: 400;
   background-color: var(--bcolor2);
 }
 
 .column img {
-  background-color: var(--bcolor4);
+  background-color: var(--bcolor2);
 }
 
 #totop:hover {
-  background-color: var(--color2);
+  background-color: var(--color6);
 }
 
 #totop {
-  background-color: var(--color1);
+  background-color: var(--bcolor4);
   color: var(--bcolor1);
-  font-weight: 400;
+  font-weight: 600;
 }

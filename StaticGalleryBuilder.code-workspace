@@ -32,7 +32,7 @@
                     "-t",
                     "Pictures",
                     "--theme",
-                    "themes/summer.css",
+                    "themes/aritim-dark.css",
                     "--use-fancy-folders",
                     "--web-manifest",
                     "-l",

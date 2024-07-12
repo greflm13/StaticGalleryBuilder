@@ -38,7 +38,7 @@
 }
 
 .foldericon {
-  content: url(https://www.svgrepo.com/show/474852/folder.svg);
+  content: "themes/icons/folder-2.svg.j2";
 }
 
 .folders a {

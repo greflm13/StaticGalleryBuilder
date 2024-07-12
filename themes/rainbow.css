@@ -1,22 +1,23 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
 
 * {
-  --color1: #e50000;
-  --color2: #ff8d00;
+  --color5: #e50000;
+  --color6: #ff8d00;
   --color3: #ffee00;
   --color4: #028121;
-  --color5: #004cff;
-  --color6: #770088;
+  --color1: #004cff;
+  --color2: #770088;
   --bcolor1: #ebebeb;
   --bcolor2: #191919;
   --bcolor3: #171717;
   --bcolor4: #0a0a0a;
+  --bcolor5: #929292;
 }
 
 .navbar {
   font-weight: bold;
   color: var(--bcolor1);
-  background-color: var(--color1);
+  background-color: var(--color5);
   font-weight: 900;
 }
 
@@ -28,7 +29,7 @@
 /* Change the link color on hover */
 .navbar li a:hover {
   text-decoration: none;
-  background-color: var(--color2);
+  background-color: var(--color6);
 }
 
 .footer {
@@ -47,12 +48,12 @@
 }
 
 .foldericon {
-  content: "themes/icons/subfolder.svg.j2";
+  content: "themes/icons/folder-2.svg.j2";
 }
 
 .folders a {
   font-weight: 800;
-  color: var(--bcolor1);
+  color: var(--bcolor3);
   text-decoration: none;
 }
 
@@ -76,7 +77,7 @@
 }
 
 .column img {
-  background-color: var(--bcolor4);
+  background-color: var(--bcolor5);
 }
 
 #totop:hover {
@@ -84,14 +85,14 @@
 }
 
 #totop {
-  background-color: var(--color2);
+  background-color: var(--color6);
   color: var(--bcolor4);
   font-weight: 800;
 }
 
 body {
-  color: var(--bcolor1);
-  background-color: var(--bcolor3);
+  color: var(--bcolor3);
+  background-color: var(--bcolor1);
   font-family: "Montserrat", sans-serif;
   font-optical-sizing: auto;
   font-weight: 700;
