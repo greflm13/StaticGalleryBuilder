@@ -57,7 +57,7 @@
                     "-t",
                     "Pictures",
                     "--theme",
-                    "themes/rainbow.css",
+                    "themes/steam.css",
                     "--use-fancy-folders",
                     "--web-manifest",
                     "-n",
@@ -71,6 +71,16 @@
                 "request": "launch",
                 "type": "debugpy",
             },
+            {
+                "args": [
+                    "${workspaceFolder}/themes"
+                ],
+                "console": "integratedTerminal",
+                "name": "Generate Themes previews",
+                "program": "${workspaceFolder}/themes/generate_preview.py",
+                "request": "launch",
+                "type": "debugpy",
+            }
         ],
     },
     "settings": {

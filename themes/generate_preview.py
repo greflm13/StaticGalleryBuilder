@@ -45,7 +45,7 @@ def take_screenshot(html_file, css_file, output_file):
 
 
 def main(_folder_path):
-    html_file = "/mnt/nfs/pictures/Analog/2465575/index.html"
+    html_file = "/mnt/nfs/pictures/Analog/Example/index.html"
 
     # Check if the folder path exists
     if not os.path.exists(_folder_path):
@@ -53,7 +53,7 @@ def main(_folder_path):
         return
 
     # Iterate over all files in the folder
-    for filename in os.listdir(_folder_path):
+    for filename in sorted(os.listdir(_folder_path)):
         if filename.endswith(".css"):
             css_file = os.path.join(_folder_path, filename)
             output_file = os.path.join(_folder_path, "screenshots", f"{os.path.splitext(filename)[0]}.png")
