@@ -16,22 +16,22 @@ from modules.svg_handling import extract_colorscheme
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 
-def take_screenshot(_html_path: str, css_file: str, output_file: str, driver: webdriver.Chrome) -> None:
+def take_screenshot(html_file_path: str, css_file: str, output_file: str, driver: webdriver.Chrome) -> None:
     """
     Takes a screenshot of the given HTML file with the specified CSS applied.
 
     Args:
-        html_path (str): Path to the HTML file or URL.
+        html_file_path (str): Path to the HTML file or URL.
         css_file (str): Path to the CSS file to be applied.
         output_file (str): Path where the screenshot will be saved.
         driver (webdriver.Chrome): The Chrome WebDriver instance.
     """
     try:
         # Open the HTML file or URL
-        if _html_path.startswith(("http://", "https://")):
-            driver.get(_html_path)
+        if html_file_path.startswith(("http://", "https://")):
+            driver.get(html_file_path)
         else:
-            driver.get(f"file://{os.path.abspath(_html_path)}")
+            driver.get(f"file://{os.path.abspath(html_file_path)}")
 
         # Remove current theme.css
         remove_css_script = """
@@ -47,28 +47,26 @@ def take_screenshot(_html_path: str, css_file: str, output_file: str, driver: we
         with open(css_file, "r", encoding="utf-8") as f:
             css_content = f.read()
 
-        # Apply Icon
-        split = css_content.split(".foldericon {")
-        split2 = split[1].split("}", maxsplit=1)
-        themehead = split[0]
-        themetail = split2[1]
-        foldericon = split2[0].strip()
-        foldericon = re.sub(r"/\*.*\*/", "", foldericon)
-        for match in re.finditer(r"content: (.*);", foldericon):
-            foldericon = match[1]
-            foldericon = foldericon.replace('"', "")
+        # Extract folder icon content
+        css_parts = css_content.split(".foldericon {")
+        css_head = css_parts[0]
+        css_tail = css_parts[1].split("}", maxsplit=1)[1]
+        folder_icon_content = css_parts[1].split("}", maxsplit=1)[0].strip()
+        folder_icon_content = re.sub(r"/\*.*\*/", "", folder_icon_content)
+
+        for match in re.finditer(r"content: (.*);", folder_icon_content):
+            folder_icon_content = match.group(1).replace('"', "")
             break
-        if not "url" in foldericon:
-            with open(foldericon, "r", encoding="utf-8") as f:
+
+        if "url" not in folder_icon_content:
+            with open(folder_icon_content, "r", encoding="utf-8") as f:
                 svg = f.read()
-            if "svg.j2" in foldericon:
+            if "svg.j2" in folder_icon_content:
                 colorscheme = extract_colorscheme(css_file)
-                svg = svg.replace("{{ color1 }}", colorscheme["color1"])
-                svg = svg.replace("{{ color2 }}", colorscheme["color2"])
-                svg = svg.replace("{{ color3 }}", colorscheme["color3"])
-                svg = svg.replace("{{ color4 }}", colorscheme["color4"])
+                for color_key, color_value in colorscheme.items():
+                    svg = svg.replace(f"{{{{ {color_key} }}}}", color_value)
             svg = urllib.parse.quote(svg)
-            css_content = f'{themehead}\n.foldericon {{\n  content: url("data:image/svg+xml,{svg}");\n}}\n{themetail}'
+            css_content = f'{css_head}\n.foldericon {{\n  content: url("data:image/svg+xml,{svg}");\n}}\n{css_tail}'
 
         # Encode CSS content as Base64
         encoded_css = base64.b64encode(css_content.encode("utf-8")).decode("utf-8")
@@ -92,15 +90,15 @@ def take_screenshot(_html_path: str, css_file: str, output_file: str, driver: we
         logging.error("Failed to take screenshot for %s: %s", css_file, e)
 
 
-def write_readme(_folder_path: str, themes: List[str]) -> None:
+def write_readme(directory_path: str, themes: List[str]) -> None:
     """
     Writes the README file with previews of included themes.
 
     Args:
-        folder_path (str): Path to the folder containing the themes and README.md.
+        directory_path (str): Path to the folder containing the themes and README.md.
         themes (List[str]): List of theme names.
     """
-    readme_path = os.path.join(_folder_path, "README.md")
+    readme_path = os.path.join(directory_path, "README.md")
     try:
         with open(readme_path, "r", encoding="utf-8") as f:
             readme = f.read()
@@ -115,21 +113,21 @@ def write_readme(_folder_path: str, themes: List[str]) -> None:
         logging.info("README.md updated with previews of included themes.")
 
     except FileNotFoundError:
-        logging.error("README.md not found in %s", _folder_path)
+        logging.error("README.md not found in %s", directory_path)
     except Exception as e:
         logging.error("Failed to write README.md: %s", e)
 
 
-def main(_folder_path: str, _html_path: str) -> None:
+def main(directory_path: str, html_file_path: str) -> None:
     """
     Main function to take screenshots for each CSS file in the folder and update the README.md.
 
     Args:
-        folder_path (str): Path to the folder containing CSS files.
-        html_path (str): Path to the HTML file or URL for rendering.
+        directory_path (str): Path to the folder containing CSS files.
+        html_file_path (str): Path to the HTML file or URL for rendering.
     """
-    if not os.path.exists(_folder_path):
-        logging.error('Error: Folder path "%s" does not exist.', _folder_path)
+    if not os.path.exists(directory_path):
+        logging.error('Error: Folder path "%s" does not exist.', directory_path)
         return
 
     # Setup Chrome options
@@ -145,21 +143,21 @@ def main(_folder_path: str, _html_path: str) -> None:
     try:
         themes = []
         # Iterate over all files in the folder
-        for filename in sorted(os.listdir(_folder_path)):
+        for filename in sorted(os.listdir(directory_path)):
             if filename.endswith(".css"):
                 theme_name = os.path.splitext(filename)[0]
                 themes.append(theme_name)
-                css_file = os.path.join(_folder_path, filename)
-                output_file = os.path.join(_folder_path, "screenshots", f"{theme_name}.png")
+                css_file = os.path.join(directory_path, filename)
+                output_file = os.path.join(directory_path, "screenshots", f"{theme_name}.png")
 
                 # Create screenshots folder if it doesn't exist
                 os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
                 # Take screenshot for this CSS file
-                take_screenshot(_html_path, css_file, output_file, driver)
+                take_screenshot(html_file_path, css_file, output_file, driver)
 
         # Write the README file with the new previews
-        write_readme(_folder_path, themes)
+        write_readme(directory_path, themes)
 
     finally:
         driver.quit()
@@ -167,8 +165,8 @@ def main(_folder_path: str, _html_path: str) -> None:
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        logging.error("Usage: python script_name.py folder_path html_path")
+        logging.error("Usage: python script_name.py directory_path html_file_path")
     else:
-        folder_path = sys.argv[1]
+        dir_path = sys.argv[1]
         html_path = sys.argv[2]
-        main(folder_path, html_path)
+        main(dir_path, html_path)
