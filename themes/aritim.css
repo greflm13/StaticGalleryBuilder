@@ -25,6 +25,7 @@
 /* Change the link color on hover */
 .navbar li a:hover {
   text-decoration: none;
+  color: var(--bcolor1);
   background-color: var(--bcolor2);
 }
 

@@ -75,6 +75,7 @@
 
 .tooltiptext {
   font-weight: 400;
+  color: var(--bcolor1);
   background-color: var(--bcolor2);
   font-family: "Roboto", sans-serif;
 }

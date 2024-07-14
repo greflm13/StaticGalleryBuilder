@@ -1,14 +1,22 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
 
 * {
-  --color1: #00CED1; /* DarkTurquoise */
-  --color2: #4682B4; /* SteelBlue */
-  --color3: #B0C4DE; /* LightSteelBlue */
-  --color4: #5F9EA0; /* CadetBlue */
-  --bcolor1: #FFFFFF; /* White */
-  --bcolor2: #2F4F4F; /* DarkSlateGray */
-  --bcolor3: #E0E0E0; /* LightGray */
-  --bcolor4: #D3D3D3; /* LightGray */
+  --color1: #00CED1;
+  /* DarkTurquoise */
+  --color2: #4682B4;
+  /* SteelBlue */
+  --color3: #B0C4DE;
+  /* LightSteelBlue */
+  --color4: #5F9EA0;
+  /* CadetBlue */
+  --bcolor1: #FFFFFF;
+  /* White */
+  --bcolor2: #2F4F4F;
+  /* DarkSlateGray */
+  --bcolor3: #E0E0E0;
+  /* LightGray */
+  --bcolor4: #D3D3D3;
+  /* LightGray */
 }
 
 .navbar {
@@ -75,6 +83,7 @@
 
 .tooltiptext {
   font-weight: 400;
+  color: var(--bcolor3);
   background-color: var(--bcolor2);
   font-family: "Montserrat", sans-serif;
 }

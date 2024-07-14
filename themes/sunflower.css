@@ -70,6 +70,7 @@
 
 .tooltiptext {
   font-weight: 600;
+  color: var(--bcolor1);
   background-color: var(--bcolor2);
 }
 

@@ -166,3 +166,4 @@ test/.thumbnails
 test/**/index.html
 test/**/.sizelist.json
 test/manifest.json
+themes/previews
