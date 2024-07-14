@@ -11,6 +11,7 @@ from jinja2 import Environment, FileSystemLoader
 
 import modules.cclicense as cclicense
 from modules.argumentparser import Args
+from builder import VERSION
 
 # Constants for file paths and exclusions
 FAVICON_PATH = ".static/favicon.ico"
@@ -295,6 +296,7 @@ def create_html_file(
         info=_info,
         allimages=images,
         webmanifest=_args.generate_webmanifest,
+        version=VERSION,
     )
 
     with open(os.path.join(folder, "index.html"), "w", encoding="utf-8") as f:

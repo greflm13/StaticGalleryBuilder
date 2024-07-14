@@ -44,7 +44,7 @@
     <div class="folders">
       {%- for subdirectory in subdirectories %}
       <figure>
-        <a href="{{ subdirectory.url }}"><img class="foldericon"/></a>
+        <a href="{{ subdirectory.url }}"><img class="foldericon" /></a>
         <figcaption><a href="{{ subdirectory.url }}">{{ subdirectory.name }}</a></figcaption>
       </figure>
       {%- endfor %}
@@ -92,14 +92,14 @@
       {%- endfor %}
     </a>
     {%- endif %}
-    <span class="attribution">Made with <a href="https://github.com/greflm13/StaticGalleryBuilder" target="_blank">StaticGalleryBuilder</a></a> by <a href="https://github.com/greflm13"
+    <span class="attribution">Made with <a href="https://github.com/greflm13/StaticGalleryBuilder" target="_blank">StaticGalleryBuilder {{ version }}</a> by <a href="https://github.com/greflm13"
         target="_blank">Flo Greistorfer</a>.</span>
     <button onclick="topFunction()" id="totop" title="Back to Top">Back to Top</button>
   </div>
   {%- endif %}
   {%- else %}
   <div class="footer">
-    <span class="attribution">Made with <a href="https://github.com/greflm13/StaticGalleryBuilder" target="_blank" rel="noopener noreferrer">StaticGalleryBuilder</a></a> by <a
+    <span class="attribution">Made with <a href="https://github.com/greflm13/StaticGalleryBuilder" target="_blank" rel="noopener noreferrer">StaticGalleryBuilder {{ version }}</a> by <a
         href="https://github.com/greflm13"
         target="_blank" rel="noopener noreferrer">Flo Greistorfer</a>.</span>
     <button onclick="topFunction()" id="totop" title="Back to Top">Back to Top</button>
@@ -145,9 +145,9 @@
   <script>
     var pswpElement = document.querySelectorAll('.pswp')[0];
     var items = [
-      {%- for image in allimages %}
-      { src: "{{ image.url }}", w: {{ image.width }}, h: {{ image.height }}, msrc: "{{ image.thumbnail }}" },
-      {%- endfor %}
+      {% - for image in allimages %}
+    { src: "{{ image.url }}", w: { { image.width } }, h: { { image.height } }, msrc: "{{ image.thumbnail }}" },
+    {% - endfor %}
     ];
     var re = /pid=(\d+)/;
 
