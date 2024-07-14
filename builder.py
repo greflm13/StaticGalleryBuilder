@@ -192,7 +192,7 @@ def main() -> None:
 
         if args.non_interactive_mode:
             print("Generating HTML files...")
-            thumbnails = list_folder(0, args.root_directory, args.site_title, args, raw)
+            thumbnails = list_folder(0, args.root_directory, args.site_title, args, raw, VERSION)
             with Pool(os.cpu_count()) as pool:
                 print("Generating thumbnails...")
                 pool.map(generate_thumbnail, thumbnails)
@@ -203,7 +203,7 @@ def main() -> None:
             pbardict["traversingbar"].update(0)
             pbardict["traversingbar"].close()
 
-            thumbnails = list_folder(total, args.root_directory, args.site_title, args, raw)
+            thumbnails = list_folder(total, args.root_directory, args.site_title, args, raw, VERSION)
 
             with Pool(os.cpu_count()) as pool:
                 for _ in tqdm(

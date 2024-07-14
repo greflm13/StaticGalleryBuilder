@@ -11,7 +11,6 @@ from jinja2 import Environment, FileSystemLoader
 
 import modules.cclicense as cclicense
 from modules.argumentparser import Args
-from builder import VERSION
 
 # Constants for file paths and exclusions
 FAVICON_PATH = ".static/favicon.ico"
@@ -130,7 +129,7 @@ def process_image(item: str, folder: str, _args: Args, baseurl: str, sizelist: D
     return image
 
 
-def generate_html(folder: str, title: str, _args: Args, raw: List[str]) -> None:
+def generate_html(folder: str, title: str, _args: Args, raw: List[str], version: str) -> None:
     """
     Generates HTML content for a folder of images.
 
@@ -158,7 +157,7 @@ def generate_html(folder: str, title: str, _args: Args, raw: List[str]) -> None:
     for item in items:
         if item not in EXCLUDES:
             if os.path.isdir(os.path.join(folder, item)):
-                process_subfolder(item, folder, baseurl, subfolders, _args, raw)
+                process_subfolder(item, folder, baseurl, subfolders, _args, raw, version)
             else:
                 contains_files = True
                 if os.path.splitext(item)[1].lower() in _args.file_extensions:
@@ -175,7 +174,7 @@ def generate_html(folder: str, title: str, _args: Args, raw: List[str]) -> None:
     update_sizelist(sizelist, folder)
 
     if should_generate_html(images, contains_files, _args):
-        create_html_file(folder, title, foldername, images, subfolders, _args)
+        create_html_file(folder, title, foldername, images, subfolders, _args, version)
     else:
         if os.path.exists(os.path.join(folder, "index.html")):
             os.remove(os.path.join(folder, "index.html"))
@@ -197,7 +196,9 @@ def create_thumbnail_folder(foldername: str, root_directory: str) -> None:
         os.mkdir(thumbnails_path)
 
 
-def process_subfolder(item: str, folder: str, baseurl: str, subfolders: List[Dict[str, str]], _args: Args, raw: List[str]) -> None:
+def process_subfolder(
+    item: str, folder: str, baseurl: str, subfolders: List[Dict[str, str]], _args: Args, raw: List[str], version: str
+) -> None:
     """
     Processes a subfolder.
 
@@ -217,7 +218,7 @@ def process_subfolder(item: str, folder: str, baseurl: str, subfolders: List[Dic
     subfolders.append({"url": subfolder_url, "name": item})
     if item not in _args.exclude_folders:
         if not any(fnmatch.fnmatchcase(os.path.join(folder, item), exclude) for exclude in _args.exclude_folders):
-            generate_html(os.path.join(folder, item), os.path.join(folder, item).removeprefix(_args.root_directory), _args, raw)
+            generate_html(os.path.join(folder, item), os.path.join(folder, item).removeprefix(_args.root_directory), _args, raw, version)
 
 
 def process_info_file(folder: str, item: str) -> None:
@@ -247,7 +248,7 @@ def should_generate_html(images: List[Dict[str, Any]], contains_files, _args: Ar
 
 
 def create_html_file(
-    folder: str, title: str, foldername: str, images: List[Dict[str, Any]], subfolders: List[Dict[str, str]], _args: Args
+    folder: str, title: str, foldername: str, images: List[Dict[str, Any]], subfolders: List[Dict[str, str]], _args: Args, version: str
 ) -> None:
     """
     Creates the HTML file using the template.
@@ -296,14 +297,14 @@ def create_html_file(
         info=_info,
         allimages=images,
         webmanifest=_args.generate_webmanifest,
-        version=VERSION,
+        version=version,
     )
 
     with open(os.path.join(folder, "index.html"), "w", encoding="utf-8") as f:
         f.write(content)
 
 
-def list_folder(total: int, folder: str, title: str, _args: Args, raw: List[str]) -> List[Tuple[str, str]]:
+def list_folder(total: int, folder: str, title: str, _args: Args, raw: List[str], version: str) -> List[Tuple[str, str]]:
     """
     Lists and processes a folder, generating HTML files.
 
@@ -319,5 +320,5 @@ def list_folder(total: int, folder: str, title: str, _args: Args, raw: List[str]
     """
     if not _args.non_interactive_mode:
         pbardict["htmlbar"] = tqdm(total=total, desc="Generating HTML files", unit="folders", ascii=True, dynamic_ncols=True)
-    generate_html(folder, title, _args, raw)
+    generate_html(folder, title, _args, raw, version)
     return thumbnails
