@@ -145,9 +145,9 @@
   <script>
     var pswpElement = document.querySelectorAll('.pswp')[0];
     var items = [
-      {% - for image in allimages %}
-    { src: "{{ image.url }}", w: { { image.width } }, h: { { image.height } }, msrc: "{{ image.thumbnail }}" },
-    {% - endfor %}
+      {%- for image in allimages %}
+      { src: "{{ image.url }}", w: {{ image.width }}, h: {{ image.height }}, msrc: "{{ image.thumbnail }}" },
+      {%- endfor %}
     ];
     var re = /pid=(\d+)/;
 
