@@ -92,6 +92,7 @@
 }
 
 #totop:hover {
+  color: var(--bcolor2);
   background-color: var(--color2);
 }
 
