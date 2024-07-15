@@ -2,22 +2,22 @@
 
 * {
   --color1: #FFA769;
-  --color2: #FF778E;
-  --color3: #FF4AD9;
-  --color4: #FC4CA0;
-  --color5: #7542E5;
-  --color6: #ffe7ea;
-  --color7: #5F2ECA;
+  --color2: #FC4CA0;
+  --color3: #7542E5;
+  --color4: #FF4AD9;
+  --color5: #5F2ECA;
+  --color6: #7033CA;
+  --color7: #FF778E;
   --bcolor1: #e2d9f8;
-  --bcolor2: #20123b;
+  --bcolor2: #20123A;
   --bcolor3: #2B1753;
   --bcolor4: #321C64;
   --gradient: linear-gradient(80deg, var(--bcolor2) 0%, var(--color5) 1%, var(--color3) 2%, var(--color2) 3%, var(--color1) 4%, var(--color1) 96%, var(--color2) 97%, var(--color3) 98%, var(--color5) 99%, var(--bcolor2) 100%);
 }
 
 body {
-  color: var(--bcolor2);
-  background-color: var(--color6);
+  color: var(--bcolor1);
+  background-color: var(--bcolor3);
   font-family: "Metropolis", sans-serif;
   font-optical-sizing: auto;
   font-weight: 500;
@@ -26,14 +26,14 @@ body {
 
 .navbar {
   font-weight: 800;
-  color: var(--bcolor2);
-  background-color: var(--color2);
+  color: var(--bcolor1);
+  background-color: var(--color3);
   background-image: var(--gradient);
 }
 
 .navbar li a {
   font-weight: 800;
-  color: var(--bcolor2);
+  color: var(--bcolor1);
 }
 
 .navbar li a:hover {
@@ -42,8 +42,8 @@ body {
 }
 
 .footer {
-  color: var(--bcolor1);
-  background-color: var(--bcolor4);
+  color: var(--bcolor2);
+  background-color: var(--color1);
   font-weight: 600;
 }
 
@@ -62,7 +62,7 @@ body {
 
 .folders a {
   font-weight: 500;
-  color: var(--bcolor2);
+  color: var(--bcolor1);
   text-decoration: none;
 }
 
@@ -82,20 +82,19 @@ body {
 
 .tooltiptext {
   font-weight: 500;
-  color: var(--bcolor1);
-  background-color: var(--color5);
+  background-color: var(--color6);
 }
 
 .column img {
-  background-color: var(--bcolor1);
+  background-color: var(--bcolor2);
 }
 
 #totop:hover {
-  background-color: var(--color5);
+  background-color: var(--color6);
 }
 
 #totop {
-  background-color: var(--color4);
-  color: var(--bcolor2);
+  background-color: var(--bcolor4);
+  color: var(--bcolor1);
   font-weight: 600;
 }

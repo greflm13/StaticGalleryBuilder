@@ -29,6 +29,10 @@ Replace the SVG data URI (`url("data:image/svg+xml,...")`) with your desired SVG
 
 ## Previews of included themes
 
+### alpenglow-dark
+
+![alpenglow-dark](screenshots/alpenglow-dark.png)
+
 ### alpenglow
 
 ![alpenglow](screenshots/alpenglow.png)

@@ -12,6 +12,7 @@ from typing import List
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
 
 from modules.svg_handling import extract_colorscheme
 
@@ -91,6 +92,10 @@ def take_screenshot(html_file_path: str, css_file: str, output_file: str, driver
         # Wait for a while to ensure CSS is applied
         time.sleep(2)
 
+        # Move mouse to info
+        hoverable = driver.find_element(By.CLASS_NAME, "tooltip")
+        webdriver.ActionChains(driver).move_to_element(hoverable).perform()
+
         # Capture screenshot
         driver.save_screenshot(output_file)
         logging.info("Screenshot saved to %s", output_file)
@@ -133,7 +138,8 @@ def create_preview(html_file_path: str, css_file: str, previews_folder: str):
             svg = svg.replace("{{ color3 }}", colorscheme["color3"])
             svg = svg.replace("{{ color4 }}", colorscheme["color4"])
         svg = urllib.parse.quote(svg)
-        os.remove(os.path.join(path, "previews", basename))
+        if os.path.exists(os.path.join(path, "previews", basename)):
+            os.remove(os.path.join(path, "previews", basename))
         with open(os.path.join(path, "previews", basename), "x", encoding="utf-8") as f:
             f.write(themehead + '\n.foldericon {\n  content: url("data:image/svg+xml,' + svg + '");\n}\n' + themetail)
 

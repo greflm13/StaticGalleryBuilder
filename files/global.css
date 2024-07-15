@@ -83,6 +83,16 @@ figure {
   min-height: calc(6.75pt + 12px);
 }
 
+.footer a {
+  display: inline-block;
+}
+
+.footer a img {
+  height: 22px !important;
+  margin-left: 3px;
+  vertical-align: text-bottom
+}
+
 .navbar {
   list-style-type: none;
   margin: 0;

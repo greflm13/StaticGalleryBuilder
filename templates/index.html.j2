@@ -37,16 +37,18 @@
       {%- endif %}
       <li class="title"><span class="header">{{ header }}</span></li>
       {%- if license %}
-      <li class="license"><a href="{{ license.url }}" target="_blank">License</a></li>
+      <li class="license"><a href="{{ license.url }}" rel="license noopener noreferrer" target="_blank">License</a></li>
       {%- endif %}
     </ul>
     {% if subdirectories %}
     <div class="folders">
       {%- for subdirectory in subdirectories %}
-      <figure>
-        <a href="{{ subdirectory.url }}"><img class="foldericon" /></a>
-        <figcaption><a href="{{ subdirectory.url }}">{{ subdirectory.name }}</a></figcaption>
-      </figure>
+      <a href="{{ subdirectory.url }}">
+        <figure>
+          <img class="foldericon" />
+          <figcaption>{{ subdirectory.name }}</figcaption>
+        </figure>
+      </a>
       {%- endfor %}
     </div>
     {%- endif %}
@@ -86,22 +88,21 @@
     </a>
     {%- else %}
     <a property="dct:title" rel="cc:attributionURL" href="{{ root }}">{{ license.project }}</a> by <span property="cc:attributionName">{{ license.author }}</span> is licensed under
-    <a href="{{ license.url }}" target="_blank" rel="license noopener noreferrer" style="display: inline-block">{{ license.type }}
+    <a href="{{ license.url }}" target="_blank" rel="license noopener noreferrer">{{ license.type }}
       {%- for pic in license.pics %}
-      <img style="height: 22px !important; margin-left: 3px; vertical-align: text-bottom" src="{{ pic }}" alt="" />
+      <img src="{{ pic }}" alt="" />
       {%- endfor %}
     </a>
     {%- endif %}
-    <span class="attribution">Made with <a href="https://github.com/greflm13/StaticGalleryBuilder" target="_blank">StaticGalleryBuilder {{ version }}</a> by <a href="https://github.com/greflm13"
-        target="_blank">Flo Greistorfer</a>.</span>
+    <span class="attribution">Made with <a href="https://github.com/greflm13/StaticGalleryBuilder" target="_blank" rel="noopener noreferrer">StaticGalleryBuilder {{ version }}</a> by <a
+        href="https://github.com/greflm13" target="_blank" rel="noopener noreferrer">Flo Greistorfer</a>.</span>
     <button onclick="topFunction()" id="totop" title="Back to Top">Back to Top</button>
   </div>
   {%- endif %}
   {%- else %}
   <div class="footer">
     <span class="attribution">Made with <a href="https://github.com/greflm13/StaticGalleryBuilder" target="_blank" rel="noopener noreferrer">StaticGalleryBuilder {{ version }}</a> by <a
-        href="https://github.com/greflm13"
-        target="_blank" rel="noopener noreferrer">Flo Greistorfer</a>.</span>
+        href="https://github.com/greflm13" target="_blank" rel="noopener noreferrer">Flo Greistorfer</a>.</span>
     <button onclick="topFunction()" id="totop" title="Back to Top">Back to Top</button>
   </div>
   {%- endif %}
