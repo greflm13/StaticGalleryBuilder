@@ -15,7 +15,7 @@ from modules.argumentparser import Args
 # Constants for file paths and exclusions
 FAVICON_PATH = ".static/favicon.ico"
 GLOBAL_CSS_PATH = ".static/global.css"
-EXCLUDES = [".lock", "index.html", "manifest.json", ".sizelist.json", ".thumbnails", ".static"]
+EXCLUDES = ["index.html", "manifest.json", "robots.txt"]
 
 # Set the maximum image pixels to prevent decompression bomb DOS attacks
 Image.MAX_IMAGE_PIXELS = 933120000
@@ -155,7 +155,7 @@ def generate_html(folder: str, title: str, _args: Args, raw: List[str], version:
         pbardict[folder] = tqdm(total=len(items), desc=f"Getting image infos - {folder}", unit="files", ascii=True, dynamic_ncols=True)
 
     for item in items:
-        if item not in EXCLUDES:
+        if item not in EXCLUDES and not item.startswith("."):
             if os.path.isdir(os.path.join(folder, item)):
                 process_subfolder(item, folder, baseurl, subfolders, _args, raw, version)
             else:
@@ -196,9 +196,7 @@ def create_thumbnail_folder(foldername: str, root_directory: str) -> None:
         os.mkdir(thumbnails_path)
 
 
-def process_subfolder(
-    item: str, folder: str, baseurl: str, subfolders: List[Dict[str, str]], _args: Args, raw: List[str], version: str
-) -> None:
+def process_subfolder(item: str, folder: str, baseurl: str, subfolders: List[Dict[str, str]], _args: Args, raw: List[str], version: str) -> None:
     """
     Processes a subfolder.
 
@@ -210,11 +208,7 @@ def process_subfolder(
         _args (Args): Parsed command line arguments.
         raw (List[str]): Raw image file extensions.
     """
-    subfolder_url = (
-        f"{_args.web_root_url}{baseurl}{urllib.parse.quote(item)}/index.html"
-        if _args.web_root_url.startswith("file://")
-        else f"{_args.web_root_url}{baseurl}{urllib.parse.quote(item)}"
-    )
+    subfolder_url = f"{_args.web_root_url}{baseurl}{urllib.parse.quote(item)}/index.html" if _args.web_root_url.startswith("file://") else f"{_args.web_root_url}{baseurl}{urllib.parse.quote(item)}"
     subfolders.append({"url": subfolder_url, "name": item})
     if item not in _args.exclude_folders:
         if not any(fnmatch.fnmatchcase(os.path.join(folder, item), exclude) for exclude in _args.exclude_folders):
@@ -247,9 +241,7 @@ def should_generate_html(images: List[Dict[str, Any]], contains_files, _args: Ar
     return images or (_args.use_fancy_folders and not contains_files) or (_args.use_fancy_folders and _args.ignore_other_files)
 
 
-def create_html_file(
-    folder: str, title: str, foldername: str, images: List[Dict[str, Any]], subfolders: List[Dict[str, str]], _args: Args, version: str
-) -> None:
+def create_html_file(folder: str, title: str, foldername: str, images: List[Dict[str, Any]], subfolders: List[Dict[str, str]], _args: Args, version: str) -> None:
     """
     Creates the HTML file using the template.
 
