@@ -2,17 +2,17 @@
 
 * {
   --color1: #FFA769;
-  --color2: #FF778E;
-  --color3: #FF4AD9;
-  --color4: #FC4CA0;
-  --color5: #7542E5;
+  --color2: #FC4CA0;
+  --color3: #7542E5;
+  --color4: #FF4AD9;
+  --color5: #FF778E;
   --color6: #ffe7ea;
   --color7: #5F2ECA;
   --bcolor1: #e2d9f8;
   --bcolor2: #20123b;
   --bcolor3: #2B1753;
   --bcolor4: #321C64;
-  --gradient: linear-gradient(80deg, var(--bcolor2) 0%, var(--color5) 1%, var(--color3) 2%, var(--color2) 3%, var(--color1) 4%, var(--color1) 96%, var(--color2) 97%, var(--color3) 98%, var(--color5) 99%, var(--bcolor2) 100%);
+  --gradient: linear-gradient(80deg, var(--bcolor2) 0%, var(--color3) 1%, var(--color4) 2%, var(--color5) 3%, var(--color1) 4%, var(--color1) 96%, var(--color5) 97%, var(--color4) 98%, var(--color3) 99%, var(--bcolor2) 100%);
 }
 
 body {
@@ -27,7 +27,7 @@ body {
 .navbar {
   font-weight: 800;
   color: var(--bcolor2);
-  background-color: var(--color2);
+  background-color: var(--color5);
   background-image: var(--gradient);
 }
 
@@ -38,7 +38,7 @@ body {
 
 .navbar li a:hover {
   text-decoration: none;
-  background-color: var(--color4);
+  background-color: var(--color2);
 }
 
 .footer {
@@ -48,7 +48,7 @@ body {
 }
 
 .footer a {
-  color: var(--color2);
+  color: var(--color5);
   text-decoration: none;
 }
 
@@ -57,7 +57,7 @@ body {
 }
 
 .foldericon {
-  content: "themes/icons/subfolder.svg.j2";
+  content: "themes/icons/catpuccin.svg.j2";
 }
 
 .folders a {
@@ -83,7 +83,7 @@ body {
 .tooltiptext {
   font-weight: 500;
   color: var(--bcolor1);
-  background-color: var(--color5);
+  background-color: var(--color3);
 }
 
 .column img {
@@ -91,11 +91,11 @@ body {
 }
 
 #totop:hover {
-  background-color: var(--color5);
+  background-color: var(--color3);
 }
 
 #totop {
-  background-color: var(--color4);
+  background-color: var(--color2);
   color: var(--bcolor2);
   font-weight: 600;
 }

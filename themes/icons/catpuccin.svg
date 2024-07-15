@@ -1,6 +1,0 @@
-<svg width='64' height='64' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
-    <path d='M20 6H10L8 4H4C2.89543 4 2 4.89543 2 6V18C2 19.1046 2.89543 20 4 20H20C21.1046 20 22 19.1046 22 18V8C22 6.89543 21.1046 6 20 6Z' fill='#F28FAD' />
-    <path d='M4 4H8L10 6H20C21.1046 6 22 6.89543 22 8H2C2 6.89543 2.89543 6 4 6V4Z' fill='#96CDFB' />
-    <path d='M10 6H14L12 4H8L10 6Z' fill='#ABE9B3' />
-    <path d='M14 6H18L16 4H12L14 6Z' fill='#FAE3B0' />
-</svg>
