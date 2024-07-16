@@ -1,18 +1,30 @@
-@import url('https://fonts.cdnfonts.com/css/metropolis-2');
+@import url("https://fonts.cdnfonts.com/css/metropolis-2");
 
 * {
-  --color1: #FFA769;
-  --color2: #FC4CA0;
-  --color3: #7542E5;
-  --color4: #FF4AD9;
-  --color5: #FF778E;
-  --color6: #ffe7ea;
-  --color7: #5F2ECA;
-  --bcolor1: #e2d9f8;
+  --color1: #ffa769;
+  --color2: #fc4ca0;
+  --color3: #7542e5;
+  --color4: #ff4ad9;
+  --color5: #ff778e;
+  --color6: #fff5f6;
+  --color7: #5f2eca;
+  --bcolor1: #ffe7ea;
   --bcolor2: #20123b;
-  --bcolor3: #2B1753;
-  --bcolor4: #321C64;
-  --gradient: linear-gradient(80deg, var(--bcolor2) 0%, var(--color3) 1%, var(--color4) 2%, var(--color5) 3%, var(--color1) 4%, var(--color1) 96%, var(--color5) 97%, var(--color4) 98%, var(--color3) 99%, var(--bcolor2) 100%);
+  --bcolor3: #2b1753;
+  --bcolor4: #321c64;
+  --gradient: linear-gradient(
+    80deg,
+    var(--bcolor2) 0%,
+    var(--color3) 1%,
+    var(--color4) 2%,
+    var(--color5) 3%,
+    var(--color1) 4%,
+    var(--color1) 96%,
+    var(--color5) 97%,
+    var(--color4) 98%,
+    var(--color3) 99%,
+    var(--bcolor2) 100%
+  );
 }
 
 body {

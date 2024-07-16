@@ -1,5 +1,4 @@
 import os
-import re
 import shutil
 from typing import List, Dict
 from PIL import Image
@@ -15,6 +14,7 @@ except ImportError:
     SVGSUPPORT = False
 
 from modules.argumentparser import Args
+from modules.css_color import css_color_to_hex, extract_theme_color, extract_colorscheme
 
 # Define constants for static files directory and icon sizes
 STATIC_FILES_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "files")
@@ -29,51 +29,6 @@ class Icon:
     type: str
     sizes: str
     purpose: str
-
-
-def extract_colorscheme(theme_path: str) -> Dict[str, str]:
-    """
-    Extract color scheme from a CSS theme file.
-
-    Parameters:
-    -----------
-    theme_path : str
-        Path to the CSS theme file.
-
-    Returns:
-    --------
-    Dict[str, str]
-        Dictionary containing color scheme variables and their values.
-    """
-    pattern = r"--(color[1-4]|bcolor1):\s*(#[0-9a-fA-F]+);"
-    colorscheme = {}
-    with open(theme_path, "r", encoding="utf-8") as f:
-        filecontent = f.read()
-    matches = re.findall(pattern, filecontent)
-    for match in matches:
-        colorscheme[match[0]] = match[1]
-    return colorscheme
-
-
-def extract_theme_color(theme_path: str) -> str:
-    """
-    Extract the theme color from a CSS theme file.
-
-    Parameters:
-    -----------
-    theme_path : str
-        Path to the CSS theme file.
-
-    Returns:
-    --------
-    str
-        The theme color value.
-    """
-    pattern = r"--bcolor1:\s*(#[0-9a-fA-F]+);"
-    with open(theme_path, "r", encoding="utf-8") as f:
-        filecontent = f.read()
-    match = re.search(pattern, filecontent)
-    return match.group(1) if match else ""
 
 
 def render_svg_icon(colorscheme: Dict[str, str], iconspath: str) -> str:
