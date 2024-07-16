@@ -1,22 +1,20 @@
 # StaticGalleryBuilder (SGB)
 
-`builder.py` is a Python script designed to generate static HTML files for hosting images on a web server. It traverses a specified root directory, creates thumbnail previews for images, and generates corresponding HTML files to display the images and subfolders in a user-friendly format.
+Python script to generate static HTML files for website galleries.
 
 ## Features
 
-- **Generate HTML Files:** The script creates HTML files for each folder in the specified root directory.
-- **Thumbnail Creation:** It generates thumbnail previews for supported image formats.
-- **Folder Navigation:** The HTML files include navigation links to subfolders.
-- **Responsive Design:** The generated HTML uses responsive design techniques to ensure the gallery looks good on different screen sizes.
-- **Non-Interactive Mode:** It can run in a non-interactive mode suitable for automated workflows.
-- **License Information:** Optionally include license information in the HTML files.
-- **Custom Author and Title:** Allows specifying a custom author and title for the HTML files.
-- **CSS Theme Support:** Allows specifying a custom CSS theme file for the HTML files.
-- **Folder Exclusion:** Ability to exclude specific folders from processing.
-- **Selective File Extensions:** Ability to specify which file extensions to include in the gallery.
-- **Ignore Other Files:** Option to ignore files other than those specified by the included extensions.
+- **Generate HTML Files:** Creates HTML files for each folder in the specified root directory.
+- **Thumbnail Creation:** Generates thumbnail previews for supported image formats.
+- **Folder Navigation:** HTML files include navigation links to subfolders.
+- **Responsive Design:** Generated HTML uses responsive design.
+- **License Information:** Optionally include imgae license (CC licenses).
+- **CSS Theme Support:** CSS themes included.
+- **Folder Exclusion:** Exclude folders from processing.
+- **Selective File Extensions:** Specify file extensions to include in the gallery (jpg, png).
+- **Ignore Other Files:** Ignore files other than those specified by the included extensions.
 - **Info Tooltips:** Display additional information as tooltips for images if an `info` file is present in the directory.
-- **Generate Web Manifest:** Ability to generate a web manifest file for PWA (Progressive Web App) support.
+- **Generate Web Manifest:** Generates a web manifest file for PWA (Progressive Web App) support.
 - **Generate on the fly icons:** If `cairosvg` is installed the script will generate icons from the css theme colors automatically.
 
 ## Requirements
@@ -58,7 +56,6 @@ The script supports several command-line options to customize its behavior. Belo
 - `--use-fancy-folders`: Enable fancy folder view instead of the default Apache directory listing.
 - `--ignore-other-files`: Ignore files that do not match the specified extensions.
 - `--exclude-folder FOLDER`: Specify folders to exclude from processing. This option can be specified multiple times.
-- `--version`: Show the version number of the script and exit.
 - `-m, --web-manifest`: Generate a web manifest file.
 
 ### Examples
@@ -67,12 +64,6 @@ To generate HTML files and thumbnails for a directory `/data/pictures` and host 
 
 ```sh
 ./builder.py -p /data/pictures -w https://pictures.example.com -t "My Photo Gallery"
-```
-
-To regenerate thumbnails and run in non-interactive mode:
-
-```sh
-./builder.py -p /data/pictures -w https://pictures.example.com -t "My Photo Gallery" -r -n
 ```
 
 To include a license and author:
