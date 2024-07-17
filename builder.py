@@ -4,7 +4,7 @@ import re
 import shutil
 import fnmatch
 import urllib.parse
-from multiprocessing import Pool
+from multiprocessing import Pool, freeze_support
 from pathlib import Path
 from typing import Dict, List, Tuple
 
@@ -19,7 +19,7 @@ from modules.generate_html import list_folder, EXCLUDES
 # Constants
 STATIC_FILES_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), "files")
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
-VERSION = "2.2.4"
+VERSION = "2.2.5"
 RAW_EXTENSIONS = [
     ".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr",
     ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos",
@@ -221,4 +221,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    freeze_support()
     main()

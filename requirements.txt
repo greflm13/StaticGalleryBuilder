@@ -2,5 +2,6 @@ CairoSVG==2.7.1
 Jinja2==3.1.4
 numpy==2.0.0
 pillow==10.4.0
+pyinstaller==6.9.0
 rich-argparse==1.5.2
 tqdm==4.66.4
