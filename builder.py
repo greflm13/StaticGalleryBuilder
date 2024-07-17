@@ -17,9 +17,11 @@ from modules.generate_html import list_folder, EXCLUDES
 
 # fmt: off
 # Constants
-STATIC_FILES_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), "files")
-SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
-VERSION = "2.2.5"
+if __package__ == None:
+    __package__ = ""
+SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__).removesuffix(__package__))
+STATIC_FILES_DIR = os.path.join(os.path.abspath(SCRIPT_DIR), "files")
+VERSION = open(os.path.join(SCRIPT_DIR, ".version"), "r", encoding="utf-8").read()
 RAW_EXTENSIONS = [
     ".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr",
     ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos",
@@ -158,9 +160,7 @@ def get_total_folders(folder: str, _args: Args, _total: int = 0) -> int:
     items = sorted(os.listdir(folder))
     for item in items:
         if item not in EXCLUDES and os.path.isdir(os.path.join(folder, item)):
-            if item not in _args.exclude_folders and not any(
-                fnmatch.fnmatchcase(os.path.join(folder, item), exclude) for exclude in _args.exclude_folders
-            ):
+            if item not in _args.exclude_folders and not any(fnmatch.fnmatchcase(os.path.join(folder, item), exclude) for exclude in _args.exclude_folders):
                 _total = get_total_folders(os.path.join(folder, item), _args, _total)
     return _total
 

@@ -4,7 +4,9 @@ import argparse
 from rich_argparse import RichHelpFormatter, HelpPreviewAction
 
 
-DEFAULT_THEME_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "themes", "default.css")
+if __package__ == None:
+    __package__ = ""
+DEFAULT_THEME_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__).removesuffix(__package__)), "templates", "default.css")
 DEFAULT_AUTHOR = "Author"
 
 
@@ -41,6 +43,7 @@ class Args:
     web_root_url : str
         The base URL of the web root for the image hosting site.
     """
+
     author_name: str
     exclude_folders: List[str]
     file_extensions: List[str]

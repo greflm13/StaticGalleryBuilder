@@ -1,0 +1,82 @@
+@import url("https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap");
+
+* {
+  --color1: #333333;
+  --color2: #888888;
+  --color3: #dddddd;
+  --color4: #111111;
+  --color5: #0055ff;
+  --bcolor1: #ffffff;
+  --bcolor2: #000000;
+}
+
+.navbar {
+  font-weight: bold;
+  color: var(--bcolor1);
+  background-color: var(--color1);
+}
+
+.navbar li a {
+  font-weight: 700;
+  color: var(--bcolor1);
+}
+
+/* Change the link color on hover */
+.navbar li a:hover {
+  background-color: var(--color4);
+}
+
+.footer {
+  color: var(--bcolor2);
+  background-color: var(--color3);
+  font-weight: 500;
+}
+
+.footer a {
+  color: var(--color5);
+  text-decoration: none;
+}
+
+.foldericon {
+  content: "templates/folder-2.svg.j2";
+}
+
+.folders a {
+  font-weight: 700;
+  color: var(--color5);
+  text-decoration: none;
+}
+
+.tooltiptext {
+  font-weight: 400;
+  background-color: var(--color2);
+}
+
+.column img {
+  background-color: var(--color2);
+}
+
+#totop:hover {
+  background-color: var(--color2);
+}
+
+#totop {
+  background-color: var(--color1);
+  color: var(--bcolor1);
+  font-weight: 800;
+}
+
+body {
+  color: var(--bcolor2);
+  background-color: var(--bcolor1);
+  font-family: "Ubuntu", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+body a {
+  font-weight: 400;
+  color: var(--color5);
+  text-decoration: none;
+}
