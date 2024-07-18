@@ -4,4 +4,5 @@ numpy==2.0.0
 pillow==10.4.0
 pyinstaller==6.9.0
 rich-argparse==1.5.2
+setuptools==70.3.0
 tqdm==4.66.4
