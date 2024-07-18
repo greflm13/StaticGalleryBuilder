@@ -160,7 +160,9 @@ def get_total_folders(folder: str, _args: Args, _total: int = 0) -> int:
     items = sorted(os.listdir(folder))
     for item in items:
         if item not in EXCLUDES and os.path.isdir(os.path.join(folder, item)):
-            if item not in _args.exclude_folders and not any(fnmatch.fnmatchcase(os.path.join(folder, item), exclude) for exclude in _args.exclude_folders):
+            if item not in _args.exclude_folders and not any(
+                fnmatch.fnmatchcase(os.path.join(folder, item), exclude) for exclude in _args.exclude_folders
+            ):
                 _total = get_total_folders(os.path.join(folder, item), _args, _total)
     return _total
 
@@ -181,6 +183,9 @@ def main() -> None:
 
     try:
         Path(lock_file).touch()
+        if args.regenerate_thumbnails:
+            if os.path.exists(os.path.join(args.root_directory, ".thumbnails")):
+                shutil.rmtree(os.path.join(args.root_directory, ".thumbnails"))
         os.makedirs(os.path.join(args.root_directory, ".thumbnails"), exist_ok=True)
 
         copy_static_files(args)

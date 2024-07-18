@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import List, Optional
 import os
 import argparse
@@ -10,6 +11,7 @@ DEFAULT_THEME_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__).remo
 DEFAULT_AUTHOR = "Author"
 
 
+@dataclass(init=True)
 class Args:
     """
     A class to store command-line arguments for the script.
@@ -58,6 +60,24 @@ class Args:
     use_fancy_folders: bool
     web_root_url: str
 
+    def to_dict(self) -> dict:
+        result: dict = {}
+        result["author_name"] = self.author_name
+        result["exclude_folders"] = self.exclude_folders
+        result["file_extensions"] = self.file_extensions
+        result["generate_webmanifest"] = self.generate_webmanifest
+        result["ignore_other_files"] = self.ignore_other_files
+        if self.license_type is not None:
+            result["license_type"] = self.license_type
+        result["non_interactive_mode"] = self.non_interactive_mode
+        result["regenerate_thumbnails"] = self.regenerate_thumbnails
+        result["root_directory"] = self.root_directory
+        result["site_title"] = self.site_title
+        result["theme_path"] = self.theme_path
+        result["use_fancy_folders"] = self.use_fancy_folders
+        result["web_root_url"] = self.web_root_url
+        return result
+
 
 def parse_arguments(version: str) -> Args:
     """
@@ -73,6 +93,7 @@ def parse_arguments(version: str) -> Args:
     Args
         An instance of the Args class containing the parsed arguments.
     """
+    # fmt: off
     parser = argparse.ArgumentParser(description="Generate HTML files for a static image hosting website.", formatter_class=RichHelpFormatter)
     parser.add_argument("--exclude-folder", help="Folders to exclude from processing, globs supported (can be specified multiple times).", action="append", dest="exclude_folders", metavar="FOLDER")
     parser.add_argument("--generate-help-preview", action=HelpPreviewAction, path="help.svg")
@@ -90,18 +111,20 @@ def parse_arguments(version: str) -> Args:
     parser.add_argument("-t", "--site-title", help="Title of the image hosting site.", required=True, type=str, dest="site_title", metavar="TITLE")
     parser.add_argument("-w", "--web-root-url", help="Base URL of the web root for the image hosting site.", required=True, type=str, dest="web_root_url", metavar="URL")
     parsed_args = parser.parse_args()
-    _args = Args()
-    _args.author_name = parsed_args.author_name
-    _args.exclude_folders = parsed_args.exclude_folders
-    _args.file_extensions = parsed_args.file_extensions
-    _args.generate_webmanifest = parsed_args.generate_webmanifest
-    _args.ignore_other_files = parsed_args.ignore_other_files
-    _args.license_type = parsed_args.license_type
-    _args.non_interactive_mode = parsed_args.non_interactive_mode
-    _args.regenerate_thumbnails = parsed_args.regenerate_thumbnails
-    _args.root_directory = parsed_args.root_directory
-    _args.site_title = parsed_args.site_title
-    _args.theme_path = parsed_args.theme_path
-    _args.use_fancy_folders = parsed_args.use_fancy_folders
-    _args.web_root_url = parsed_args.web_root_url
+    # fmt: on
+    _args = Args(
+        author_name=parsed_args.author_name,
+        exclude_folders=parsed_args.exclude_folders,
+        file_extensions=parsed_args.file_extensions,
+        generate_webmanifest=parsed_args.generate_webmanifest,
+        ignore_other_files=parsed_args.ignore_other_files,
+        license_type=parsed_args.license_type,
+        non_interactive_mode=parsed_args.non_interactive_mode,
+        regenerate_thumbnails=parsed_args.regenerate_thumbnails,
+        root_directory=parsed_args.root_directory,
+        site_title=parsed_args.site_title,
+        theme_path=parsed_args.theme_path,
+        use_fancy_folders=parsed_args.use_fancy_folders,
+        web_root_url=parsed_args.web_root_url,
+    )
     return _args
