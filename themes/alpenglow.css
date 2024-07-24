@@ -12,19 +12,17 @@
   --bcolor2: #20123b;
   --bcolor3: #2b1753;
   --bcolor4: #321c64;
-  --gradient: linear-gradient(
-    80deg,
-    var(--bcolor2) 0%,
-    var(--color3) 1%,
-    var(--color4) 2%,
-    var(--color5) 3%,
-    var(--color1) 4%,
-    var(--color1) 96%,
-    var(--color5) 97%,
-    var(--color4) 98%,
-    var(--color3) 99%,
-    var(--bcolor2) 100%
-  );
+  --gradient: linear-gradient(80deg,
+      var(--bcolor2) 0%,
+      var(--color3) 1%,
+      var(--color4) 2%,
+      var(--color5) 3%,
+      var(--color1) 4%,
+      var(--color1) 96%,
+      var(--color5) 97%,
+      var(--color4) 98%,
+      var(--color3) 99%,
+      var(--bcolor2) 100%);
 }
 
 body {
