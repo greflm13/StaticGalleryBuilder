@@ -13,8 +13,11 @@ import modules.cclicense as cclicense
 from modules.argumentparser import Args
 
 # Constants for file paths and exclusions
-if __package__ == None:
-    __package__ = ""
+if __package__ is None:
+    PACKAGE = ""
+else:
+    PACKAGE = __package__
+SCRIPTDIR = os.path.abspath(os.path.dirname(__file__).removesuffix(PACKAGE))
 FAVICON_PATH = ".static/favicon.ico"
 GLOBAL_CSS_PATH = ".static/global.css"
 EXCLUDES = ["index.html", "manifest.json", "robots.txt"]
@@ -23,7 +26,7 @@ EXCLUDES = ["index.html", "manifest.json", "robots.txt"]
 Image.MAX_IMAGE_PIXELS = 933120000
 
 # Initialize Jinja2 environment for template rendering
-env = Environment(loader=FileSystemLoader(os.path.join(os.path.abspath(os.path.dirname(__file__).removesuffix(__package__)), "templates")))
+env = Environment(loader=FileSystemLoader(os.path.join(SCRIPTDIR, "templates")))
 thumbnails: List[Tuple[str, str]] = []
 info: Dict[str, str] = {}
 pbardict: Dict[str, tqdm] = {}

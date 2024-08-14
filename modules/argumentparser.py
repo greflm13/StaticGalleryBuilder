@@ -4,10 +4,12 @@ import os
 import argparse
 from rich_argparse import RichHelpFormatter, HelpPreviewAction
 
-
-if __package__ == None:
-    __package__ = ""
-DEFAULT_THEME_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__).removesuffix(__package__)), "templates", "default.css")
+if __package__ is None:
+    PACKAGE = ""
+else:
+    PACKAGE = __package__
+SCRIPTDIR = os.path.abspath(os.path.dirname(__file__).removesuffix(PACKAGE))
+DEFAULT_THEME_PATH = os.path.join(SCRIPTDIR, "templates", "default.css")
 DEFAULT_AUTHOR = "Author"
 
 
