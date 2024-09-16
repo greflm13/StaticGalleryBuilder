@@ -190,6 +190,7 @@ def main() -> None:
     """
     Main function to process images and generate a static image hosting website.
     """
+    logger.info("starting builder", extra={"version": VERSION})
     thumbnails: List[Tuple[str, str, str, bool]] = []
 
     args = parse_arguments(VERSION)
@@ -249,6 +250,7 @@ def main() -> None:
                     pass
     finally:
         os.remove(lock_file)
+        logger.info("finished builder", extra={"version": VERSION})
     return
 
 
