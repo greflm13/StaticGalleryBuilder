@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Tuple
 
 import numpy as np
 from tqdm.auto import tqdm
-from PIL import Image, ExifTags
+from PIL import Image, ExifTags, TiffImagePlugin
 from jinja2 import Environment, FileSystemLoader
 
 import modules.cclicense as cclicense
@@ -55,7 +55,7 @@ def initialize_sizelist(folder: str) -> Dict[str, Dict[str, int]]:
     return sizelist
 
 
-def update_sizelist(sizelist: Dict[str, Dict[str, int]], folder: str) -> None:
+def update_sizelist(sizelist: Dict[str, Dict[str, Any]], folder: str) -> None:
     """
     Updates the size list JSON file.
 
@@ -86,10 +86,33 @@ def get_image_info(item: str, folder: str) -> Dict[str, Any]:
     with Image.open(os.path.join(folder, item)) as img:
         exif = img.getexif()
         width, height = img.size
-    exifdata = {ExifTags.TAGS.get(key, key): val for key, val in exif.items()}
-    if "Orientation" in exifdata and exifdata["Orientation"] in [6, 8]:
-        width, height = height, width
-    return {"width": width, "height": height}
+    if exif:
+        ifd = exif.get_ifd(ExifTags.IFD.Exif)
+        exifdatas = {key: val for key, val in exif.items()} | ifd
+        exifdata = {}
+        for tag_id in exifdatas:
+            tag = ExifTags.TAGS.get(tag_id, tag_id)
+            content = exifdatas.get(tag_id)
+            if isinstance(content, bytes):
+                content = content.hex(" ")
+            if isinstance(content, TiffImagePlugin.IFDRational):
+                content = content.limit_rational(1000000)
+            if isinstance(content, tuple):
+                newtuple = ()
+                for i in content:
+                    if isinstance(i, TiffImagePlugin.IFDRational):
+                        newtuple = newtuple + (i.limit_rational(1000000),)
+                if newtuple:
+                    content = newtuple
+            exifdata[tag] = content
+        if "Orientation" in exifdata and exifdata["Orientation"] in [6, 8]:
+            width, height = height, width
+        for key in ["PrintImageMatching", "UserComment", "MakerNote"]:
+            if key in exifdata:
+                del exifdata[key]
+        return {"width": width, "height": height, "exifdata": exifdata}
+    else:
+        return {"width": width, "height": height}
 
 
 def process_image(item: str, folder: str, _args: Args, baseurl: str, sizelist: Dict[str, Dict[str, int]], raw: List[str]) -> Dict[str, Any]:

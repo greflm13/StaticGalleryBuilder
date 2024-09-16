@@ -101,7 +101,7 @@
             "editor.defaultFormatter": "ms-python.black-formatter",
         },
         "black-formatter.args": [
-            "-l 140",
+            "-l 260",
         ],
         "black-formatter.interpreter": [
             "/usr/bin/python3",
