@@ -13,6 +13,7 @@ try:
 except ImportError:
     SVGSUPPORT = False
 
+from modules.logger import logger
 from modules.argumentparser import Args
 from modules.css_color import extract_theme_color, extract_colorscheme
 
@@ -55,6 +56,7 @@ def render_svg_icon(colorscheme: Dict[str, str], iconspath: str) -> str:
     svg = env.get_template("icon.svg.j2")
     content = svg.render(colorscheme=colorscheme)
     with open(os.path.join(iconspath, "icon.svg"), "w+", encoding="utf-8") as f:
+        logger.info("writing svg icon", extra={"iconspath": iconspath})
         f.write(content)
     return content
 
@@ -73,6 +75,7 @@ def save_png_icon(content: str, iconspath: str) -> None:
     tmpimg = BytesIO()
     cairosvg.svg2png(bytestring=content, write_to=tmpimg)
     with Image.open(tmpimg) as iconfile:
+        logger.info("saving png icon", extra={"iconspath": iconspath})
         iconfile.save(os.path.join(iconspath, "icon.png"))
 
 
@@ -87,9 +90,11 @@ def generate_favicon(iconspath: str, root_directory: str) -> None:
     root_directory : str
         Root directory of the project where the favicon will be saved.
     """
-    command = f'magick {os.path.join(iconspath, "icon.png")} -define icon:auto-resize=16,32,48,64,72,96,144,192 {os.path.join(root_directory, ".static", "favicon.ico")}'
+    favicon = os.path.join(root_directory, ".static", "favicon.ico")
+    logger.info("generating favicon with imagemagick", extra={"iconspath": iconspath, "favicon": favicon})
+    command = f'magick {os.path.join(iconspath, "icon.png")} -define icon:auto-resize=16,32,48,64,72,96,144,192 {favicon}'
     if not shutil.which("magick"):
-        command = f'convert {os.path.join(iconspath, "icon.png")} -define icon:auto-resize=16,32,48,64,72,96,144,192 {os.path.join(root_directory, ".static", "favicon.ico")}'
+        command = f'convert {os.path.join(iconspath, "icon.png")} -define icon:auto-resize=16,32,48,64,72,96,144,192 {favicon}'
     os.system(command)
 
 
@@ -102,12 +107,14 @@ def icons(_args: Args) -> None:
     _args : Args
         Parsed command-line arguments.
     """
-    print("Generating icons...")
     iconspath = os.path.join(_args.root_directory, ".static", "icons")
+    logger.info("generating icons", extra={"iconspath": iconspath})
+    print("Generating icons...")
     colorscheme = extract_colorscheme(_args.theme_path)
     content = render_svg_icon(colorscheme, iconspath)
     if not SVGSUPPORT:
         print("Please install cairosvg to generate favicon from svg icon.")
+        logger.error("svg support not available")
         return
     save_png_icon(content, iconspath)
     generate_favicon(iconspath, _args.root_directory)
@@ -135,6 +142,7 @@ def render_manifest_json(_args: Args, icon_list: List[Icon], colors: Dict[str, s
         theme_color=colors["theme_color"],
     )
     with open(os.path.join(_args.root_directory, ".static", "manifest.json"), "w", encoding="utf-8") as f:
+        logger.info("rendering manifest.json", extra={"path": os.path.join(_args.root_directory, ".static", "manifest.json")})
         f.write(content)
 
 
@@ -156,6 +164,7 @@ def create_icons_from_svg(files: List[str], iconspath: str, _args: Args) -> List
     List[Icon]
         List of icons created from the SVG file.
     """
+    logger.info("creating icons for web application", extra={"iconspath": iconspath})
     svg = [file for file in files if file.endswith(".svg")][0]
     icon_list = [
         {"src": f"{_args.web_root_url}.static/icons/{svg}", "type": "image/svg+xml", "sizes": "512x512", "purpose": "maskable"},
@@ -165,6 +174,7 @@ def create_icons_from_svg(files: List[str], iconspath: str, _args: Args) -> List
         tmpimg = BytesIO()
         sizes = size.split("x")
         iconpath = os.path.join(iconspath, os.path.splitext(svg)[0] + "-" + size + ".png")
+        logger.info("converting svg to png", extra={"iconpath": iconpath, "size": size})
         cairosvg.svg2png(
             url=os.path.join(iconspath, svg),
             write_to=tmpimg,
@@ -173,6 +183,7 @@ def create_icons_from_svg(files: List[str], iconspath: str, _args: Args) -> List
             scale=1,
         )
         with Image.open(tmpimg) as iconfile:
+            logger.info("saving png file", extra={"iconpath": iconpath})
             iconfile.save(iconpath, format="PNG")
         icon_list.append(
             {
@@ -215,6 +226,7 @@ def create_icons_from_png(iconspath: str, web_root_url: str) -> List[Icon]:
             continue
         with Image.open(os.path.join(iconspath, icon)) as iconfile:
             iconsize = f"{iconfile.size[0]}x{iconfile.size[1]}"
+            logger.info("using icon", extra={"icon": icon, "size": iconsize})
         icon_list.append({"src": f"{web_root_url}.static/icons/{icon}", "sizes": iconsize, "type": "image/png", "purpose": "maskable"})
         icon_list.append({"src": f"{web_root_url}.static/icons/{icon}", "sizes": iconsize, "type": "image/png", "purpose": "any"})
     return icon_list
@@ -231,14 +243,11 @@ def webmanifest(_args: Args) -> None:
     """
     iconspath = os.path.join(_args.root_directory, ".static", "icons")
     files = os.listdir(iconspath)
-    icon_list = (
-        create_icons_from_svg(files, iconspath, _args)
-        if SVGSUPPORT and any(file.endswith(".svg") for file in files)
-        else create_icons_from_png(iconspath, _args.web_root_url)
-    )
+    icon_list = create_icons_from_svg(files, iconspath, _args) if SVGSUPPORT and any(file.endswith(".svg") for file in files) else create_icons_from_png(iconspath, _args.web_root_url)
 
     if not icon_list:
         print("No icons found in the static/icons folder!")
+        logger.error("no icons found in the static/icons folder", extra={"iconspath": iconspath})
         return
 
     colorscheme = extract_colorscheme(os.path.join(_args.root_directory, ".static", "theme.css"))

@@ -2,6 +2,8 @@ import re
 import colorsys
 from typing import Dict
 
+from modules.logger import logger
+
 
 def extract_colorscheme(theme_path: str) -> Dict[str, str]:
     """
@@ -17,6 +19,7 @@ def extract_colorscheme(theme_path: str) -> Dict[str, str]:
     Dict[str, str]
         Dictionary containing color scheme variables and their hexadecimal values.
     """
+    logger.info("extracting color scheme from theme file", extra={"theme_path": theme_path})
     pattern = r"--(color[1-4]|bcolor1):\s*(#[0-9a-fA-F]+|rgba?\([^)]*\)|hsla?\([^)]*\)|[a-zA-Z]+);"
     colorscheme = {}
 
@@ -30,6 +33,8 @@ def extract_colorscheme(theme_path: str) -> Dict[str, str]:
         color_value = match[1]
         hex_color_value = css_color_to_hex(color_value)
         colorscheme[variable_name] = hex_color_value
+    logger.debug("extracted variable", extra={"variable": variable_name, "value": hex_color_value})
+    logger.info("extracted color scheme", extra={"colorscheme": colorscheme})
 
     return colorscheme
 
@@ -86,10 +91,12 @@ def css_color_to_hex(css_color: str) -> str:
 
     # Helper function to convert RGB tuple to hexadecimal string
     def rgb_to_hex(rgb: tuple[int, int, int]) -> str:
+        logger.debug("converting rgb tuple to hex string", extra={"rgb": rgb})
         return "#{:02x}{:02x}{:02x}".format(*rgb)
 
     # Helper function to convert HSL tuple to RGB tuple
     def hsl_to_rgb(hsl: tuple[int, float, float]) -> tuple[int, int, int]:
+        logger.debug("converting hsl tuple to rgb tuple", extra={"hsl": hsl})
         return tuple(round(c * 255) for c in colorsys.hls_to_rgb(hsl[0] / 360, hsl[1] / 100, hsl[2] / 100))
 
     # Regular expression pattern to match CSS colors
@@ -103,6 +110,7 @@ def css_color_to_hex(css_color: str) -> str:
     match = color_pattern.match(css_color.strip())
 
     if not match:
+        logger.error("invalid CSS color format", extra={"css_color": css_color})
         raise ValueError("Invalid CSS color format")
 
     groups = match.groupdict()
@@ -119,8 +127,10 @@ def css_color_to_hex(css_color: str) -> str:
         b = int(groups["b"].rstrip("%")) * 255 // 100 if "%" in groups["b"] else int(groups["b"])
         a = float(groups["a"]) if groups["a"] else 1.0
         if a < 1.0:
+            logger.debug("converting rgba color to hex", extra={"color": css_color, "r": r, "g": g, "b": b, "a": a})
             return rgb_to_hex((r, g, b)) + "{:02x}".format(round(a * 255))
         else:
+            logger.debug("converting rgb color to hex", extra={"color": css_color, "r": r, "g": g, "b": b})
             return rgb_to_hex((r, g, b))
 
     elif groups["hsl"]:
@@ -130,8 +140,10 @@ def css_color_to_hex(css_color: str) -> str:
         a = float(groups["a"]) if groups["a"] else 1.0
         rgb_color = hsl_to_rgb((h, s, l))
         if a < 1.0:
+            logger.debug("converting hsla color to hex", extra={"color": css_color, "hsl": (h, s, l), "a": a})
             return rgb_to_hex(rgb_color) + "{:02x}".format(round(a * 255))
         else:
+            logger.debug("converting hsl color to hex", extra={"color": css_color, "hsl": (h, s, l)})
             return rgb_to_hex(rgb_color)
 
     # fmt: off
@@ -182,7 +194,9 @@ def css_color_to_hex(css_color: str) -> str:
             'turquoise': '#40e0d0', 'violet': '#ee82ee', 'wheat': '#f5deb3', 'white': '#ffffff',
             'whitesmoke': '#f5f5f5', 'yellow': '#ffff00', 'yellowgreen': '#9acd32'
         }
+        logger.debug("parsing css color string", extra={"css_color": css_color})
         return named_colors[groups['name'].lower()]
     # fmt: on
 
+    logger.error("invalid CSS color format", extra={"css_color": css_color})
     raise ValueError("Invalid CSS color format")

@@ -9,6 +9,7 @@ from tqdm.auto import tqdm
 from PIL import Image, ExifTags, TiffImagePlugin
 from jinja2 import Environment, FileSystemLoader
 
+from modules.logger import logger
 import modules.cclicense as cclicense
 from modules.argumentparser import Args
 
@@ -45,12 +46,15 @@ def initialize_sizelist(folder: str) -> Dict[str, Dict[str, int]]:
     sizelist = {}
     sizelist_path = os.path.join(folder, ".sizelist.json")
     if not os.path.exists(sizelist_path):
+        logger.info("creating new size list file", extra={"file": sizelist_path})
         with open(sizelist_path, "x", encoding="utf-8") as sizelistfile:
             sizelistfile.write("{}")
     with open(sizelist_path, "r+", encoding="utf-8") as sizelistfile:
+        logger.info("reading size list file", extra={"file": sizelist_path})
         try:
             sizelist = json.loads(sizelistfile.read())
         except json.decoder.JSONDecodeError:
+            logger.warning("invalid JSON in size list file", extra={"file": sizelist_path})
             sizelist = {}
     return sizelist
 
@@ -64,11 +68,13 @@ def update_sizelist(sizelist: Dict[str, Dict[str, Any]], folder: str) -> None:
         folder (str): The folder in which the size list file is located.
     """
     sizelist_path = os.path.join(folder, ".sizelist.json")
-    if sizelist != {}:
+    if sizelist:
         with open(sizelist_path, "w", encoding="utf-8") as sizelistfile:
+            logger.info("writing size list file", extra={"file": sizelist_path})
             sizelistfile.write(json.dumps(sizelist, indent=4))
     else:
         if os.path.exists(sizelist_path):
+            logger.info("deleting empty size list file", extra={"file": sizelist_path})
             os.remove(sizelist_path)
 
 
@@ -84,11 +90,12 @@ def get_image_info(item: str, folder: str) -> Dict[str, Any]:
         Dict[str, Any]: A dictionary containing image width, height, and EXIF data.
     """
     with Image.open(os.path.join(folder, item)) as img:
+        logger.info("extracting image information", extra={"file": item})
         exif = img.getexif()
         width, height = img.size
     if exif:
         ifd = exif.get_ifd(ExifTags.IFD.Exif)
-        exifdatas = {key: val for key, val in exif.items()} | ifd
+        exifdatas = dict(exif.items()) | ifd
         exifdata = {}
         for tag_id in exifdatas:
             tag = ExifTags.TAGS.get(tag_id, tag_id)
@@ -167,6 +174,10 @@ def generate_html(folder: str, title: str, _args: Args, raw: List[str], version:
         _args (Args): Parsed command line arguments.
         raw (List[str]): Raw image file names.
     """
+    if _args.regenerate_thumbnails:
+        if os.path.exists(os.path.join(folder, ".sizelist.json")):
+            logger.info("removing .sizelist.json", extra={"folder": folder})
+            os.remove(os.path.join(folder, ".sizelist.json"))
     sizelist = initialize_sizelist(folder)
     items = sorted(os.listdir(folder))
 
@@ -205,6 +216,7 @@ def generate_html(folder: str, title: str, _args: Args, raw: List[str], version:
         create_html_file(folder, title, foldername, images, subfolders, _args, version)
     else:
         if os.path.exists(os.path.join(folder, "index.html")):
+            logger.info("removing existing index.html", extra={"folder": folder})
             os.remove(os.path.join(folder, "index.html"))
 
     if not _args.non_interactive_mode:
@@ -221,6 +233,7 @@ def create_thumbnail_folder(foldername: str, root_directory: str) -> None:
     """
     thumbnails_path = os.path.join(root_directory, ".thumbnails", foldername)
     if not os.path.exists(thumbnails_path):
+        logger.info("creating thumbnail folder", extra={"path": thumbnails_path})
         os.mkdir(thumbnails_path)
 
 
@@ -252,6 +265,7 @@ def process_info_file(folder: str, item: str) -> None:
         item (str): The info file name.
     """
     with open(os.path.join(folder, item), encoding="utf-8") as f:
+        logger.info("processing info file", extra={"path": os.path.join(folder, item)})
         info[urllib.parse.quote(folder)] = f.read()
 
 
@@ -281,6 +295,8 @@ def create_html_file(folder: str, title: str, foldername: str, images: List[Dict
         subfolders (List[Dict[str, str]]): A list of subfolders to include in the HTML.
         _args (Args): Parsed command line arguments.
     """
+    html_file = os.path.join(folder, "index.html")
+    logger.info("generating html file with jinja2", extra={"path": html_file})
     image_chunks = np.array_split(images, 8) if images else []
     header = os.path.basename(folder) or title
     parent = None if not foldername else f"{_args.web_root_url}{urllib.parse.quote(foldername.removesuffix(folder.split('/')[-1] + '/'))}"
@@ -320,7 +336,8 @@ def create_html_file(folder: str, title: str, foldername: str, images: List[Dict
         version=version,
     )
 
-    with open(os.path.join(folder, "index.html"), "w", encoding="utf-8") as f:
+    with open(html_file, "w", encoding="utf-8") as f:
+        logger.info("writing html file", extra={"path": html_file})
         f.write(content)
 
 
