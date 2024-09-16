@@ -152,7 +152,7 @@ def generate_thumbnail(arguments: Tuple[str, str, str]) -> None:
             print(f"Failed to generate thumbnail for {image}")
             return
     else:
-        logger.info("thumbnail already exists for %s", item, extra={"path": image})
+        logger.debug("thumbnail already exists for %s", item, extra={"path": image})
 
 
 def get_total_folders(folder: str, _args: Args, _total: int = 0) -> int:
