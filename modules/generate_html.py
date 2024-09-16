@@ -174,6 +174,7 @@ def generate_html(folder: str, title: str, _args: Args, raw: List[str], version:
         _args (Args): Parsed command line arguments.
         raw (List[str]): Raw image file names.
     """
+    logger.info("processing folder", extra={"folder": folder})
     if _args.regenerate_thumbnails:
         if os.path.exists(os.path.join(folder, ".sizelist.json")):
             logger.info("removing .sizelist.json", extra={"folder": folder})
@@ -193,6 +194,7 @@ def generate_html(folder: str, title: str, _args: Args, raw: List[str], version:
     if not _args.non_interactive_mode:
         pbardict[folder] = tqdm(total=len(items), desc=f"Getting image infos - {folder}", unit="files", ascii=True, dynamic_ncols=True)
 
+    logger.info("processing contents", extra={"folder": folder})
     for item in items:
         if item not in EXCLUDES and not item.startswith("."):
             if os.path.isdir(os.path.join(folder, item)):
