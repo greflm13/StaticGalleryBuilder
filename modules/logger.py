@@ -9,6 +9,7 @@ Functions:
 - log_format(keys): Generates the logging format string based on the list of keys.
 - rotate_log_file(): Handles renaming the existing log file to a timestamp-based name.
 - setup_logger(): Configures the logging system, applies a JSON format, and returns a logger instance.
+- setup_consolelogger(): Configures the logging system to output logs in console format.
 """
 
 import logging
