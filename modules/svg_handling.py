@@ -1,6 +1,7 @@
 import os
 import shutil
 from typing import List, Dict
+from subprocess import Popen, PIPE
 from PIL import Image
 from jinja2 import Environment, FileSystemLoader
 
@@ -92,10 +93,23 @@ def generate_favicon(iconspath: str, root_directory: str) -> None:
     """
     favicon = os.path.join(root_directory, ".static", "favicon.ico")
     logger.info("generating favicon with imagemagick", extra={"iconspath": iconspath, "favicon": favicon})
-    command = f'magick {os.path.join(iconspath, "icon.png")} -define icon:auto-resize=16,32,48,64,72,96,144,192 {favicon}'
+    _env = dict(os.environ)
+    lp_key = "LD_LIBRARY_PATH"
+    lp_orig = _env.get(lp_key + "_ORIG")
+    if lp_orig is not None:
+        _env[lp_key] = lp_orig
+    else:
+        _env.pop(lp_key, None)
     if not shutil.which("magick"):
-        command = f'convert {os.path.join(iconspath, "icon.png")} -define icon:auto-resize=16,32,48,64,72,96,144,192 {favicon}'
-    os.system(command)
+        magick = shutil.which("convert")
+    else:
+        magick = shutil.which("magick")
+    command = [magick, os.path.join(iconspath, "icon.png"), "-define", "icon:auto-resize=16,32,48,64,72,96,144,192", favicon]
+    with Popen(command, stdin=PIPE, stdout=PIPE, stderr=PIPE, env=_env, errors="ignore") as p:
+        out, err = p.communicate()
+        if p.returncode != 0:
+            logger.error("error generating favicon: %s", err, extra={"command": command, "out": out, "err": err})
+        logger.info("favicon generated successfully", extra={"command": command, "out": out, "err": err})
 
 
 def icons(_args: Args) -> None:
