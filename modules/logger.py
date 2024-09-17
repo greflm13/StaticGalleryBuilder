@@ -1,5 +1,5 @@
 """
-loggerdabn.py
+logger.py
 
 This module provides functionality for setting up a centralized logging system using the
 `logging` library and the `python-json-logger` to output logs in JSON format. It handles
