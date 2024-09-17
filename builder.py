@@ -34,7 +34,6 @@ RAW_EXTENSIONS = [
 ]
 IMG_EXTENSIONS = [".jpg", ".jpeg", ".png"]
 NOT_LIST = ["*/Galleries/*", "Archives"]
-LOG_FILE = os.path.join(SCRIPTDIR, "log.json")
 # fmt: on
 
 pbardict: Dict[str, tqdm] = {}
