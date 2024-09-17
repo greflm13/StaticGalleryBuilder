@@ -77,7 +77,7 @@ def setup_logger():
         logging.Logger: A configured logger instance that can be used to log messages.
     """
     rotate_log_file()
-    app_logger = logging.getLogger()
+    _logger = logging.getLogger()
 
     supported_keys = ["asctime", "created", "filename", "funcName", "levelname", "levelno", "lineno", "module", "msecs", "message", "name", "pathname", "process", "processName", "relativeCreated", "thread", "threadName", "taskName"]
 
@@ -87,10 +87,23 @@ def setup_logger():
     log_handler = logging.FileHandler(LATEST_LOG_FILE)
     log_handler.setFormatter(formatter)
 
-    app_logger.addHandler(log_handler)
-    app_logger.setLevel(logging.INFO)
+    _logger.addHandler(log_handler)
+    _logger.setLevel(logging.INFO)
 
-    return app_logger
+    return _logger
+
+
+def setup_consolelogger():
+    """
+    Configures the logging system to output logs in console format.
+
+    Returns:
+        logging.Logger: A configured logger instance that can be used to log messages.
+    """
+    _logger = setup_logger()
+    _logger.addHandler(logging.StreamHandler())
+    return _logger
 
 
 logger = setup_logger()
+consolelogger = setup_consolelogger()

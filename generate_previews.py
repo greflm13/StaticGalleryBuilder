@@ -4,20 +4,17 @@ import sys
 import time
 import shutil
 import base64
-import logging
 import fileinput
 import urllib.parse
 import urllib.request
 from typing import List
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
 
+from modules.logger import consolelogger as logger
 from modules.css_color import extract_colorscheme
-
-# Set up logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 
 def replace_all(file, search_exp, replace_exp):
@@ -36,11 +33,14 @@ def take_screenshot(html_file_path: str, css_file: str, output_file: str, driver
         output_file (str): Path where the screenshot will be saved.
         driver (webdriver.Chrome): The Chrome WebDriver instance.
     """
+    logger.info("taking screenshot for %s", css_file)
     try:
         # Open the HTML file or URL
         if html_file_path.startswith(("http://", "https://")):
+            logger.info("opening URL: %s", html_file_path)
             driver.get(html_file_path)
         else:
+            logger.info("opening file: %s", html_file_path)
             driver.get(f"file://{os.path.abspath(html_file_path)}")
 
         # Remove current theme.css
@@ -52,9 +52,11 @@ def take_screenshot(html_file_path: str, css_file: str, output_file: str, driver
                 }
             });
         """
+        logger.info("removing current theme.css")
         driver.execute_script(remove_css_script)
 
         with open(css_file, "r", encoding="utf-8") as f:
+            logger.info("reading CSS file: %s", css_file)
             css_content = f.read()
 
         # Extract folder icon content
@@ -65,20 +67,26 @@ def take_screenshot(html_file_path: str, css_file: str, output_file: str, driver
         folder_icon_content = re.sub(r"/\*.*\*/", "", folder_icon_content)
 
         for match in re.finditer(r"content: (.*);", folder_icon_content):
+            logger.info("found foldericon", extra={"foldericon": folder_icon_content})
             folder_icon_content = match.group(1).replace('"', "")
             break
 
         if "url" not in folder_icon_content:
+            logger.info("Reading foldericon svg")
             with open(folder_icon_content, "r", encoding="utf-8") as f:
                 svg = f.read()
             if "svg.j2" in folder_icon_content:
+                logger.info("foldericon in theme file is a jinja2 template")
                 colorscheme = extract_colorscheme(css_file)
                 for color_key, color_value in colorscheme.items():
                     svg = svg.replace(f"{{{{ {color_key} }}}}", color_value)
+                logger.info("replaced colors in svg")
             svg = urllib.parse.quote(svg)
+
             css_content = f'{css_head}\n.foldericon {{\n  content: url("data:image/svg+xml,{svg}");\n}}\n{css_tail}'
 
         # Encode CSS content as Base64
+        logger.info("encoding css content as base64")
         encoded_css = base64.b64encode(css_content.encode("utf-8")).decode("utf-8")
 
         # Inject CSS into HTML using JavaScript
@@ -87,24 +95,28 @@ def take_screenshot(html_file_path: str, css_file: str, output_file: str, driver
             style.innerHTML = atob('{encoded_css}');
             document.head.appendChild(style);
         """
+        logger.info("injecting CSS into HTML")
         driver.execute_script(apply_css_script)
 
         # Wait for a while to ensure CSS is applied
-        time.sleep(2)
+        # time.sleep(1)
 
         # Move mouse to info
+        logger.info("moving mouse to info")
         hoverable = driver.find_element(By.CLASS_NAME, "tooltip")
         webdriver.ActionChains(driver).move_to_element(hoverable).perform()
 
         # Capture screenshot
+        logger.info("taking screenshot")
         driver.save_screenshot(output_file)
-        logging.info("Screenshot saved to %s", output_file)
+        logger.info("screenshot saved to %s", output_file)
 
     except Exception as e:
-        logging.error("Failed to take screenshot for %s: %s", css_file, e)
+        logger.error("failed to take screenshot for %s: %s", css_file, e)
 
 
 def create_preview(html_file_path: str, css_file: str, previews_folder: str):
+    logger.info("creating preview for %s", css_file)
     out_file = os.path.basename(css_file).removesuffix(".css") + ".html"
     urllib.request.urlretrieve(html_file_path, os.path.join(previews_folder, out_file))
     basename = os.path.basename(css_file)
@@ -127,21 +139,25 @@ def create_preview(html_file_path: str, css_file: str, previews_folder: str):
         foldericon = foldericon.replace('"', "")
         break
     if "url" in foldericon:
+        logger.info("foldericon in theme file, using it")
         shutil.copyfile(css_file, os.path.join(path, "previews", basename))
-    else:
-        with open(os.path.join(path, foldericon.removeprefix("themes/")), "r", encoding="utf-8") as f:
-            svg = f.read()
-        if "svg.j2" in foldericon:
-            colorscheme = extract_colorscheme(css_file)
-            svg = svg.replace("{{ color1 }}", colorscheme["color1"])
-            svg = svg.replace("{{ color2 }}", colorscheme["color2"])
-            svg = svg.replace("{{ color3 }}", colorscheme["color3"])
-            svg = svg.replace("{{ color4 }}", colorscheme["color4"])
-        svg = urllib.parse.quote(svg)
-        if os.path.exists(os.path.join(path, "previews", basename)):
-            os.remove(os.path.join(path, "previews", basename))
-        with open(os.path.join(path, "previews", basename), "x", encoding="utf-8") as f:
-            f.write(themehead + '\n.foldericon {\n  content: url("data:image/svg+xml,' + svg + '");\n}\n' + themetail)
+        return
+    with open(os.path.join(path, foldericon.removeprefix("themes/")), "r", encoding="utf-8") as f:
+        logger.info("Reading foldericon svg")
+        svg = f.read()
+    if "svg.j2" in foldericon:
+        logger.info("foldericon in theme file is a jinja2 template")
+        colorscheme = extract_colorscheme(css_file)
+        for color_key, color_value in colorscheme.items():
+            svg = svg.replace(f"{{{{ {color_key} }}}}", color_value)
+        logger.info("replaced colors in svg")
+    svg = urllib.parse.quote(svg)
+    if os.path.exists(os.path.join(path, "previews", basename)):
+        os.remove(os.path.join(path, "previews", basename))
+    with open(os.path.join(path, "previews", basename), "x", encoding="utf-8") as f:
+        logger.info("writing theme file")
+        f.write(themehead + '\n.foldericon {\n  content: url("data:image/svg+xml,' + svg + '");\n}\n' + themetail)
+    logger.info("preview created for %s", css_file)
 
 
 def write_readme(directory_path: str, themes: List[str]) -> None:
@@ -155,6 +171,7 @@ def write_readme(directory_path: str, themes: List[str]) -> None:
     readme_path = os.path.join(directory_path, "README.md")
     try:
         with open(readme_path, "r", encoding="utf-8") as f:
+            logger.info("reading README.md", extra={"file": readme_path})
             readme = f.read()
 
         readme_head = readme.split("## Previews of included themes")[0]
@@ -162,14 +179,15 @@ def write_readme(directory_path: str, themes: List[str]) -> None:
         readme_head += "".join([f"\n### {theme}\n\n![{theme}](screenshots/{theme}.png)\n" for theme in themes])
 
         with open(readme_path, "w", encoding="utf-8") as f:
+            logger.info("writing README.md", extra={"file": readme_path})
             f.write(readme_head)
 
-        logging.info("README.md updated with previews of included themes.")
+        logger.info("README.md updated with previews of included themes.")
 
     except FileNotFoundError:
-        logging.error("README.md not found in %s", directory_path)
+        logger.error("README.md not found in %s", directory_path)
     except Exception as e:
-        logging.error("Failed to write README.md: %s", e)
+        logger.error("failed to write README.md: %s", e)
 
 
 def write_index(directory_path: str, themes: List[str]) -> None:
@@ -198,7 +216,7 @@ def main(directory_path: str, html_file_path: str) -> None:
         html_file_path (str): Path to the HTML file or URL for rendering.
     """
     if not os.path.exists(directory_path):
-        logging.error('Error: Folder path "%s" does not exist.', directory_path)
+        logger.error('Error: Folder path "%s" does not exist.', directory_path)
         return
 
     # Setup Chrome options
@@ -207,8 +225,9 @@ def main(directory_path: str, html_file_path: str) -> None:
     chrome_options.add_argument("--window-size=1920,1080")  # Set window size to at least 1920x1080
 
     # Initialize Chrome WebDriver
-    chromedriver_path = "/usr/bin/chromedriver"  # Replace with your actual path
+    chromedriver_path = "/usr/bin/chromedriver"
     service = Service(chromedriver_path)
+    logger.info("Using chromedriver at %s", chromedriver_path, extra={"chrome_options": chrome_options})
     driver = webdriver.Chrome(service=service, options=chrome_options)
 
     try:
@@ -235,13 +254,16 @@ def main(directory_path: str, html_file_path: str) -> None:
         write_index(directory_path, themes)
 
     finally:
+        logger.info("closing chrome webdriver")
         driver.quit()
 
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        logging.error("Usage: python script_name.py directory_path html_file_path")
+        logger.error("Usage: python script_name.py directory_path html_file_path")
     else:
         dir_path = sys.argv[1]
         html_path = sys.argv[2]
+        logger.info("Starting script", extra={"directory_path": dir_path, "html_file_path": html_path})
         main(dir_path, html_path)
+        logger.info("Done!", extra={"directory_path": dir_path})

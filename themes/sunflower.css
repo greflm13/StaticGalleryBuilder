@@ -5,9 +5,9 @@
   --color2: #ffd700;
   --color3: #ffe135;
   --color4: #ce8c00;
-  --bcolor1: #ebebeb;
+  --bcolor1: #171717;
   --bcolor2: #191919;
-  --bcolor3: #171717;
+  --bcolor3: #ebebeb;
   --bcolor4: #0a0a0a;
 }
 
@@ -60,7 +60,7 @@
 
 .row a {
   font-weight: 800;
-  color: var(--color2);
+  color: var(--color1);
   text-decoration: none;
 }
 
@@ -70,7 +70,7 @@
 
 .tooltiptext {
   font-weight: 600;
-  color: var(--bcolor1);
+  color: var(--bcolor3);
   background-color: var(--bcolor2);
 }
 

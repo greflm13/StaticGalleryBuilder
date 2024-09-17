@@ -33,8 +33,7 @@ def extract_colorscheme(theme_path: str) -> Dict[str, str]:
         color_value = match[1]
         hex_color_value = css_color_to_hex(color_value)
         colorscheme[variable_name] = hex_color_value
-    logger.debug("extracted variable", extra={"variable": variable_name, "value": hex_color_value})
-    logger.info("extracted color scheme", extra={"colorscheme": colorscheme})
+        logger.debug("extracted variable", extra={"variable": variable_name, "value": hex_color_value})
 
     return colorscheme
 

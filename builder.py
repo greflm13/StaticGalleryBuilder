@@ -101,8 +101,8 @@ def copy_static_files(_args: Args) -> None:
         logger.info("found foldericon", extra={"foldericon": foldericon})
         break
     if "url" in foldericon:
-        shutil.copyfile(_args.theme_path, os.path.join(static_dir, "theme.css"))
         logger.info("foldericon in theme file, using it")
+        shutil.copyfile(_args.theme_path, os.path.join(static_dir, "theme.css"))
         return
     with open(os.path.join(SCRIPTDIR, foldericon), "r", encoding="utf-8") as f:
         logger.info("Reading foldericon svg")
@@ -110,10 +110,8 @@ def copy_static_files(_args: Args) -> None:
     if "svg.j2" in foldericon:
         logger.info("foldericon in theme file is a jinja2 template")
         colorscheme = extract_colorscheme(_args.theme_path)
-        svg = svg.replace("{{ color1 }}", colorscheme["color1"])
-        svg = svg.replace("{{ color2 }}", colorscheme["color2"])
-        svg = svg.replace("{{ color3 }}", colorscheme["color3"])
-        svg = svg.replace("{{ color4 }}", colorscheme["color4"])
+        for color_key, color_value in colorscheme.items():
+            svg = svg.replace(f"{{{{ {color_key} }}}}", color_value)
         logger.info("replaced colors in svg")
     svg = urllib.parse.quote(svg)
     with open(os.path.join(static_dir, "theme.css"), "x", encoding="utf-8") as f:

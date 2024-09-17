@@ -5,22 +5,22 @@
   --color2: #1346a4;
   --color3: #0e3377;
   --color4: #3674e7;
-  --bcolor1: #ebebeb;
+  --bcolor1: #171717;
   --bcolor2: #191919;
-  --bcolor3: #171717;
+  --bcolor3: #ebebeb;
   --bcolor4: #0a0a0a;
 }
 
 .navbar {
   font-weight: bold;
-  color: var(--bcolor1);
+  color: var(--bcolor3);
   background-color: var(--color1);
   font-weight: 900;
 }
 
 .navbar li a {
   font-weight: 800;
-  color: var(--bcolor1);
+  color: var(--bcolor3);
 }
 
 /* Change the link color on hover */
@@ -30,7 +30,7 @@
 }
 
 .footer {
-  color: var(--bcolor1);
+  color: var(--bcolor3);
   background-color: var(--color3);
   font-weight: 700;
 }
