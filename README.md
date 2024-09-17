@@ -26,13 +26,14 @@ Python script to generate static HTML files for website galleries.
 - `Pillow` library
 - `rich_argparse` library
 - `cairosvg` library (for SVG to PNG icon conversion)
+- `python-json-logger` library (for logging)
 
 ## Installation
 
 Install the required libraries using pip:
 
 ```sh
-pip install numpy tqdm Jinja2 Pillow rich-argparse cairosvg
+pip install numpy tqdm Jinja2 Pillow rich-argparse cairosvg python-json-logger
 ```
 
 ## Usage
