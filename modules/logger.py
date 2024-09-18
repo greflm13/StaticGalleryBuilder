@@ -12,9 +12,11 @@ Functions:
 - setup_consolelogger(): Configures the logging system to output logs in console format.
 """
 
-import logging
 import os
 import json
+import gzip
+import shutil
+import logging
 from datetime import datetime
 from pythonjsonlogger import jsonlogger
 
@@ -44,11 +46,13 @@ def log_format(keys):
     return [f"%({i})s" for i in keys]
 
 
-def rotate_log_file():
+def rotate_log_file(compress=False):
     """
     Renames the existing 'latest.jsonl' file to a timestamped file based on the first log entry's asctime.
+    Optionally compresses the old log file using gzip.
 
-    If 'latest.jsonl' exists, it's renamed to the first timestamp found in the log entry.
+    Args:
+        compress (bool): If True, compress the old log file using gzip.
     """
     if os.path.exists(LATEST_LOG_FILE):
         with open(LATEST_LOG_FILE, "r", encoding="utf-8") as f:
@@ -65,20 +69,24 @@ def rotate_log_file():
 
         os.rename(LATEST_LOG_FILE, old_log_filename)
 
+        if compress:
+            with open(old_log_filename, "rb") as f_in:
+                with gzip.open(f"{old_log_filename}.gz", "wb") as f_out:
+                    shutil.copyfileobj(f_in, f_out)
+            os.remove(old_log_filename)
 
-def setup_logger():
+
+def setup_logger(level=logging.INFO):
     """
     Configures the logging system with a custom format and outputs logs in JSON format.
 
     The logger will write to the 'logs/latest.jsonl' file, and it will include
     multiple attributes such as the time of logging, the filename, function name, log level, etc.
-    If 'latest.jsonl' already exists, it will be renamed to a timestamped file before creating a new one.
 
     Returns:
         logging.Logger: A configured logger instance that can be used to log messages.
     """
-    rotate_log_file()
-    _logger = logging.getLogger()
+    _logger = logging.getLogger(name="defaultlogger")
 
     supported_keys = ["asctime", "created", "filename", "funcName", "levelname", "levelno", "lineno", "module", "msecs", "message", "name", "pathname", "process", "processName", "relativeCreated", "thread", "threadName", "taskName"]
 
@@ -89,22 +97,37 @@ def setup_logger():
     log_handler.setFormatter(formatter)
 
     _logger.addHandler(log_handler)
-    _logger.setLevel(logging.INFO)
+    _logger.setLevel(level=level)
 
     return _logger
 
 
-def setup_consolelogger():
+def setup_consolelogger(level=logging.INFO):
     """
-    Configures the logging system to output logs in console format.
+    Configures the logging system to output logs in console and JSON format.
+
+    The logger will write to the 'logs/latest.jsonl' file, and it will include
+    multiple attributes such as the time of logging, the filename, function name, log level, etc.
 
     Returns:
         logging.Logger: A configured logger instance that can be used to log messages.
     """
-    _logger = setup_logger()
+    _logger = logging.getLogger(name="consolelogger")
+
+    supported_keys = ["asctime", "created", "filename", "funcName", "levelname", "levelno", "lineno", "module", "msecs", "message", "name", "pathname", "process", "processName", "relativeCreated", "thread", "threadName", "taskName"]
+
+    custom_format = " ".join(log_format(supported_keys))
+    formatter = jsonlogger.JsonFormatter(custom_format)
+
+    log_handler = logging.FileHandler(LATEST_LOG_FILE)
+    log_handler.setFormatter(formatter)
+
+    _logger.addHandler(log_handler)
     _logger.addHandler(logging.StreamHandler())
+    _logger.setLevel(level=level)
     return _logger
 
 
+rotate_log_file(compress=True)
 logger = setup_logger()
 consolelogger = setup_consolelogger()
