@@ -178,8 +178,8 @@ def create_icons_from_svg(files: List[str], iconspath: str, _args: Args) -> List
     List[Icon]
         List of icons created from the SVG file.
     """
-    logger.info("creating icons for web application", extra={"iconspath": iconspath})
     svg = [file for file in files if file.endswith(".svg")][0]
+    logger.info("creating icons for web application", extra={"iconspath": iconspath, "svg": svg})
     icon_list = [
         {"src": f"{_args.web_root_url}.static/icons/{svg}", "type": "image/svg+xml", "sizes": "512x512", "purpose": "maskable"},
         {"src": f"{_args.web_root_url}.static/icons/{svg}", "type": "image/svg+xml", "sizes": "512x512", "purpose": "any"},
@@ -188,7 +188,7 @@ def create_icons_from_svg(files: List[str], iconspath: str, _args: Args) -> List
         tmpimg = BytesIO()
         sizes = size.split("x")
         iconpath = os.path.join(iconspath, os.path.splitext(svg)[0] + "-" + size + ".png")
-        logger.info("converting svg to png", extra={"iconpath": iconpath, "size": size})
+        logger.info("converting svg to png", extra={"svg": svg, "size": size})
         cairosvg.svg2png(
             url=os.path.join(iconspath, svg),
             write_to=tmpimg,
@@ -240,7 +240,7 @@ def create_icons_from_png(iconspath: str, web_root_url: str) -> List[Icon]:
             continue
         with Image.open(os.path.join(iconspath, icon)) as iconfile:
             iconsize = f"{iconfile.size[0]}x{iconfile.size[1]}"
-            logger.info("using icon", extra={"icon": icon, "size": iconsize})
+            logger.info("using icon", extra={"iconspath": iconspath, "icon": icon, "size": iconsize})
         icon_list.append({"src": f"{web_root_url}.static/icons/{icon}", "sizes": iconsize, "type": "image/png", "purpose": "maskable"})
         icon_list.append({"src": f"{web_root_url}.static/icons/{icon}", "sizes": iconsize, "type": "image/png", "purpose": "any"})
     return icon_list
@@ -255,6 +255,8 @@ def webmanifest(_args: Args) -> None:
     _args : Args
         Parsed command-line arguments.
     """
+    logger.info("generating webmanifest")
+
     iconspath = os.path.join(_args.root_directory, ".static", "icons")
     files = os.listdir(iconspath)
     icon_list = create_icons_from_svg(files, iconspath, _args) if SVGSUPPORT and any(file.endswith(".svg") for file in files) else create_icons_from_png(iconspath, _args.web_root_url)

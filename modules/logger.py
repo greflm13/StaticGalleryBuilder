@@ -48,14 +48,14 @@ def log_format(keys):
 
 def rotate_log_file(compress=False):
     """
-    Renames the existing 'latest.jsonl' file to a timestamped file based on the first log entry's asctime.
-    Optionally compresses the old log file using gzip.
+    Truncates the 'latest.jsonl' file after optionally compressing its contents to a timestamped file.
+    The 'latest.jsonl' file is not deleted or moved, just emptied.
 
     Args:
         compress (bool): If True, compress the old log file using gzip.
     """
     if os.path.exists(LATEST_LOG_FILE):
-        with open(LATEST_LOG_FILE, "r", encoding="utf-8") as f:
+        with open(LATEST_LOG_FILE, "r+", encoding="utf-8") as f:
             first_line = f.readline()
             try:
                 first_log = json.loads(first_line)
@@ -64,16 +64,23 @@ def rotate_log_file(compress=False):
             except (json.JSONDecodeError, KeyError):
                 first_timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-        safe_timestamp = first_timestamp.replace(":", "-").replace(" ", "_")
-        old_log_filename = os.path.join(LOG_DIR, f"{safe_timestamp}.jsonl")
+            safe_timestamp = first_timestamp.replace(":", "-").replace(" ", "_")
+            old_log_filename = os.path.join(LOG_DIR, f"{safe_timestamp}.jsonl")
 
-        os.rename(LATEST_LOG_FILE, old_log_filename)
+            # Write contents to the new file
+            with open(old_log_filename, "w", encoding="utf-8") as old_log_file:
+                f.seek(0)  # Go back to the beginning of the file
+                shutil.copyfileobj(f, old_log_file)
 
-        if compress:
-            with open(old_log_filename, "rb") as f_in:
-                with gzip.open(f"{old_log_filename}.gz", "wb") as f_out:
-                    shutil.copyfileobj(f_in, f_out)
-            os.remove(old_log_filename)
+            if compress:
+                with open(old_log_filename, "rb") as f_in:
+                    with gzip.open(f"{old_log_filename}.gz", "wb") as f_out:
+                        shutil.copyfileobj(f_in, f_out)
+                os.remove(old_log_filename)
+
+            # Truncate the original file
+            f.seek(0)
+            f.truncate()
 
 
 def setup_logger(level=logging.INFO):

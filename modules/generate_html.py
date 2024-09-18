@@ -89,11 +89,13 @@ def get_image_info(item: str, folder: str) -> Dict[str, Any]:
     Returns:
         Dict[str, Any]: A dictionary containing image width, height, and EXIF data.
     """
-    with Image.open(os.path.join(folder, item)) as img:
-        logger.info("extracting image information", extra={"file": item})
+    file = os.path.join(folder, item)
+    with Image.open(file) as img:
+        logger.info("extracting image information", extra={"file": file})
         exif = img.getexif()
         width, height = img.size
     if exif:
+        logger.info("extracting EXIF data", extra={"file": file})
         ifd = exif.get_ifd(ExifTags.IFD.Exif)
         exifdatas = dict(exif.items()) | ifd
         exifdata = {}
@@ -113,6 +115,7 @@ def get_image_info(item: str, folder: str) -> Dict[str, Any]:
                     content = newtuple
             exifdata[tag] = content
         if "Orientation" in exifdata and exifdata["Orientation"] in [6, 8]:
+            logger.info("image is rotated", extra={"file": file})
             width, height = height, width
         for key in ["PrintImageMatching", "UserComment", "MakerNote"]:
             if key in exifdata:
@@ -155,12 +158,15 @@ def process_image(item: str, folder: str, _args: Args, baseurl: str, sizelist: D
         thumbnails.append((folder, item, _args.root_directory))
 
     for _raw in raw:
-        if os.path.exists(os.path.join(folder, extsplit[0] + _raw)):
-            url = urllib.parse.quote(extsplit[0]) + _raw
+        file = os.path.join(folder, extsplit[0] + _raw)
+        if os.path.exists(file):
+            url = f"{_args.web_root_url}{baseurl}{urllib.parse.quote(extsplit[0])}{_raw}"
             if _raw in (".tif", ".tiff"):
-                image["tiff"] = f"{_args.web_root_url}{baseurl}{url}"
+                logger.info("tiff file found", extra={"file": file})
+                image["tiff"] = url
             else:
-                image["raw"] = f"{_args.web_root_url}{baseurl}{url}"
+                logger.info("raw file found", extra={"file": file, "extension": _raw})
+                image["raw"] = url
     return image
 
 

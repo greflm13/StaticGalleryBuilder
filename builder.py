@@ -212,7 +212,6 @@ def main() -> None:
         icons(args)
 
         if args.generate_webmanifest:
-            logger.info("generating webmanifest")
             print("Generating webmanifest...")
             webmanifest(args)
 
