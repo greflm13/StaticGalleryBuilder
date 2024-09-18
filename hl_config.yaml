@@ -1,0 +1,73 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/pamburus/hl/master/schema/json/config.schema.json
+$schema: https://raw.githubusercontent.com/pamburus/hl/master/schema/json/config.schema.json
+
+# Time format, see https://man7.org/linux/man-pages/man1/date.1.html for details.
+time-format: "%b %d %T.%3N"
+
+# Time zone name, see column "TZ identifier" at
+# https://en.wikipedia.org/wiki/List_of_tz_database_time_zones page.
+time-zone: "Europe/Vienna"
+
+# Settings for fields processing.
+fields:
+  # Configuration of the predefined set of fields.
+  predefined:
+    time:
+      show: auto
+      names: ["asctime"]
+    logger:
+      names: ["defaultlogger", "consolelogger"]
+    level:
+      show: auto
+      variants:
+        - names: ["levelname"]
+          values:
+            debug: ["DEBUG"]
+            info: ["INFO"]
+            warning: ["WARNING", "WARN"]
+            error: ["ERROR", "FATAL", "CRITICAL"]
+        - names: ["levelno"]
+          values:
+            debug: [10]
+            info: [20]
+            warning: [30]
+            error: [40, 50]
+    message:
+      names: ["message"]
+    caller:
+      names: ["funcName"]
+    caller-file:
+      names: ["filename"]
+    caller-line:
+      names: ["lineno"]
+  # List of wildcard field names to ignore.
+  ignore: ["_*"]
+  # List of exact field names to hide.
+  hide: ["pathname", "created", "levelno", "taskname", "relativeCreated", "thread", "process", "msecs"]
+
+# Formatting settings.
+formatting:
+  flatten: always
+  punctuation:
+    logger-name-separator: ":"
+    field-key-value-separator: "="
+    string-opening-quote: "'"
+    string-closing-quote: "'"
+    source-location-separator: "→ "
+    hidden-fields-indicator: " ..."
+    level-left-separator: "│"
+    level-right-separator: "│"
+    input-number-prefix: "#"
+    input-number-left-separator: ""
+    input-number-right-separator: " │ "
+    input-name-left-separator: ""
+    input-name-right-separator: " │ "
+    input-name-clipping: "··"
+    input-name-common-part: "··"
+    array-separator: " "
+
+# Number of processing threads, configured automatically based on CPU count if not specified.
+concurrency: ~
+
+# Currently selected theme.
+theme: "neutral"

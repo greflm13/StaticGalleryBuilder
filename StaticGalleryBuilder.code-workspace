@@ -147,6 +147,9 @@
         "python.analysis.inlayHints.callArgumentNames": "off",
         "python.analysis.inlayHints.functionReturnTypes": false,
         "python.analysis.inlayHints.variableTypes": false,
+        "yaml.schemas": {
+            "https://raw.githubusercontent.com/pamburus/hl/master/schema/json/config.schema.json": "file:///home/user/git/github.com/greflm13/StaticGalleryBuilder/hl_config.yaml"
+        },
     },
     "tasks": {
         "version": "2.0.0",
@@ -218,6 +221,21 @@
                     "clear": true
                 },
                 "group": "build"
+            },
+            {
+                "command": "LESS=-SR hl logs/latest.jsonl --config hl_config.yaml",
+                "isBackground": false,
+                "label": "View Latest Log",
+                "problemMatcher": [],
+                "type": "shell",
+                "presentation": {
+                    "echo": false,
+                    "reveal": "always",
+                    "focus": true,
+                    "panel": "dedicated",
+                    "showReuseMessage": false,
+                    "clear": true
+                }
             }
         ],
     },
