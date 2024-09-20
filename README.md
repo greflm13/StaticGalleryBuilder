@@ -44,20 +44,20 @@ The script supports several command-line options to customize its behavior. Belo
 
 ### Options
 
-- `-h, --help`: Show the help message and exit.
-- `-p ROOT, --root-directory ROOT`: Specify the root folder where the images are stored. This option is required.
-- `-w URL, --web-root-url URL`: Specify the base URL for the web root of the image hosting site. This option is required.
-- `-t TITLE, --site-title TITLE`: Specify the title of the image hosting site. This option is required.
-- `-r, --regenerate-thumbnails`: Regenerate thumbnails even if they already exist.
-- `-n, --non-interactive-mode`: Run in non-interactive mode, disabling progress bars.
-- `-l LICENSE, --license-type LICENSE`: Specify the license type for the images. Choices are `cc-zero`, `cc-by`, `cc-by-sa`, `cc-by-nd`, `cc-by-nc`, `cc-by-nc-sa`, and `cc-by-nc-nd`.
 - `-a AUTHOR, --author-name AUTHOR`: Specify the name of the author of the images. Default is "Author".
 - `-e EXTENSION, --file-extensions EXTENSION`: Specify the file extensions to include. This option can be specified multiple times.
+- `-l LICENSE, --license-type LICENSE`: Specify the license type for the images. Choices are `cc-zero`, `cc-by`, `cc-by-sa`, `cc-by-nd`, `cc-by-nc`, `cc-by-nc-sa`, and `cc-by-nc-nd`.
+- `-m, --web-manifest`: Generate a web manifest file.
+- `-n, --non-interactive-mode`: Run in non-interactive mode, disabling progress bars.
+- `-p ROOT, --root-directory ROOT`: Specify the root folder where the images are stored. **(This option is required)**.
+- `-t TITLE, --site-title TITLE`: Specify the title of the image hosting site. **(This option is required)**.
+- `-w URL, --web-root-url URL`: Specify the base URL for the web root of the image hosting site. **(This option is required)**.
+- `--exclude-folder FOLDER`: Specify folders to exclude from processing. This option can be specified multiple times.
+- `--ignore-other-files`: Ignore files that do not match the specified extensions.
+- `--regenerate-thumbnails`: Regenerate thumbnails even if they already exist.
+- `--reread-metadata`: Reread image metadata if it already exists.
 - `--theme-path PATH`: Specify the path to the CSS theme file. Default is the provided default theme.
 - `--use-fancy-folders`: Enable fancy folder view instead of the default Apache directory listing.
-- `--ignore-other-files`: Ignore files that do not match the specified extensions.
-- `--exclude-folder FOLDER`: Specify folders to exclude from processing. This option can be specified multiple times.
-- `-m, --web-manifest`: Generate a web manifest file.
 
 ### Examples
 

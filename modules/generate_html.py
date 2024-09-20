@@ -3,6 +3,7 @@ import urllib.parse
 import fnmatch
 import json
 from typing import Any, Dict, List, Tuple
+from datetime import datetime
 
 import numpy as np
 from tqdm.auto import tqdm
@@ -103,7 +104,7 @@ def get_image_info(item: str, folder: str) -> Dict[str, Any]:
             tag = ExifTags.TAGS.get(tag_id, tag_id)
             content = exifdatas.get(tag_id)
             if isinstance(content, bytes):
-                content = content.hex(" ")
+                content = "0x" + content.hex()
             if isinstance(content, TiffImagePlugin.IFDRational):
                 content = content.limit_rational(1000000)
             if isinstance(content, tuple):
@@ -113,6 +114,8 @@ def get_image_info(item: str, folder: str) -> Dict[str, Any]:
                         newtuple = newtuple + (i.limit_rational(1000000),)
                 if newtuple:
                     content = newtuple
+            if tag in ["DateTime", "DateTimeOriginal", "DateTimeDigitized"]:
+                content = datetime.strptime(content, "%Y:%m:%d %H:%M:%S").strftime("%Y-%m-%d %H:%M:%S")
             exifdata[tag] = content
         if "Orientation" in exifdata and exifdata["Orientation"] in [6, 8]:
             logger.info("image is rotated", extra={"file": file})
@@ -122,7 +125,7 @@ def get_image_info(item: str, folder: str) -> Dict[str, Any]:
                 del exifdata[key]
         return {"width": width, "height": height, "exifdata": exifdata}
     else:
-        return {"width": width, "height": height}
+        return {"width": width, "height": height, "exifdata": None}
 
 
 def process_image(item: str, folder: str, _args: Args, baseurl: str, sizelist: Dict[str, Dict[str, int]], raw: List[str]) -> Dict[str, Any]:
@@ -141,7 +144,7 @@ def process_image(item: str, folder: str, _args: Args, baseurl: str, sizelist: D
         Dict[str, Any]: Dictionary containing image details for HTML rendering.
     """
     extsplit = os.path.splitext(item)
-    if item not in sizelist or _args.regenerate_thumbnails:
+    if item not in sizelist or _args.reread_metadata:
         sizelist[item] = get_image_info(item, folder)
 
     image = {
@@ -150,6 +153,7 @@ def process_image(item: str, folder: str, _args: Args, baseurl: str, sizelist: D
         "name": item,
         "width": sizelist[item]["width"],
         "height": sizelist[item]["height"],
+        "exifdata": sizelist[item]["exifdata"],
     }
     path = os.path.join(_args.root_directory, ".thumbnails", baseurl, item + ".jpg")
     if not os.path.exists(path) or _args.regenerate_thumbnails:

@@ -147,7 +147,11 @@
     var pswpElement = document.querySelectorAll('.pswp')[0];
     var items = [
       {%- for image in allimages %}
+      {%- if image.exifdata.DateTime %}
+      { src: "{{ image.url }}", w: {{ image.width }}, h: {{ image.height }}, msrc: "{{ image.thumbnail }}", title: "Captured: {{ image.exifdata.DateTime }}" },
+      {%- else %}
       { src: "{{ image.url }}", w: {{ image.width }}, h: {{ image.height }}, msrc: "{{ image.thumbnail }}" },
+      {%- endif %}
       {%- endfor %}
     ];
     var re = /pid=(\d+)/;

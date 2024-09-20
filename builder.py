@@ -196,11 +196,13 @@ def main() -> None:
     lock_file = os.path.join(args.root_directory, ".lock")
     if os.path.exists(lock_file):
         print("Another instance of this program is running.")
-        logger.info("nother instance of this program is running")
+        logger.error("another instance of this program is running")
         exit()
 
     try:
         Path(lock_file).touch()
+        if args.reread_metadata:
+            logger.warning("reread metadata flag is set to true, all image metadata will be reread")
         if args.regenerate_thumbnails:
             logger.warning("regenerate thumbnails flag is set to true, all thumbnails will be regenerated")
             if os.path.exists(os.path.join(args.root_directory, ".thumbnails")):

@@ -58,6 +58,7 @@ class Args:
     license_type: Optional[str]
     non_interactive_mode: bool
     regenerate_thumbnails: bool
+    reread_metadata: bool
     root_directory: str
     site_title: str
     theme_path: str
@@ -75,6 +76,7 @@ class Args:
             result["license_type"] = self.license_type
         result["non_interactive_mode"] = self.non_interactive_mode
         result["regenerate_thumbnails"] = self.regenerate_thumbnails
+        result["reread_metadata"] = self.reread_metadata
         result["root_directory"] = self.root_directory
         result["site_title"] = self.site_title
         result["theme_path"] = self.theme_path
@@ -105,12 +107,13 @@ def parse_arguments(version: str) -> Args:
     parser.add_argument("-m", "--web-manifest", help="Generate a web manifest file.", action="store_true", default=False, dest="generate_webmanifest")
     parser.add_argument("-n", "--non-interactive-mode", help="Run in non-interactive mode, disabling progress bars.", action="store_true", default=False, dest="non_interactive_mode")
     parser.add_argument("-p", "--root-directory", help="Root directory containing the images.", required=True, type=str, dest="root_directory", metavar="ROOT")
-    parser.add_argument("-r", "--regenerate-thumbnails", help="Regenerate thumbnails even if they already exist.", action="store_true", default=False, dest="regenerate_thumbnails")
     parser.add_argument("-t", "--site-title", help="Title of the image hosting site.", required=True, type=str, dest="site_title", metavar="TITLE")
     parser.add_argument("-w", "--web-root-url", help="Base URL of the web root for the image hosting site.", required=True, type=str, dest="web_root_url", metavar="URL")
     parser.add_argument("--exclude-folder", help="Folders to exclude from processing, globs supported (can be specified multiple times).", action="append", dest="exclude_folders", metavar="FOLDER")
     parser.add_argument("--generate-help-preview", action=HelpPreviewAction, path="help.svg", )
     parser.add_argument("--ignore-other-files", help="Ignore files that do not match the specified extensions.", action="store_true", default=False, dest="ignore_other_files")
+    parser.add_argument("--regenerate-thumbnails", help="Regenerate thumbnails even if they already exist.", action="store_true", default=False, dest="regenerate_thumbnails")
+    parser.add_argument("--reread-metadata", help="Reread image metadata", action="store_true", default=False, dest="reread_metadata")
     parser.add_argument("--theme-path", help="Path to the CSS theme file.", default=DEFAULT_THEME_PATH, type=str, dest="theme_path", metavar="PATH")
     parser.add_argument("--use-fancy-folders", help="Enable fancy folder view instead of the default Apache directory listing.", action="store_true", default=False, dest="use_fancy_folders")
     parser.add_argument("--version", action="version", version=f"%(prog)s {version}")
@@ -125,6 +128,7 @@ def parse_arguments(version: str) -> Args:
         license_type=parsed_args.license_type,
         non_interactive_mode=parsed_args.non_interactive_mode,
         regenerate_thumbnails=parsed_args.regenerate_thumbnails,
+        reread_metadata=parsed_args.reread_metadata,
         root_directory=parsed_args.root_directory,
         site_title=parsed_args.site_title,
         theme_path=parsed_args.theme_path,
