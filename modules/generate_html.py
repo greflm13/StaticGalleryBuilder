@@ -1,4 +1,5 @@
 import os
+import re
 import urllib.parse
 import fnmatch
 import json
@@ -115,7 +116,11 @@ def get_image_info(item: str, folder: str) -> Dict[str, Any]:
                 if newtuple:
                     content = newtuple
             if tag in ["DateTime", "DateTimeOriginal", "DateTimeDigitized"]:
-                content = datetime.strptime(content, "%Y:%m:%d %H:%M:%S").strftime("%Y-%m-%d %H:%M:%S")
+                epr = r'\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}'
+                if re.match(epr, content):
+                    content = datetime.strptime(content, "%Y:%m:%d %H:%M:%S").strftime("%Y-%m-%d %H:%M:%S")
+                else:
+                    content = None
             exifdata[tag] = content
         if "Orientation" in exifdata and exifdata["Orientation"] in [6, 8]:
             logger.info("image is rotated", extra={"file": file})
