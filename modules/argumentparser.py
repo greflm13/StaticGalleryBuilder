@@ -8,7 +8,7 @@ try:
 
     RICH = True
 except ModuleNotFoundError:
-    pass
+    RICH = False
 
 
 from modules.logger import logger
