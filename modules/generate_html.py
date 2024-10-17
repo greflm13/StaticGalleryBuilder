@@ -314,7 +314,6 @@ def create_html_file(folder: str, title: str, foldername: str, images: List[Dict
     """
     html_file = os.path.join(folder, "index.html")
     logger.info("generating html file with jinja2", extra={"path": html_file})
-    image_chunks = np.array_split(images, 8) if images else []
     header = os.path.basename(folder) or title
     parent = None if not foldername else f"{_args.web_root_url}{urllib.parse.quote(foldername.removesuffix(folder.split('/')[-1] + '/'))}"
     if parent and _args.web_root_url.startswith("file://"):
@@ -346,7 +345,7 @@ def create_html_file(folder: str, title: str, foldername: str, images: List[Dict
         header=header,
         license=license_info,
         subdirectories=subfolders,
-        images=image_chunks,
+        images=images,
         info=_info,
         allimages=images,
         webmanifest=_args.generate_webmanifest,

@@ -157,12 +157,12 @@ figure {
   opacity: 1;
 }
 
-/* Create eight equal columns that sits next to each other */
 .column {
   -ms-flex: 12.5%;
   flex: 12.5%;
   max-width: 12.5%;
   padding: 0 4px;
+  display: inline-block;
 }
 
 .column img {
@@ -187,7 +187,6 @@ figure {
   border-style: none;
 }
 
-/* Responsive layout - makes a four column-layout instead of eight columns */
 @media screen and (max-width: 1000px) {
   .column {
     -ms-flex: 25%;
@@ -209,7 +208,6 @@ figure {
   }
 }
 
-/* Responsive layout - makes a two column-layout instead of four columns */
 @media screen and (max-width: 800px) {
   .column {
     -ms-flex: 50%;
@@ -239,7 +237,6 @@ figure {
   }
 }
 
-/* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
 @media screen and (max-width: 600px) {
   .column {
     -ms-flex: 100%;

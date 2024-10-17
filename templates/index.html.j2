@@ -56,9 +56,8 @@
   {% if images %}
   {%- set ns = namespace(count = 0) -%}
   <div class="row">
-    {%- for imageblock in images %}
+    {%- for image in images %}
     <div class="column">
-      {%- for image in imageblock %}
       <figure>
         <img src="{{ image.thumbnail }}" alt="{{ image.name }}" onclick="openSwipe({{ ns.count }})" />
         {%- set ns.count = ns.count + 1 %}
@@ -71,7 +70,6 @@
           {%- endif %}
         </figcaption>
       </figure>
-      {%- endfor %}
     </div>
     {%- endfor %}
   </div>
