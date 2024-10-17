@@ -20,7 +20,6 @@ Python script to generate static HTML files for website galleries.
 ## Requirements
 
 - Python 3.x
-- `numpy` library
 - `tqdm` library
 - `Jinja2` library
 - `Pillow` library
@@ -33,7 +32,7 @@ Python script to generate static HTML files for website galleries.
 Install the required libraries using pip:
 
 ```sh
-pip install numpy tqdm Jinja2 Pillow rich-argparse cairosvg python-json-logger
+pip install tqdm Jinja2 Pillow rich-argparse cairosvg python-json-logger
 ```
 
 ## Usage

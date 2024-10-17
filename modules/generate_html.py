@@ -6,7 +6,6 @@ import json
 from typing import Any, Dict, List, Tuple
 from datetime import datetime
 
-import numpy as np
 from tqdm.auto import tqdm
 from PIL import Image, ExifTags, TiffImagePlugin
 from jinja2 import Environment, FileSystemLoader
