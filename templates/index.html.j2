@@ -8,6 +8,14 @@
   {%- if webmanifest %}
   <link rel="manifest" href="/.static/manifest.json">
   {%- endif %}
+  <link rel="preload" href="{{ stylesheet }}" as="style">
+  {%- if theme %}
+  <link rel="preload" href="{{ theme }}" as="style">
+  {%- endif %}
+  <link rel="preload" href="{{ root }}.static/pswp/photoswipe.css" as="style">
+  <link rel="preload" href="{{ root }}.static/pswp/default-skin/default-skin.css" as="style">
+  <link rel="preload" href="{{ root }}.static/pswp/photoswipe.min.js" as="script">
+  <link rel="preload" href="{{ root }}.static/pswp/photoswipe-ui-default.min.js" as="script">
   <link rel="icon" type="image/x-icon" href="{{ favicon }}">
   <link rel="stylesheet" href="{{ stylesheet }}">
   {%- if theme %}
