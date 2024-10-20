@@ -117,7 +117,10 @@ def get_image_info(item: str, folder: str) -> Dict[str, Any]:
             if tag in ["DateTime", "DateTimeOriginal", "DateTimeDigitized"]:
                 epr = r'\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}'
                 if re.match(epr, content):
-                    content = datetime.strptime(content, "%Y:%m:%d %H:%M:%S").strftime("%Y-%m-%d %H:%M:%S")
+                    try:
+                        content = datetime.strptime(content, "%Y:%m:%d %H:%M:%S").strftime("%Y-%m-%d %H:%M:%S")
+                    except ValueError:
+                        content = None
                 else:
                     content = None
             exifdata[tag] = content

@@ -70,7 +70,7 @@
     {%- for image in images %}
     <div class="column">
       <figure>
-        <img src="{{ image.thumbnail }}" alt="{{ image.name }}" onclick="openSwipe({{ ns.count }})" onmouseover="prefetch('{{ image.url }}')"/>
+        <img src="{{ image.thumbnail }}" alt="{{ image.name }}" onclick="openSwipe({{ ns.count }})" onmouseover="prefetch({{ ns.count }})" onmouseleave="cancel({{ ns.count }})"/>
         {%- set ns.count = ns.count + 1 %}
         <figcaption class="caption">{{ image.name }}
           {%- if image.tiff %}
@@ -195,11 +195,25 @@
     }
 
     function prefetch(img) {
-      var link = document.createElement("link");
+      let link = document.createElement("link");
       link.rel = "preload";
       link.as = "image";
-      link.href = img;
+      link.href = items[img].src;
       document.body.appendChild(link);
+    }
+
+    function cancel(img) {
+      let links = document.body.getElementsByTagName("link");
+      for (let link in links) {
+        let ling = links[link]
+        try {
+          if (ling.getAttribute("rel") == "preload" && ling.getAttribute("href") == items[img].src) {
+            document.body.removeChild(ling);
+          }
+        }
+        catch(err) {
+        }
+      }
     }
   </script>
   {%- endif %}

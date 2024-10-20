@@ -187,7 +187,6 @@ def main() -> None:
     """
     Main function to process images and generate a static image hosting website.
     """
-    logger.info("starting builder", extra={"version": VERSION})
     thumbnails: List[Tuple[str, str, str, bool]] = []
 
     args = parse_arguments(VERSION)
@@ -196,11 +195,11 @@ def main() -> None:
     lock_file = os.path.join(args.root_directory, ".lock")
     if os.path.exists(lock_file):
         print("Another instance of this program is running.")
-        logger.error("another instance of this program is running")
         exit()
 
     try:
         Path(lock_file).touch()
+        logger.info("starting builder", extra={"version": VERSION})
         if args.reread_metadata:
             logger.warning("reread metadata flag is set to true, all image metadata will be reread")
         if args.regenerate_thumbnails:

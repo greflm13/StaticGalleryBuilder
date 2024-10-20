@@ -11,8 +11,6 @@ except ModuleNotFoundError:
     RICH = False
 
 
-from modules.logger import logger
-
 if __package__ is None:
     PACKAGE = ""
 else:
@@ -146,5 +144,4 @@ def parse_arguments(version: str) -> Args:
         use_fancy_folders=parsed_args.use_fancy_folders,
         web_root_url=parsed_args.web_root_url,
     )
-    logger.debug("parsed arguments", extra={"args": _args.to_dict()})
     return _args
