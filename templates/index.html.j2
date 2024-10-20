@@ -12,10 +12,6 @@
   {%- if theme %}
   <link rel="preload" href="{{ theme }}" as="style">
   {%- endif %}
-  <link rel="preload" href="{{ root }}.static/pswp/photoswipe.css" as="style">
-  <link rel="preload" href="{{ root }}.static/pswp/default-skin/default-skin.css" as="style">
-  <link rel="preload" href="{{ root }}.static/pswp/photoswipe.min.js" as="script">
-  <link rel="preload" href="{{ root }}.static/pswp/photoswipe-ui-default.min.js" as="script">
   <link rel="icon" type="image/x-icon" href="{{ favicon }}">
   <link rel="stylesheet" href="{{ stylesheet }}">
   {%- if theme %}
@@ -30,6 +26,10 @@
 </head>
 
 <body>
+  <link rel="preload" href="{{ root }}.static/pswp/photoswipe.css" as="style" >
+  <link rel="preload" href="{{ root }}.static/pswp/default-skin/default-skin.css" as="style">
+  <link rel="preload" href="{{ root }}.static/pswp/photoswipe.min.js" as="script">
+  <link rel="preload" href="{{ root }}.static/pswp/photoswipe-ui-default.min.js" as="script">
   <div class="header">
     <ul class="navbar">
       <li><a href="{{ root }}">Home</a></li>
@@ -49,6 +49,9 @@
       {%- endif %}
     </ul>
     {% if subdirectories %}
+    {%- for subdirectory in subdirectories %}
+    <link rel="preload" href="{{ subdirectory.url }}/index.html" type="text/html">
+    {%- endfor %}
     <div class="folders">
       {%- for subdirectory in subdirectories %}
       <a href="{{ subdirectory.url }}">
@@ -67,7 +70,7 @@
     {%- for image in images %}
     <div class="column">
       <figure>
-        <img src="{{ image.thumbnail }}" alt="{{ image.name }}" onclick="openSwipe({{ ns.count }})" />
+        <img src="{{ image.thumbnail }}" alt="{{ image.name }}" onclick="openSwipe({{ ns.count }})" onmouseover="prefetch('{{ image.url }}')"/>
         {%- set ns.count = ns.count + 1 %}
         <figcaption class="caption">{{ image.name }}
           {%- if image.tiff %}
@@ -152,7 +155,7 @@
   <script>
     var pswpElement = document.querySelectorAll('.pswp')[0];
     var items = [
-      {%- for image in allimages %}
+      {%- for image in images %}
       {%- if image.exifdata.DateTime %}
       { src: "{{ image.url }}", w: {{ image.width }}, h: {{ image.height }}, msrc: "{{ image.thumbnail }}", title: "Captured: {{ image.exifdata.DateTime }}" },
       {%- else %}
@@ -189,6 +192,14 @@
 
     function topFunction() {
       window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+
+    function prefetch(img) {
+      var link = document.createElement("link");
+      link.rel = "preload";
+      link.as = "image";
+      link.href = img;
+      document.body.appendChild(link);
     }
   </script>
   {%- endif %}

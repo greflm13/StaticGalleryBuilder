@@ -346,7 +346,6 @@ def create_html_file(folder: str, title: str, foldername: str, images: List[Dict
         subdirectories=subfolders,
         images=images,
         info=_info,
-        allimages=images,
         webmanifest=_args.generate_webmanifest,
         version=version,
     )
