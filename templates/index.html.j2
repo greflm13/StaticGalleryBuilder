@@ -195,19 +195,23 @@
     }
 
     function prefetch(img) {
-      let link = document.createElement("link");
-      link.rel = "preload";
-      link.as = "image";
-      link.href = items[img].src;
-      document.body.appendChild(link);
+      let _img = document.createElement("img");
+      _img.ariaHidden = true;
+      _img.style.display = "none";
+      _img.className = "preload";
+      _img.onload = function () {
+        document.body.removeChild(_img);
+      };
+      _img.src = items[img].src;
+      document.body.appendChild(_img);
     }
 
     function cancel(img) {
-      let links = document.body.getElementsByTagName("link");
-      for (let link in links) {
-        let ling = links[link]
+      let imgs = document.body.getElementsByTagName("img");
+      for (let ing in imgs) {
+        let ling = imgs[ing]
         try {
-          if (ling.getAttribute("rel") == "preload" && ling.getAttribute("href") == items[img].src) {
+          if (ling.getAttribute("class") == "preload" && ling.getAttribute("src") == items[img].src) {
             document.body.removeChild(ling);
           }
         }
