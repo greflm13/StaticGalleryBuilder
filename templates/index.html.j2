@@ -70,7 +70,8 @@
     {%- for image in images %}
     <div class="column">
       <figure>
-        <img src="{{ image.thumbnail }}" alt="{{ image.name }}" onclick="openSwipe({{ ns.count }})" onmouseover="prefetch({{ ns.count }})" onmouseleave="cancel({{ ns.count }})"/>
+        <img src="{{ image.thumbnail }}" alt="{{ image.name }}" onclick="openSwipe({{ ns.count }})" />
+        {# <img src="{{ image.thumbnail }}" alt="{{ image.name }}" onclick="openSwipe({{ ns.count }})" onmouseover="prefetch({{ ns.count }})" onmouseleave="cancel({{ ns.count }})"/> #}
         {%- set ns.count = ns.count + 1 %}
         <figcaption class="caption">{{ image.name }}
           {%- if image.tiff %}
