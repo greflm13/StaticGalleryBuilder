@@ -204,10 +204,7 @@
       fetch(urlToFetch, {
         method: 'get',
         signal: signal,
-      })
-        .catch(function (err) {
-          console.error(` Err: ${err}`);
-        });
+      }).catch(function (err) {});
     }
 
     function cancel(img) {
