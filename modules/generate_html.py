@@ -115,7 +115,7 @@ def get_image_info(item: str, folder: str) -> Dict[str, Any]:
                 if newtuple:
                     content = newtuple
             if tag in ["DateTime", "DateTimeOriginal", "DateTimeDigitized"]:
-                epr = r'\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}'
+                epr = r"\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}"
                 if re.match(epr, content):
                     try:
                         content = datetime.strptime(content, "%Y:%m:%d %H:%M:%S").strftime("%Y-%m-%d %H:%M:%S")
@@ -335,6 +335,8 @@ def create_html_file(folder: str, title: str, foldername: str, images: List[Dict
 
     folder_info = info.get(urllib.parse.quote(folder), "").split("\n")
     _info = [i for i in folder_info if len(i) > 1] if folder_info else None
+    if _args.reverse_sort:
+        images.sort(key=lambda i: i["name"], reverse=True)
 
     html = env.get_template("index.html.j2")
     content = html.render(

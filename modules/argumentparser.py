@@ -64,6 +64,7 @@ class Args:
     non_interactive_mode: bool
     regenerate_thumbnails: bool
     reread_metadata: bool
+    reverse_sort: bool
     root_directory: str
     site_title: str
     theme_path: str
@@ -81,6 +82,7 @@ class Args:
             result["license_type"] = self.license_type
         result["non_interactive_mode"] = self.non_interactive_mode
         result["regenerate_thumbnails"] = self.regenerate_thumbnails
+        result["reverse_sort"] = self.reverse_sort
         result["reread_metadata"] = self.reread_metadata
         result["root_directory"] = self.root_directory
         result["site_title"] = self.site_title
@@ -123,6 +125,7 @@ def parse_arguments(version: str) -> Args:
     parser.add_argument("--ignore-other-files", help="Ignore files that do not match the specified extensions.", action="store_true", default=False, dest="ignore_other_files")
     parser.add_argument("--regenerate-thumbnails", help="Regenerate thumbnails even if they already exist.", action="store_true", default=False, dest="regenerate_thumbnails")
     parser.add_argument("--reread-metadata", help="Reread image metadata", action="store_true", default=False, dest="reread_metadata")
+    parser.add_argument("--reverse-sort", help="Sort images in reverse order.", action="store_true", default=False, dest="reverse_sort")
     parser.add_argument("--theme-path", help="Path to the CSS theme file.", default=DEFAULT_THEME_PATH, type=str, dest="theme_path", metavar="PATH")
     parser.add_argument("--use-fancy-folders", help="Enable fancy folder view instead of the default Apache directory listing.", action="store_true", default=False, dest="use_fancy_folders")
     parser.add_argument("--version", action="version", version=f"%(prog)s {version}")
@@ -138,6 +141,7 @@ def parse_arguments(version: str) -> Args:
         non_interactive_mode=parsed_args.non_interactive_mode,
         regenerate_thumbnails=parsed_args.regenerate_thumbnails,
         reread_metadata=parsed_args.reread_metadata,
+        reverse_sort=parsed_args.reverse_sort,
         root_directory=parsed_args.root_directory,
         site_title=parsed_args.site_title,
         theme_path=parsed_args.theme_path,

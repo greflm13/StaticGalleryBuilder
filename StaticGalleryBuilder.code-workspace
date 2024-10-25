@@ -39,6 +39,7 @@
                     "cc-by-nc-sa",
                     "-n",
                     "-m",
+                    "--reverse-sort",
                     "--regenerate-thumbnails",
                     "--reread-metadata",
                 ],

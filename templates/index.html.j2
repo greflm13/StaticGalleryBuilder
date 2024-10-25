@@ -26,7 +26,7 @@
 </head>
 
 <body>
-  <link rel="preload" href="{{ root }}.static/pswp/photoswipe.css" as="style" >
+  <link rel="preload" href="{{ root }}.static/pswp/photoswipe.css" as="style">
   <link rel="preload" href="{{ root }}.static/pswp/default-skin/default-skin.css" as="style">
   <link rel="preload" href="{{ root }}.static/pswp/photoswipe.min.js" as="script">
   <link rel="preload" href="{{ root }}.static/pswp/photoswipe-ui-default.min.js" as="script">
@@ -70,8 +70,7 @@
     {%- for image in images %}
     <div class="column">
       <figure>
-        <img src="{{ image.thumbnail }}" alt="{{ image.name }}" onclick="openSwipe({{ ns.count }})" />
-        {# <img src="{{ image.thumbnail }}" alt="{{ image.name }}" onclick="openSwipe({{ ns.count }})" onmouseover="prefetch({{ ns.count }})" onmouseleave="cancel({{ ns.count }})"/> #}
+        <img src="{{ image.thumbnail }}" alt="{{ image.name }}" onclick="openSwipe({{ ns.count }})" onmouseover="prefetch({{ ns.count }})" onmouseleave="cancel({{ ns.count }})" />
         {%- set ns.count = ns.count + 1 %}
         <figcaption class="caption">{{ image.name }}
           {%- if image.tiff %}
@@ -165,6 +164,7 @@
       {%- endfor %}
     ];
     var re = /pid=(\d+)/;
+    var controllers = {}
 
     function openSwipe(img) {
       var options = {
@@ -196,29 +196,23 @@
     }
 
     function prefetch(img) {
-      let _img = document.createElement("img");
-      _img.ariaHidden = true;
-      _img.style.display = "none";
-      _img.className = "preload";
-      _img.onload = function () {
-        document.body.removeChild(_img);
-      };
-      _img.src = items[img].src;
-      document.body.appendChild(_img);
+      const controller = new AbortController()
+      const signal = controller.signal
+      controllers[img] = controller;
+      let urlToFetch = items[img].src;
+
+      fetch(urlToFetch, {
+        method: 'get',
+        signal: signal,
+      })
+        .catch(function (err) {
+          console.error(` Err: ${err}`);
+        });
     }
 
     function cancel(img) {
-      let imgs = document.body.getElementsByTagName("img");
-      for (let ing in imgs) {
-        let ling = imgs[ing]
-        try {
-          if (ling.getAttribute("class") == "preload" && ling.getAttribute("src") == items[img].src) {
-            document.body.removeChild(ling);
-          }
-        }
-        catch(err) {
-        }
-      }
+      controllers[img].abort();
+      delete controllers[img];
     }
   </script>
   {%- endif %}
