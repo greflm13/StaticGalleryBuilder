@@ -160,7 +160,7 @@ def process_image(item: str, folder: str, _args: Args, baseurl: str, sizelist: D
         "name": item,
         "width": sizelist[item]["width"],
         "height": sizelist[item]["height"],
-        "exifdata": sizelist[item]["exifdata"],
+        "exifdata": sizelist[item].get("exifdata", ""),
     }
     path = os.path.join(_args.root_directory, ".thumbnails", baseurl, item + ".jpg")
     if not os.path.exists(path) or _args.regenerate_thumbnails:
