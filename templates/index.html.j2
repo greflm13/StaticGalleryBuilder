@@ -17,6 +17,10 @@
   {%- if theme %}
   <link rel="stylesheet" href="{{ theme }}">
   {%- endif %}
+  <link rel="preload" href="{{ root }}.static/pswp/photoswipe.css" as="style">
+  <link rel="preload" href="{{ root }}.static/pswp/default-skin/default-skin.css" as="style">
+  <link rel="modulepreload" href="{{ root }}.static/pswp/photoswipe.min.js">
+  <link rel="modulepreload" href="{{ root }}.static/pswp/photoswipe-ui-default.min.js">
   {%- if images %}
   <link rel="stylesheet" href="{{ root }}.static/pswp/photoswipe.css">
   <link rel="stylesheet" href="{{ root }}.static/pswp/default-skin/default-skin.css">
@@ -26,10 +30,6 @@
 </head>
 
 <body>
-  <link rel="preload" href="{{ root }}.static/pswp/photoswipe.css" as="style">
-  <link rel="preload" href="{{ root }}.static/pswp/default-skin/default-skin.css" as="style">
-  <link rel="preload" href="{{ root }}.static/pswp/photoswipe.min.js" as="script">
-  <link rel="preload" href="{{ root }}.static/pswp/photoswipe-ui-default.min.js" as="script">
   <div class="header">
     <ul class="navbar">
       <li><a href="{{ root }}">Home</a></li>

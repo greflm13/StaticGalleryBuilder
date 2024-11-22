@@ -1,11 +1,11 @@
 {
     "extensions": {
         "recommendations": [
+            "charliermarsh.ruff",
             "esbenp.prettier-vscode",
             "ms-edgedevtools.vscode-edge-devtools",
             "ms-python.black-formatter",
             "ms-python.debugpy",
-            "ms-python.pylint",
             "ms-python.python",
             "ms-python.vscode-pylance",
             "samuelcolvin.jinjahtml",
