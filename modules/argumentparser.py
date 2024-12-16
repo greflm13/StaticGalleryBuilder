@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import Optional
 import os
 import argparse
 
@@ -29,9 +29,9 @@ class Args:
     -----------
     author_name : str
         The name of the author of the images.
-    exclude_folders : List[str]
+    exclude_folders : list[str]
         A list of folders to exclude from processing.
-    file_extensions : List[str]
+    file_extensions : list[str]
         A list of file extensions to include.
     generate_webmanifest : bool
         Whether to generate a web manifest file.
@@ -56,8 +56,8 @@ class Args:
     """
 
     author_name: str
-    exclude_folders: List[str]
-    file_extensions: List[str]
+    exclude_folders: list[str]
+    file_extensions: list[str]
     generate_webmanifest: bool
     ignore_other_files: bool
     license_type: Optional[str]

@@ -3,15 +3,15 @@ import re
 import urllib.parse
 import fnmatch
 import json
-from typing import Any, Dict, List, Tuple
+from typing import Any
 from datetime import datetime
 
 from tqdm.auto import tqdm
 from PIL import Image, ExifTags, TiffImagePlugin
 from jinja2 import Environment, FileSystemLoader
 
-from modules.logger import logger
-import modules.cclicense as cclicense
+from modules import logger
+from modules import cclicense
 from modules.argumentparser import Args
 
 # Constants for file paths and exclusions
@@ -29,12 +29,12 @@ Image.MAX_IMAGE_PIXELS = 933120000
 
 # Initialize Jinja2 environment for template rendering
 env = Environment(loader=FileSystemLoader(os.path.join(SCRIPTDIR, "templates")))
-thumbnails: List[Tuple[str, str]] = []
-info: Dict[str, str] = {}
-pbardict: Dict[str, tqdm] = {}
+thumbnails: list[tuple[str, str]] = []
+info: dict[str, str] = {}
+pbardict: dict[str, tqdm] = {}
 
 
-def initialize_sizelist(folder: str) -> Dict[str, Dict[str, int]]:
+def initialize_sizelist(folder: str) -> dict[str, dict[str, int]]:
     """
     Initializes the size list JSON file if it doesn't exist.
 
@@ -42,7 +42,7 @@ def initialize_sizelist(folder: str) -> Dict[str, Dict[str, int]]:
         folder (str): The folder in which the size list file is located.
 
     Returns:
-        Dict[str, Dict[str, int]]: The size list dictionary.
+        dict[str, dict[str, int]]: The size list dictionary.
     """
     sizelist = {}
     sizelist_path = os.path.join(folder, ".sizelist.json")
@@ -60,12 +60,12 @@ def initialize_sizelist(folder: str) -> Dict[str, Dict[str, int]]:
     return sizelist
 
 
-def update_sizelist(sizelist: Dict[str, Dict[str, Any]], folder: str) -> None:
+def update_sizelist(sizelist: dict[str, dict[str, Any]], folder: str) -> None:
     """
     Updates the size list JSON file.
 
     Args:
-        sizelist (Dict[str, Dict[str, int]]): The size list dictionary to be written to the file.
+        sizelist (dict[str, dict[str, int]]): The size list dictionary to be written to the file.
         folder (str): The folder in which the size list file is located.
     """
     sizelist_path = os.path.join(folder, ".sizelist.json")
@@ -79,7 +79,7 @@ def update_sizelist(sizelist: Dict[str, Dict[str, Any]], folder: str) -> None:
             os.remove(sizelist_path)
 
 
-def get_image_info(item: str, folder: str) -> Dict[str, Any]:
+def get_image_info(item: str, folder: str) -> dict[str, Any]:
     """
     Extracts image information and EXIF data.
 
@@ -88,7 +88,7 @@ def get_image_info(item: str, folder: str) -> Dict[str, Any]:
         folder (str): The folder containing the image.
 
     Returns:
-        Dict[str, Any]: A dictionary containing image width, height, and EXIF data.
+        dict[str, Any]: A dictionary containing image width, height, and EXIF data.
     """
     file = os.path.join(folder, item)
     with Image.open(file) as img:
@@ -111,7 +111,7 @@ def get_image_info(item: str, folder: str) -> Dict[str, Any]:
                 newtuple = ()
                 for i in content:
                     if isinstance(i, TiffImagePlugin.IFDRational):
-                        newtuple = newtuple + (i.limit_rational(1000000),)
+                        newtuple = (*newtuple, i.limit_rational(1000000))
                 if newtuple:
                     content = newtuple
             if tag in ["DateTime", "DateTimeOriginal", "DateTimeDigitized"]:
@@ -135,7 +135,7 @@ def get_image_info(item: str, folder: str) -> Dict[str, Any]:
         return {"width": width, "height": height, "exifdata": None}
 
 
-def process_image(item: str, folder: str, _args: Args, baseurl: str, sizelist: Dict[str, Dict[str, int]], raw: List[str]) -> Dict[str, Any]:
+def process_image(item: str, folder: str, _args: Args, baseurl: str, sizelist: dict[str, dict[str, int]], raw: list[str]) -> dict[str, Any]:
     """
     Processes an image and prepares its data for the HTML template.
 
@@ -144,11 +144,11 @@ def process_image(item: str, folder: str, _args: Args, baseurl: str, sizelist: D
         folder (str): The folder containing the image.
         _args (Args): Parsed command line arguments.
         baseurl (str): Base URL for the web root.
-        sizelist (Dict[str, Dict[str, int]]): Dictionary containing size information for images.
-        raw (List[str]): List of raw image file extensions.
+        sizelist (dict[str, dict[str, int]]): dictionary containing size information for images.
+        raw (list[str]): list of raw image file extensions.
 
     Returns:
-        Dict[str, Any]: Dictionary containing image details for HTML rendering.
+        dict[str, Any]: dictionary containing image details for HTML rendering.
     """
     extsplit = os.path.splitext(item)
     if item not in sizelist or _args.reread_metadata:
@@ -181,7 +181,7 @@ def process_image(item: str, folder: str, _args: Args, baseurl: str, sizelist: D
     return image
 
 
-def generate_html(folder: str, title: str, _args: Args, raw: List[str], version: str) -> None:
+def generate_html(folder: str, title: str, _args: Args, raw: list[str], version: str) -> None:
     """
     Generates HTML content for a folder of images.
 
@@ -189,7 +189,7 @@ def generate_html(folder: str, title: str, _args: Args, raw: List[str], version:
         folder (str): The folder to generate HTML for.
         title (str): The title of the HTML page.
         _args (Args): Parsed command line arguments.
-        raw (List[str]): Raw image file names.
+        raw (list[str]): Raw image file names.
     """
     logger.info("processing folder", extra={"folder": folder})
     if _args.regenerate_thumbnails:
@@ -256,7 +256,7 @@ def create_thumbnail_folder(foldername: str, root_directory: str) -> None:
         os.mkdir(thumbnails_path)
 
 
-def process_subfolder(item: str, folder: str, baseurl: str, subfolders: List[Dict[str, str]], _args: Args, raw: List[str], version: str) -> None:
+def process_subfolder(item: str, folder: str, baseurl: str, subfolders: list[dict[str, str]], _args: Args, raw: list[str], version: str) -> None:
     """
     Processes a subfolder.
 
@@ -264,9 +264,9 @@ def process_subfolder(item: str, folder: str, baseurl: str, subfolders: List[Dic
         item (str): The name of the subfolder.
         folder (str): The parent folder containing the subfolder.
         baseurl (str): Base URL for the web root.
-        subfolders (List[Dict[str, str]]): List to store subfolder details.
+        subfolders (list[dict[str, str]]): list to store subfolder details.
         _args (Args): Parsed command line arguments.
-        raw (List[str]): Raw image file extensions.
+        raw (list[str]): Raw image file extensions.
     """
     subfolder_url = f"{_args.web_root_url}{baseurl}{urllib.parse.quote(item)}/index.html" if _args.web_root_url.startswith("file://") else f"{_args.web_root_url}{baseurl}{urllib.parse.quote(item)}"
     subfolders.append({"url": subfolder_url, "name": item})
@@ -288,12 +288,12 @@ def process_info_file(folder: str, item: str) -> None:
         info[urllib.parse.quote(folder)] = f.read()
 
 
-def should_generate_html(images: List[Dict[str, Any]], contains_files, _args: Args) -> bool:
+def should_generate_html(images: list[dict[str, Any]], contains_files, _args: Args) -> bool:
     """
     Determines if HTML should be generated.
 
     Args:
-        images (List[Dict[str, Any]]): List of images.
+        images (list[dict[str, Any]]): list of images.
         _args (Args): Parsed command line arguments.
 
     Returns:
@@ -302,7 +302,7 @@ def should_generate_html(images: List[Dict[str, Any]], contains_files, _args: Ar
     return images or (_args.use_fancy_folders and not contains_files) or (_args.use_fancy_folders and _args.ignore_other_files)
 
 
-def create_html_file(folder: str, title: str, foldername: str, images: List[Dict[str, Any]], subfolders: List[Dict[str, str]], _args: Args, version: str) -> None:
+def create_html_file(folder: str, title: str, foldername: str, images: list[dict[str, Any]], subfolders: list[dict[str, str]], _args: Args, version: str) -> None:
     """
     Creates the HTML file using the template.
 
@@ -310,8 +310,8 @@ def create_html_file(folder: str, title: str, foldername: str, images: List[Dict
         folder (str): The folder to create the HTML file in.
         title (str): The title of the HTML page.
         foldername (str): The name of the folder.
-        images (List[Dict[str, Any]]): A list of images to include in the HTML.
-        subfolders (List[Dict[str, str]]): A list of subfolders to include in the HTML.
+        images (list[dict[str, Any]]): A list of images to include in the HTML.
+        subfolders (list[dict[str, str]]): A list of subfolders to include in the HTML.
         _args (Args): Parsed command line arguments.
     """
     html_file = os.path.join(folder, "index.html")
@@ -360,19 +360,19 @@ def create_html_file(folder: str, title: str, foldername: str, images: List[Dict
         f.write(content)
 
 
-def list_folder(total: int, folder: str, title: str, _args: Args, raw: List[str], version: str) -> List[Tuple[str, str]]:
+def list_folder(total: int, folder: str, title: str, _args: Args, raw: list[str], version: str) -> list[tuple[str, str]]:
     """
-    Lists and processes a folder, generating HTML files.
+    lists and processes a folder, generating HTML files.
 
     Args:
         total (int): Total number of folders to process.
         folder (str): The folder to process.
         title (str): The title of the HTML page.
         _args (Args): Parsed command line arguments.
-        raw (List[str]): Raw image file names.
+        raw (list[str]): Raw image file names.
 
     Returns:
-        List[Tuple[str, str]]: List of thumbnails generated.
+        list[tuple[str, str]]: list of thumbnails generated.
     """
     if not _args.non_interactive_mode:
         pbardict["htmlbar"] = tqdm(total=total, desc="Generating HTML files", unit="folders", ascii=True, dynamic_ncols=True)

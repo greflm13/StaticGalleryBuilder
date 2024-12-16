@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 import os
 import re
+import sys
 import shutil
 import fnmatch
 import urllib.parse
 from multiprocessing import Pool, freeze_support
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 from tqdm.auto import tqdm
 from PIL import Image, ImageOps
@@ -36,10 +36,10 @@ IMG_EXTENSIONS = [".jpg", ".jpeg", ".png"]
 NOT_LIST = ["*/Galleries/*", "Archives"]
 # fmt: on
 
-pbardict: Dict[str, tqdm] = {}
+pbardict: dict[str, tqdm] = {}
 
 
-def init_globals(_args: Args, raw: List[str]) -> Tuple[Args, List[str]]:
+def init_globals(_args: Args, raw: list[str]) -> tuple[Args, list[str]]:
     """
     Initialize global variables and set default values for arguments.
 
@@ -47,12 +47,12 @@ def init_globals(_args: Args, raw: List[str]) -> Tuple[Args, List[str]]:
     -----------
     _args : Args
         Parsed command-line arguments.
-    raw : List[str]
-        List of raw file extensions.
+    raw : list[str]
+        list of raw file extensions.
 
     Returns:
     --------
-    Tuple[Args, List[str]]
+    tuple[Args, list[str]]
         Updated arguments and raw file extensions.
     """
     if not _args.file_extensions:
@@ -118,13 +118,13 @@ def copy_static_files(_args: Args) -> None:
         f.write(themehead + '\n.foldericon {\n  content: url("data:image/svg+xml,' + svg + '");\n}\n' + themetail)
 
 
-def generate_thumbnail(arguments: Tuple[str, str, str]) -> None:
+def generate_thumbnail(arguments: tuple[str, str, str]) -> None:
     """
     Generate a thumbnail for a given image.
 
     Parameters:
     -----------
-    arguments : Tuple[str, str, str, bool]
+    arguments : tuple[str, str, str, bool]
         A tuple containing the folder, item, root directory, and regenerate thumbnails flag.
     """
     folder, item, root_directory = arguments
@@ -187,7 +187,7 @@ def main() -> None:
     """
     Main function to process images and generate a static image hosting website.
     """
-    thumbnails: List[Tuple[str, str, str, bool]] = []
+    thumbnails: list[tuple[str, str, str, bool]] = []
 
     args = parse_arguments(VERSION)
     args, raw = init_globals(args, RAW_EXTENSIONS)
@@ -195,7 +195,7 @@ def main() -> None:
     lock_file = os.path.join(args.root_directory, ".lock")
     if os.path.exists(lock_file):
         print("Another instance of this program is running.")
-        exit()
+        sys.exit()
 
     try:
         Path(lock_file).touch()
@@ -248,7 +248,6 @@ def main() -> None:
     finally:
         os.remove(lock_file)
         logger.info("finished builder", extra={"version": VERSION})
-    return
 
 
 if __name__ == "__main__":

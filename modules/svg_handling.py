@@ -1,6 +1,5 @@
 import os
 import shutil
-from typing import List, Dict
 from subprocess import Popen, PIPE
 from PIL import Image
 from jinja2 import Environment, FileSystemLoader
@@ -14,7 +13,7 @@ try:
 except ImportError:
     SVGSUPPORT = False
 
-from modules.logger import logger
+from modules import logger
 from modules.argumentparser import Args
 from modules.css_color import extract_theme_color, extract_colorscheme
 
@@ -38,14 +37,14 @@ class Icon:
     purpose: str
 
 
-def render_svg_icon(colorscheme: Dict[str, str], iconspath: str) -> str:
+def render_svg_icon(colorscheme: dict[str, str], iconspath: str) -> str:
     """
     Render an SVG icon using the provided color scheme.
 
     Parameters:
     -----------
-    colorscheme : Dict[str, str]
-        Dictionary containing color scheme variables and their values.
+    colorscheme : dict[str, str]
+        dictionary containing color scheme variables and their values.
     iconspath : str
         Path to the directory where the icon will be saved.
 
@@ -134,7 +133,7 @@ def icons(_args: Args) -> None:
     generate_favicon(iconspath, _args.root_directory)
 
 
-def render_manifest_json(_args: Args, icon_list: List[Icon], colors: Dict[str, str]) -> None:
+def render_manifest_json(_args: Args, icon_list: list[Icon], colors: dict[str, str]) -> None:
     """
     Render the manifest.json file for the web application.
 
@@ -142,10 +141,10 @@ def render_manifest_json(_args: Args, icon_list: List[Icon], colors: Dict[str, s
     -----------
     _args : Args
         Parsed command-line arguments.
-    icon_list : List[Icon]
-        List of icons to be included in the manifest.
-    colors : Dict[str, str]
-        Dictionary containing color scheme and theme color.
+    icon_list : list[Icon]
+        list of icons to be included in the manifest.
+    colors : dict[str, str]
+        dictionary containing color scheme and theme color.
     """
     manifest = env.get_template("manifest.json.j2")
     content = manifest.render(
@@ -160,14 +159,14 @@ def render_manifest_json(_args: Args, icon_list: List[Icon], colors: Dict[str, s
         f.write(content)
 
 
-def create_icons_from_svg(files: List[str], iconspath: str, _args: Args) -> List[Icon]:
+def create_icons_from_svg(files: list[str], iconspath: str, _args: Args) -> list[Icon]:
     """
     Create icons from an SVG file.
 
     Parameters:
     -----------
-    files : List[str]
-        List of files in the icons directory.
+    files : list[str]
+        list of files in the icons directory.
     iconspath : str
         Path to the directory where the icons will be saved.
     _args : Args
@@ -175,8 +174,8 @@ def create_icons_from_svg(files: List[str], iconspath: str, _args: Args) -> List
 
     Returns:
     --------
-    List[Icon]
-        List of icons created from the SVG file.
+    list[Icon]
+        list of icons created from the SVG file.
     """
     svg = [file for file in files if file.endswith(".svg")][0]
     logger.info("creating icons for web application", extra={"iconspath": iconspath, "svg": svg})
@@ -218,7 +217,7 @@ def create_icons_from_svg(files: List[str], iconspath: str, _args: Args) -> List
     return icon_list
 
 
-def create_icons_from_png(iconspath: str, web_root_url: str) -> List[Icon]:
+def create_icons_from_png(iconspath: str, web_root_url: str) -> list[Icon]:
     """
     Create icons from PNG files.
 
@@ -231,8 +230,8 @@ def create_icons_from_png(iconspath: str, web_root_url: str) -> List[Icon]:
 
     Returns:
     --------
-    List[Icon]
-        List of icons created from PNG files.
+    list[Icon]
+        list of icons created from PNG files.
     """
     icon_list = []
     for icon in os.listdir(iconspath):

@@ -96,6 +96,7 @@ To generate a web manifest file:
 - The root and web root paths must point to the same folder, one on the filesystem and one on the web server. Use absolute paths.
 - The script generates the preview thumbnails in a `.thumbnails` subdirectory within the root folder.
 - The `.lock` file prevents multiple instances of the script from running simultaneously. Make sure to remove it if the script terminates unexpectedly.
+- Add a `info` file into any directory containing pictures and it will be read and displayed as a tooltip on the website.
 
 ## License
 

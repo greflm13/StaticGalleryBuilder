@@ -1,11 +1,10 @@
 import re
 import colorsys
-from typing import Dict
 
-from modules.logger import logger
+from modules import logger
 
 
-def extract_colorscheme(theme_path: str) -> Dict[str, str]:
+def extract_colorscheme(theme_path: str) -> dict[str, str]:
     """
     Extract color scheme from a CSS theme file.
 
@@ -16,8 +15,8 @@ def extract_colorscheme(theme_path: str) -> Dict[str, str]:
 
     Returns:
     --------
-    Dict[str, str]
-        Dictionary containing color scheme variables and their hexadecimal values.
+    dict[str, str]
+        dictionary containing color scheme variables and their hexadecimal values.
     """
     logger.info("extracting color scheme from theme file", extra={"theme_path": theme_path})
     pattern = r"--(color[1-4]|bcolor1):\s*(#[0-9a-fA-F]+|rgba?\([^)]*\)|hsla?\([^)]*\)|[a-zA-Z]+);"
@@ -127,7 +126,7 @@ def css_color_to_hex(css_color: str) -> str:
         a = float(groups["a"]) if groups["a"] else 1.0
         if a < 1.0:
             logger.debug("converting rgba color to hex", extra={"color": css_color, "r": r, "g": g, "b": b, "a": a})
-            return rgb_to_hex((r, g, b)) + "{:02x}".format(round(a * 255))
+            return rgb_to_hex((r, g, b)) + f"{round(a * 255):02x}"
         else:
             logger.debug("converting rgb color to hex", extra={"color": css_color, "r": r, "g": g, "b": b})
             return rgb_to_hex((r, g, b))
@@ -140,7 +139,7 @@ def css_color_to_hex(css_color: str) -> str:
         rgb_color = hsl_to_rgb((h, s, l))
         if a < 1.0:
             logger.debug("converting hsla color to hex", extra={"color": css_color, "hsl": (h, s, l), "a": a})
-            return rgb_to_hex(rgb_color) + "{:02x}".format(round(a * 255))
+            return rgb_to_hex(rgb_color) + f"{round(a * 255):02x}"
         else:
             logger.debug("converting hsl color to hex", extra={"color": css_color, "hsl": (h, s, l)})
             return rgb_to_hex(rgb_color)
