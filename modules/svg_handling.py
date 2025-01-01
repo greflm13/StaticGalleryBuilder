@@ -13,7 +13,7 @@ try:
 except ImportError:
     SVGSUPPORT = False
 
-from modules import logger
+from modules.logger import logger
 from modules.argumentparser import Args
 from modules.css_color import extract_theme_color, extract_colorscheme
 

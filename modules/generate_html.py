@@ -10,7 +10,7 @@ from tqdm.auto import tqdm
 from PIL import Image, ExifTags, TiffImagePlugin
 from jinja2 import Environment, FileSystemLoader
 
-from modules import logger
+from modules.logger import logger
 from modules import cclicense
 from modules.argumentparser import Args
 

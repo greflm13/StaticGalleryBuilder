@@ -1,7 +1,7 @@
 import re
 import colorsys
 
-from modules import logger
+from modules.logger import logger
 
 
 def extract_colorscheme(theme_path: str) -> dict[str, str]:
