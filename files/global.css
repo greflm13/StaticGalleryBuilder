@@ -175,6 +175,14 @@ figure {
   cursor: pointer;
 }
 
+.attribution svg {
+  height: calc(6.75pt + 12px);
+  width: fit-content;
+  position: relative;
+  bottom: -8px;
+  right: 0px;
+}
+
 #totop {
   display: none;
   position: fixed;

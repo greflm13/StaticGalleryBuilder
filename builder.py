@@ -5,6 +5,7 @@ import sys
 import shutil
 import fnmatch
 import urllib.parse
+import urllib.request
 from multiprocessing import Pool, freeze_support
 from pathlib import Path
 
@@ -200,6 +201,18 @@ def main() -> None:
     try:
         Path(lock_file).touch()
         logger.info("starting builder", extra={"version": VERSION})
+
+        req = urllib.request.Request("https://files.sorogon.eu/logo.svg")
+        with urllib.request.urlopen(req) as res:
+            logo = res.read().decode()
+
+        if logo.startswith("<?xml"):
+            logo = re.sub(r"<\?xml.+\?>", "", logo).strip()
+        if logo.startswith("<!--"):
+            logo = re.sub(r"<!--.+-->", "", logo).strip()
+        logo = logo.replace("\n", " ")
+        logo = ' '.join(logo.split())
+
         if args.reread_metadata:
             logger.warning("reread metadata flag is set to true, all image metadata will be reread")
         if args.regenerate_thumbnails:
@@ -219,7 +232,7 @@ def main() -> None:
         if args.non_interactive_mode:
             logger.info("generating HTML files")
             print("Generating HTML files...")
-            thumbnails = list_folder(0, args.root_directory, args.site_title, args, raw, VERSION)
+            thumbnails = list_folder(0, args.root_directory, args.site_title, args, raw, VERSION, logo)
             with Pool(os.cpu_count()) as pool:
                 logger.info("generating thumbnails")
                 print("Generating thumbnails...")
@@ -232,7 +245,7 @@ def main() -> None:
             pbardict["traversingbar"].update(0)
             pbardict["traversingbar"].close()
 
-            thumbnails = list_folder(total, args.root_directory, args.site_title, args, raw, VERSION)
+            thumbnails = list_folder(total, args.root_directory, args.site_title, args, raw, VERSION, logo)
 
             with Pool(os.cpu_count()) as pool:
                 logger.info("generating thumbnails")

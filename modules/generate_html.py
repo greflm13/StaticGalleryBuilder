@@ -181,7 +181,7 @@ def process_image(item: str, folder: str, _args: Args, baseurl: str, sizelist: d
     return image
 
 
-def generate_html(folder: str, title: str, _args: Args, raw: list[str], version: str) -> None:
+def generate_html(folder: str, title: str, _args: Args, raw: list[str], version: str, logo) -> None:
     """
     Generates HTML content for a folder of images.
 
@@ -215,7 +215,7 @@ def generate_html(folder: str, title: str, _args: Args, raw: list[str], version:
     for item in items:
         if item not in EXCLUDES and not item.startswith("."):
             if os.path.isdir(os.path.join(folder, item)):
-                process_subfolder(item, folder, baseurl, subfolders, _args, raw, version)
+                process_subfolder(item, folder, baseurl, subfolders, _args, raw, version, logo)
             else:
                 contains_files = True
                 if os.path.splitext(item)[1].lower() in _args.file_extensions:
@@ -232,7 +232,7 @@ def generate_html(folder: str, title: str, _args: Args, raw: list[str], version:
     update_sizelist(sizelist, folder)
 
     if should_generate_html(images, contains_files, _args):
-        create_html_file(folder, title, foldername, images, subfolders, _args, version)
+        create_html_file(folder, title, foldername, images, subfolders, _args, version, logo)
     else:
         if os.path.exists(os.path.join(folder, "index.html")):
             logger.info("removing existing index.html", extra={"folder": folder})
@@ -256,7 +256,7 @@ def create_thumbnail_folder(foldername: str, root_directory: str) -> None:
         os.mkdir(thumbnails_path)
 
 
-def process_subfolder(item: str, folder: str, baseurl: str, subfolders: list[dict[str, str]], _args: Args, raw: list[str], version: str) -> None:
+def process_subfolder(item: str, folder: str, baseurl: str, subfolders: list[dict[str, str]], _args: Args, raw: list[str], version: str, logo: str) -> None:
     """
     Processes a subfolder.
 
@@ -272,7 +272,7 @@ def process_subfolder(item: str, folder: str, baseurl: str, subfolders: list[dic
     subfolders.append({"url": subfolder_url, "name": item})
     if item not in _args.exclude_folders:
         if not any(fnmatch.fnmatchcase(os.path.join(folder, item), exclude) for exclude in _args.exclude_folders):
-            generate_html(os.path.join(folder, item), os.path.join(folder, item).removeprefix(_args.root_directory), _args, raw, version)
+            generate_html(os.path.join(folder, item), os.path.join(folder, item).removeprefix(_args.root_directory), _args, raw, version, logo)
 
 
 def process_info_file(folder: str, item: str) -> None:
@@ -302,7 +302,7 @@ def should_generate_html(images: list[dict[str, Any]], contains_files, _args: Ar
     return images or (_args.use_fancy_folders and not contains_files) or (_args.use_fancy_folders and _args.ignore_other_files)
 
 
-def create_html_file(folder: str, title: str, foldername: str, images: list[dict[str, Any]], subfolders: list[dict[str, str]], _args: Args, version: str) -> None:
+def create_html_file(folder: str, title: str, foldername: str, images: list[dict[str, Any]], subfolders: list[dict[str, str]], _args: Args, version: str, logo: str) -> None:
     """
     Creates the HTML file using the template.
 
@@ -353,6 +353,7 @@ def create_html_file(folder: str, title: str, foldername: str, images: list[dict
         info=_info,
         webmanifest=_args.generate_webmanifest,
         version=version,
+        logo=logo,
     )
 
     with open(html_file, "w", encoding="utf-8") as f:
@@ -360,7 +361,7 @@ def create_html_file(folder: str, title: str, foldername: str, images: list[dict
         f.write(content)
 
 
-def list_folder(total: int, folder: str, title: str, _args: Args, raw: list[str], version: str) -> list[tuple[str, str]]:
+def list_folder(total: int, folder: str, title: str, _args: Args, raw: list[str], version: str, logo: str) -> list[tuple[str, str]]:
     """
     lists and processes a folder, generating HTML files.
 
@@ -376,5 +377,5 @@ def list_folder(total: int, folder: str, title: str, _args: Args, raw: list[str]
     """
     if not _args.non_interactive_mode:
         pbardict["htmlbar"] = tqdm(total=total, desc="Generating HTML files", unit="folders", ascii=True, dynamic_ncols=True)
-    generate_html(folder, title, _args, raw, version)
+    generate_html(folder, title, _args, raw, version, logo)
     return thumbnails
