@@ -202,6 +202,7 @@ def main() -> None:
         Path(lock_file).touch()
         logger.info("starting builder", extra={"version": VERSION})
 
+        logger.info("getting logo from sorogon.eu")
         req = urllib.request.Request("https://files.sorogon.eu/logo.svg")
         with urllib.request.urlopen(req) as res:
             logo = res.read().decode()
