@@ -12,10 +12,7 @@ from pathlib import Path
 from tqdm.auto import tqdm
 from PIL import Image, ImageOps
 
-from modules.logger import logger
 from modules.argumentparser import parse_arguments, Args
-from modules.svg_handling import icons, webmanifest, extract_colorscheme
-from modules.generate_html import list_folder, EXCLUDES
 
 
 # fmt: off
@@ -38,6 +35,17 @@ NOT_LIST = ["*/Galleries/*", "Archives"]
 # fmt: on
 
 pbardict: dict[str, tqdm] = {}
+
+args = parse_arguments(VERSION)
+
+lock_file = os.path.join(args.root_directory, ".lock")
+if os.path.exists(lock_file):
+    print("Another instance of this program is running.")
+    sys.exit()
+else:
+    from modules.logger import logger
+    from modules.svg_handling import icons, webmanifest, extract_colorscheme
+    from modules.generate_html import list_folder, EXCLUDES
 
 
 def init_globals(_args: Args, raw: list[str]) -> tuple[Args, list[str]]:
@@ -184,19 +192,13 @@ def get_total_folders(folder: str, _args: Args, _total: int = 0) -> int:
     return _total
 
 
-def main() -> None:
+def main(args) -> None:
     """
     Main function to process images and generate a static image hosting website.
     """
     thumbnails: list[tuple[str, str, str, bool]] = []
 
-    args = parse_arguments(VERSION)
     args, raw = init_globals(args, RAW_EXTENSIONS)
-
-    lock_file = os.path.join(args.root_directory, ".lock")
-    if os.path.exists(lock_file):
-        print("Another instance of this program is running.")
-        sys.exit()
 
     try:
         Path(lock_file).touch()
@@ -212,7 +214,7 @@ def main() -> None:
         if logo.startswith("<!--"):
             logo = re.sub(r"<!--.+-->", "", logo).strip()
         logo = logo.replace("\n", " ")
-        logo = ' '.join(logo.split())
+        logo = " ".join(logo.split())
 
         if args.reread_metadata:
             logger.warning("reread metadata flag is set to true, all image metadata will be reread")
@@ -266,4 +268,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     freeze_support()
-    main()
+    main(args)
