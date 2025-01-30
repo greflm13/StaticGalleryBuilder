@@ -360,7 +360,7 @@ def create_html_file(folder: str, title: str, foldername: str, images: list[dict
 
     if folder_license:
         license_html = os.path.join(folder, "license.html")
-        license_url = _args.web_root_url + urllib.parse.quote(foldername) + "license"
+        license_url = _args.web_root_url + urllib.parse.quote(foldername) + "license.html"
         with open(license_html, "w+", encoding="utf-8") as f:
             logger.info("writing license html file", extra={"path": license_html})
             gtml = env.get_template("license.html.j2")
