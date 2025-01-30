@@ -59,6 +59,10 @@ figure {
   margin: 0;
 }
 
+.licensefile {
+  padding: 30px;
+}
+
 .caption {
   padding-top: 4px;
   text-align: center;

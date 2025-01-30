@@ -44,8 +44,8 @@
         </span></li>
       {%- endif %}
       <li class="title"><span class="header">{{ header }}</span></li>
-      {%- if license %}
-      <li class="license"><a href="{{ license.url }}" rel="license noopener noreferrer" target="_blank">License</a></li>
+      {%- if licensefile %}
+      <li class="license"><a href="{{ licensefile }}">License</a></li>
       {%- endif %}
     </ul>
     {% if subdirectories %}

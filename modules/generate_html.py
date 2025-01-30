@@ -31,6 +31,7 @@ Image.MAX_IMAGE_PIXELS = 933120000
 env = Environment(loader=FileSystemLoader(os.path.join(SCRIPTDIR, "templates")))
 thumbnails: list[tuple[str, str]] = []
 info: dict[str, str] = {}
+licens: dict[str, str] = {}
 pbardict: dict[str, tqdm] = {}
 
 
@@ -222,6 +223,8 @@ def generate_html(folder: str, title: str, _args: Args, raw: list[str], version:
                     images.append(process_image(item, folder, _args, baseurl, sizelist, raw))
                 if item == "info":
                     process_info_file(folder, item)
+                if item == "LICENSE":
+                    process_license(folder, item)
 
         if not _args.non_interactive_mode:
             pbardict[folder].update(1)
@@ -273,6 +276,19 @@ def process_subfolder(item: str, folder: str, baseurl: str, subfolders: list[dic
     if item not in _args.exclude_folders:
         if not any(fnmatch.fnmatchcase(os.path.join(folder, item), exclude) for exclude in _args.exclude_folders):
             generate_html(os.path.join(folder, item), os.path.join(folder, item).removeprefix(_args.root_directory), _args, raw, version, logo)
+
+
+def process_license(folder: str, item: str) -> None:
+    """
+    Processes a LICENSE file.
+
+    Args:
+        folder (str): The folder containing the info file.
+        item (str): The licenses file name.
+    """
+    with open(os.path.join(folder, item), encoding="utf-8") as f:
+        logger.info("processing LICENSE", extra={"path": os.path.join(folder, item)})
+        licens[urllib.parse.quote(folder)] = f.read().replace("\n", "</br>\n").replace("    ", "&emsp;").replace("  ", "&ensp;").replace("sp; ", "sp;&ensp;").replace("&ensp;&ensp;", "&emsp;")
 
 
 def process_info_file(folder: str, item: str) -> None:
@@ -338,6 +354,32 @@ def create_html_file(folder: str, title: str, foldername: str, images: list[dict
     if _args.reverse_sort:
         images.sort(key=lambda i: i["name"], reverse=True)
 
+    folder_license = licens.get(urllib.parse.quote(folder), False)
+
+    license_url = ""
+
+    if folder_license:
+        license_html = os.path.join(folder, "license.html")
+        license_url = _args.web_root_url + urllib.parse.quote(foldername) + "license"
+        with open(license_html, "w+", encoding="utf-8") as f:
+            logger.info("writing license html file", extra={"path": license_html})
+            gtml = env.get_template("license.html.j2")
+            content = gtml.render(
+                title=f"{title} - LICENSE",
+                favicon=f"{_args.web_root_url}{FAVICON_PATH}",
+                stylesheet=f"{_args.web_root_url}{GLOBAL_CSS_PATH}",
+                theme=f"{_args.web_root_url}.static/theme.css",
+                root=_args.web_root_url,
+                parent=f"{_args.web_root_url}{urllib.parse.quote(foldername)}",
+                header=f"{header} - LICENSE",
+                license=license_info,
+                webmanifest=_args.generate_webmanifest,
+                version=version,
+                logo=logo,
+                licensefile=folder_license,
+            )
+            f.write(content)
+
     html = env.get_template("index.html.j2")
     content = html.render(
         title=title,
@@ -354,6 +396,7 @@ def create_html_file(folder: str, title: str, foldername: str, images: list[dict
         webmanifest=_args.generate_webmanifest,
         version=version,
         logo=logo,
+        licensefile=license_url,
     )
 
     with open(html_file, "w", encoding="utf-8") as f:
