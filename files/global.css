@@ -28,6 +28,7 @@ body {
 .folders figure {
   margin-bottom: 32px;
   margin-top: 50px;
+  width: 180px;
 }
 
 .header h1 {
@@ -42,7 +43,8 @@ body {
 }
 
 .folders figcaption {
-  width: 120px;
+  width: 100%;
+  overflow: hidden;
   font-size: smaller;
   text-align: center;
 }
@@ -206,12 +208,15 @@ figure {
     max-width: 25%;
   }
 
+  .folders figure {
+    width: 160px;
+  }
+
   .folders img {
     width: 80px;
   }
 
   .folders figcaption {
-    width: 100px;
     font-size: small;
   }
 
@@ -227,12 +232,15 @@ figure {
     max-width: 50%;
   }
 
+  .folders figure {
+    width: 140px;
+  }
+
   .folders img {
     width: 60px;
   }
 
   .folders figcaption {
-    width: 80px;
     font-size: x-small;
   }
 
@@ -256,12 +264,15 @@ figure {
     max-width: 100%;
   }
 
+  .folders figure {
+    width: 120px;
+  }
+
   .folders img {
     width: 40px;
   }
 
   .folders figcaption {
-    width: 60px;
     font-size: xx-small;
   }
 
