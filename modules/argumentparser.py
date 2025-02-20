@@ -33,6 +33,8 @@ class Args:
         A list of folders to exclude from processing.
     file_extensions : list[str]
         A list of file extensions to include.
+    folder_thumbs : bool
+        Wether to generate subfolder thumbnails.
     generate_webmanifest : bool
         Whether to generate a web manifest file.
     ignore_other_files : bool
@@ -58,6 +60,7 @@ class Args:
     author_name: str
     exclude_folders: list[str]
     file_extensions: list[str]
+    folder_thumbs: bool
     generate_webmanifest: bool
     ignore_other_files: bool
     license_type: Optional[str]
@@ -76,14 +79,15 @@ class Args:
         result["author_name"] = self.author_name
         result["exclude_folders"] = self.exclude_folders
         result["file_extensions"] = self.file_extensions
+        result["folder_thumbs"] = self.folder_thumbs
         result["generate_webmanifest"] = self.generate_webmanifest
         result["ignore_other_files"] = self.ignore_other_files
         if self.license_type is not None:
             result["license_type"] = self.license_type
         result["non_interactive_mode"] = self.non_interactive_mode
         result["regenerate_thumbnails"] = self.regenerate_thumbnails
-        result["reverse_sort"] = self.reverse_sort
         result["reread_metadata"] = self.reread_metadata
+        result["reverse_sort"] = self.reverse_sort
         result["root_directory"] = self.root_directory
         result["site_title"] = self.site_title
         result["theme_path"] = self.theme_path
@@ -120,6 +124,7 @@ def parse_arguments(version: str) -> Args:
     parser.add_argument("-t", "--site-title", help="Title of the image hosting site.", required=True, type=str, dest="site_title", metavar="TITLE")
     parser.add_argument("-w", "--web-root-url", help="Base URL of the web root for the image hosting site.", required=True, type=str, dest="web_root_url", metavar="URL")
     parser.add_argument("--exclude-folder", help="Folders to exclude from processing, globs supported (can be specified multiple times).", action="append", dest="exclude_folders", metavar="FOLDER")
+    parser.add_argument("--folderthumbnails", help="Generate subfolder thumbnails (first image in folder will be shown)", action="store_true", default=False, dest="folder_thumbs")
     if RICH:
         parser.add_argument("--generate-help-preview", action=HelpPreviewAction, path="help.svg", )
     parser.add_argument("--ignore-other-files", help="Ignore files that do not match the specified extensions.", action="store_true", default=False, dest="ignore_other_files")
@@ -135,6 +140,7 @@ def parse_arguments(version: str) -> Args:
         author_name=parsed_args.author_name,
         exclude_folders=parsed_args.exclude_folders,
         file_extensions=parsed_args.file_extensions,
+        folder_thumbs=parsed_args.folder_thumbs,
         generate_webmanifest=parsed_args.generate_webmanifest,
         ignore_other_files=parsed_args.ignore_other_files,
         license_type=parsed_args.license_type,

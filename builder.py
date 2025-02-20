@@ -3,7 +3,6 @@ import os
 import re
 import sys
 import shutil
-import fnmatch
 import urllib.parse
 import urllib.request
 from multiprocessing import Pool, freeze_support
@@ -161,37 +160,6 @@ def generate_thumbnail(arguments: tuple[str, str, str]) -> None:
         logger.debug("thumbnail already exists for %s", item, extra={"path": image})
 
 
-def get_total_folders(folder: str, _args: Args, _total: int = 0) -> int:
-    """
-    Recursively count the total number of folders to be processed.
-
-    Parameters:
-    -----------
-    folder : str
-        The current folder being processed.
-    _args : Args
-        Parsed command-line arguments.
-    _total : int, optional
-        The running total of folders, default is 0.
-
-    Returns:
-    --------
-    int
-        The total number of folders.
-    """
-    _total += 1
-    pbardict["traversingbar"].desc = f"Traversing filesystem - {folder}"
-    pbardict["traversingbar"].update(1)
-
-    items = sorted(os.listdir(folder))
-    for item in items:
-        if item not in EXCLUDES and os.path.isdir(os.path.join(folder, item)) and not item.startswith("."):
-            if item not in _args.exclude_folders and not any(fnmatch.fnmatchcase(os.path.join(folder, item), exclude) for exclude in _args.exclude_folders):
-                logger.debug("Found folder %s in %s", item, folder)
-                _total = get_total_folders(os.path.join(folder, item), _args, _total)
-    return _total
-
-
 def main(args) -> None:
     """
     Main function to process images and generate a static image hosting website.
@@ -235,20 +203,13 @@ def main(args) -> None:
         if args.non_interactive_mode:
             logger.info("generating HTML files")
             print("Generating HTML files...")
-            thumbnails = list_folder(0, args.root_directory, args.site_title, args, raw, VERSION, logo)
+            thumbnails = list_folder(args.root_directory, args.site_title, args, raw, VERSION, logo)
             with Pool(os.cpu_count()) as pool:
                 logger.info("generating thumbnails")
                 print("Generating thumbnails...")
                 pool.map(generate_thumbnail, thumbnails)
         else:
-            pbardict["traversingbar"] = tqdm(desc="Traversing filesystem", unit="folders", ascii=True, dynamic_ncols=True)
-            logger.info("getting total number of folders to process")
-            total = get_total_folders(args.root_directory, args)
-            pbardict["traversingbar"].desc = "Traversing filesystem"
-            pbardict["traversingbar"].update(0)
-            pbardict["traversingbar"].close()
-
-            thumbnails = list_folder(total, args.root_directory, args.site_title, args, raw, VERSION, logo)
+            thumbnails = list_folder(args.root_directory, args.site_title, args, raw, VERSION, logo)
 
             with Pool(os.cpu_count()) as pool:
                 logger.info("generating thumbnails")

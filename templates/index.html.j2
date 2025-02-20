@@ -57,6 +57,9 @@
       <a href="{{ subdirectory.url }}">
         <figure>
           <img class="foldericon" />
+          {%- if subdirectory.thumb %}
+          <img class="folderthumb" src="{{ subdirectory.thumb }}" />
+          {%- endif %}
           <figcaption>{{ subdirectory.name }}</figcaption>
         </figure>
       </a>

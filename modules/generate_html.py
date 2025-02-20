@@ -24,7 +24,7 @@ FAVICON_PATH = ".static/favicon.ico"
 GLOBAL_CSS_PATH = ".static/global.css"
 EXCLUDES = ["index.html", "manifest.json", "robots.txt"]
 
-# Set the maximum image pixels to prevent decompression bomb DOS attacks
+# Set the maximum image pixels
 Image.MAX_IMAGE_PIXELS = 933120000
 
 # Initialize Jinja2 environment for template rendering
@@ -209,28 +209,33 @@ def generate_html(folder: str, title: str, _args: Args, raw: list[str], version:
 
     create_thumbnail_folder(foldername, _args.root_directory)
 
-    if not _args.non_interactive_mode:
-        pbardict[folder] = tqdm(total=len(items), desc=f"Getting image infos - {folder}", unit="files", ascii=True, dynamic_ncols=True)
-
     logger.info("processing contents", extra={"folder": folder})
-    for item in items:
-        if item not in EXCLUDES and not item.startswith("."):
-            if os.path.isdir(os.path.join(folder, item)):
-                process_subfolder(item, folder, baseurl, subfolders, _args, raw, version, logo)
-            else:
-                contains_files = True
-                if os.path.splitext(item)[1].lower() in _args.file_extensions:
-                    images.append(process_image(item, folder, _args, baseurl, sizelist, raw))
-                if item == "info":
-                    process_info_file(folder, item)
-                if item == "LICENSE":
-                    process_license(folder, item)
-
-        if not _args.non_interactive_mode:
-            pbardict[folder].update(1)
-
     if not _args.non_interactive_mode:
-        pbardict[folder].close()
+        for item in tqdm(items, total=len(items), desc=f"Getting image infos - {folder}", unit="files", ascii=True, dynamic_ncols=True):
+            if item not in EXCLUDES and not item.startswith("."):
+                if os.path.isdir(os.path.join(folder, item)):
+                    process_subfolder(item, folder, baseurl, subfolders, _args, raw, version, logo)
+                else:
+                    contains_files = True
+                    if os.path.splitext(item)[1].lower() in _args.file_extensions:
+                        images.append(process_image(item, folder, _args, baseurl, sizelist, raw))
+                    if item == "info":
+                        process_info_file(folder, item)
+                    if item == "LICENSE":
+                        process_license(folder, item)
+    else:
+        for item in items:
+            if item not in EXCLUDES and not item.startswith("."):
+                if os.path.isdir(os.path.join(folder, item)):
+                    process_subfolder(item, folder, baseurl, subfolders, _args, raw, version, logo)
+                else:
+                    contains_files = True
+                    if os.path.splitext(item)[1].lower() in _args.file_extensions:
+                        images.append(process_image(item, folder, _args, baseurl, sizelist, raw))
+                    if item == "info":
+                        process_info_file(folder, item)
+                    if item == "LICENSE":
+                        process_license(folder, item)
 
     update_sizelist(sizelist, folder)
 
@@ -240,9 +245,6 @@ def generate_html(folder: str, title: str, _args: Args, raw: list[str], version:
         if os.path.exists(os.path.join(folder, "index.html")):
             logger.info("removing existing index.html", extra={"folder": folder})
             os.remove(os.path.join(folder, "index.html"))
-
-    if not _args.non_interactive_mode:
-        pbardict["htmlbar"].update(1)
 
 
 def create_thumbnail_folder(foldername: str, root_directory: str) -> None:
@@ -271,8 +273,21 @@ def process_subfolder(item: str, folder: str, baseurl: str, subfolders: list[dic
         _args (Args): Parsed command line arguments.
         raw (list[str]): Raw image file extensions.
     """
-    subfolder_url = f"{_args.web_root_url}{baseurl}{urllib.parse.quote(item)}/index.html" if _args.web_root_url.startswith("file://") else f"{_args.web_root_url}{baseurl}{urllib.parse.quote(item)}"
-    subfolders.append({"url": subfolder_url, "name": item})
+    subfolder_url = (
+        f"{_args.web_root_url}{baseurl}{urllib.parse.quote(item)}/index.html"
+        if _args.web_root_url.startswith("file://")
+        else f"{_args.web_root_url}{baseurl}{urllib.parse.quote(item)}"
+    )
+    thumb = None
+    if _args.folder_thumbs:
+        thumbitems = [i for i in sorted(os.listdir(os.path.join(folder, item))) if os.path.splitext(i)[1].lower() in _args.file_extensions]
+        if len(thumbitems) > 0:
+            if _args.reverse_sort:
+                thumb = f"{_args.web_root_url}.thumbnails/{baseurl}{urllib.parse.quote(item)}/{urllib.parse.quote(thumbitems[-1])}.jpg"
+            else:
+                thumb = f"{_args.web_root_url}.thumbnails/{baseurl}{urllib.parse.quote(item)}/{urllib.parse.quote(thumbitems[0])}.jpg"
+
+    subfolders.append({"url": subfolder_url, "name": item, "thumb": thumb})
     if item not in _args.exclude_folders:
         if not any(fnmatch.fnmatchcase(os.path.join(folder, item), exclude) for exclude in _args.exclude_folders):
             generate_html(os.path.join(folder, item), os.path.join(folder, item).removeprefix(_args.root_directory), _args, raw, version, logo)
@@ -288,7 +303,9 @@ def process_license(folder: str, item: str) -> None:
     """
     with open(os.path.join(folder, item), encoding="utf-8") as f:
         logger.info("processing LICENSE", extra={"path": os.path.join(folder, item)})
-        licens[urllib.parse.quote(folder)] = f.read().replace("\n", "</br>\n").replace("    ", "&emsp;").replace("  ", "&ensp;").replace("sp; ", "sp;&ensp;").replace("&ensp;&ensp;", "&emsp;")
+        licens[urllib.parse.quote(folder)] = (
+            f.read().replace("\n", "</br>\n").replace("    ", "&emsp;").replace("  ", "&ensp;").replace("sp; ", "sp;&ensp;").replace("&ensp;&ensp;", "&emsp;")
+        )
 
 
 def process_info_file(folder: str, item: str) -> None:
@@ -404,7 +421,7 @@ def create_html_file(folder: str, title: str, foldername: str, images: list[dict
         f.write(content)
 
 
-def list_folder(total: int, folder: str, title: str, _args: Args, raw: list[str], version: str, logo: str) -> list[tuple[str, str]]:
+def list_folder(folder: str, title: str, _args: Args, raw: list[str], version: str, logo: str) -> list[tuple[str, str]]:
     """
     lists and processes a folder, generating HTML files.
 
@@ -418,7 +435,5 @@ def list_folder(total: int, folder: str, title: str, _args: Args, raw: list[str]
     Returns:
         list[tuple[str, str]]: list of thumbnails generated.
     """
-    if not _args.non_interactive_mode:
-        pbardict["htmlbar"] = tqdm(total=total, desc="Generating HTML files", unit="folders", ascii=True, dynamic_ncols=True)
     generate_html(folder, title, _args, raw, version, logo)
     return thumbnails
