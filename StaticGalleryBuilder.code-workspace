@@ -40,6 +40,7 @@
                     "--reverse-sort",
                     "--regenerate-thumbnails",
                     "--reread-metadata",
+                    "--folderthumbnails",
                 ],
                 "console": "integratedTerminal",
                 "name": "Testfolder",
@@ -64,6 +65,7 @@
                     "-m",
                     // "--regenerate-thumbnails",
                     // "--reread-metadata",
+                    "--folderthumbnails",
                 ],
                 "console": "integratedTerminal",
                 "name": "woek",
@@ -99,7 +101,7 @@
             "editor.defaultFormatter": "esbenp.prettier-vscode",
         },
         "[python]": {
-            "editor.defaultFormatter": "ms-python.black-formatter",
+            "editor.defaultFormatter": "charliermarsh.ruff",
         },
         "black-formatter.args": [
             "-l 260",
@@ -151,6 +153,7 @@
         "yaml.schemas": {
             "https://raw.githubusercontent.com/pamburus/hl/master/schema/json/config.schema.json": "file:///home/user/git/github.com/greflm13/StaticGalleryBuilder/hl_config.yaml"
         },
+        "ruff.lineLength": 180,
     },
     "tasks": {
         "version": "2.0.0",

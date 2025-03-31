@@ -3,6 +3,7 @@ import os
 import re
 import sys
 import shutil
+import urllib.error
 import urllib.parse
 import urllib.request
 from multiprocessing import Pool, freeze_support
@@ -174,15 +175,18 @@ def main(args) -> None:
 
         logger.info("getting logo from sorogon.eu")
         req = urllib.request.Request("https://files.sorogon.eu/logo.svg")
-        with urllib.request.urlopen(req) as res:
-            logo = res.read().decode()
+        try:
+            with urllib.request.urlopen(req, timeout=10) as res:
+                logo = res.read().decode()
 
-        if logo.startswith("<?xml"):
-            logo = re.sub(r"<\?xml.+\?>", "", logo).strip()
-        if logo.startswith("<!--"):
-            logo = re.sub(r"<!--.+-->", "", logo).strip()
-        logo = logo.replace("\n", " ")
-        logo = " ".join(logo.split())
+            if logo.startswith("<?xml"):
+                logo = re.sub(r"<\?xml.+\?>", "", logo).strip()
+            if logo.startswith("<!--"):
+                logo = re.sub(r"<!--.+-->", "", logo).strip()
+            logo = logo.replace("\n", " ")
+            logo = " ".join(logo.split())
+        except urllib.error.URLError:
+            logo = "&lt;/srgn&gt;"
 
         if args.reread_metadata:
             logger.warning("reread metadata flag is set to true, all image metadata will be reread")
