@@ -45,7 +45,7 @@ if os.path.exists(lock_file):
 else:
     from modules.logger import logger
     from modules.svg_handling import icons, webmanifest, extract_colorscheme
-    from modules.generate_html import list_folder, EXCLUDES
+    from modules.generate_html import list_folder
 
 
 def init_globals(_args: Args, raw: list[str]) -> tuple[Args, list[str]]:
