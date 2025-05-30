@@ -34,8 +34,6 @@ IMG_EXTENSIONS = [".jpg", ".jpeg", ".png"]
 NOT_LIST = ["*/Galleries/*", "Archives"]
 # fmt: on
 
-pbardict: dict[str, tqdm] = {}
-
 args = parse_arguments(VERSION)
 
 lock_file = os.path.join(args.root_directory, ".lock")

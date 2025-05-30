@@ -32,7 +32,6 @@ env = Environment(loader=FileSystemLoader(os.path.join(SCRIPTDIR, "templates")))
 thumbnails: list[tuple[str, str]] = []
 info: dict[str, str] = {}
 licens: dict[str, str] = {}
-pbardict: dict[str, tqdm] = {}
 
 
 def initialize_sizelist(folder: str) -> dict[str, dict[str, int]]:
