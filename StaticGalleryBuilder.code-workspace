@@ -77,7 +77,7 @@
             {
                 "args": [
                     "${workspaceFolder}/themes",
-                    "https://pictures.sorogon.eu/Analog/Example/"
+                    "https://pictures.sorogon.eu/public/Example/"
                 ],
                 "console": "integratedTerminal",
                 "name": "Generate Themes previews",

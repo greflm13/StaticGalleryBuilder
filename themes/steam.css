@@ -80,6 +80,10 @@
   background-color: var(--color4);
 }
 
+.tagentry:hover {
+  background-color: var(--color3);
+}
+
 .column img {
   background-color: var(--color4);
 }

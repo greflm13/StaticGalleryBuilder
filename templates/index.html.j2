@@ -31,23 +31,38 @@
 
 <body>
   <div class="header">
-    <ul class="navbar">
-      <li><a href="{{ root }}">Home</a></li>
-      {%- if parent %}
-      <li><a href="{{ parent }}">Parent Directory</a></li>
-      {%- endif %}
-      {%- if info %}
-      <li class="tooltip"><a>Info</a><span class="tooltiptext">
-          {%- for infoline in info -%}
-          {{ infoline }}<br />
-          {%- endfor -%}
-        </span></li>
-      {%- endif %}
-      <li class="title"><span class="header">{{ header }}</span></li>
-      {%- if licensefile %}
-      <li class="license"><a href="{{ licensefile }}">License</a></li>
-      {%- endif %}
-    </ul>
+    <ol class="navbar">
+      <div class="navleft">
+        <li><a href="{{ root }}">Home</a></li>
+        {%- if parent %}
+        <li><a href="{{ parent }}">Parent Directory</a></li>
+        {%- endif %}
+        {%- if info %}
+        <li class="tooltip"><a>Info</a><span class="tooltiptext infotext">
+            {%- for infoline in info -%}
+            {{ infoline }}<br />
+            {%- endfor -%}
+          </span></li>
+        {%- endif %}
+      </div>
+      <div class="navcenter">
+        <li class="title"><span class="header">{{ header }}</span></li>
+      </div>
+      <div class="navright">
+        {%- if tags|length > 0 %}
+        <li class="tooltip"><a>Filter by Tags</a>
+          <ol class="tooltiptext tagdropdown" id="tagdropdown">
+            {%- for tag in tags -%}
+            <li class="tagentry"><label onclick="filter()"><input type="checkbox" />{{ tag }}</label></li><br />
+            {%- endfor -%}
+          </ol>
+        </li>
+        {%- endif %}
+        {%- if licensefile %}
+        <li class="license"><a href="{{ licensefile }}">License</a></li>
+        {%- endif %}
+      </div>
+    </ol>
     {% if subdirectories %}
     {%- for subdirectory in subdirectories %}
     <link rel="preload" href="{{ subdirectory.url }}/index.html" type="text/html">
@@ -69,7 +84,7 @@
   </div>
   {% if images %}
   {%- set ns = namespace(count = 0) -%}
-  <div class="row">
+  <div class="row" id="imagelist">
     {%- for image in images %}
     <div class="column">
       <figure>
@@ -160,9 +175,9 @@
     var items = [
       {%- for image in images %}
       {%- if image.exifdata.DateTime %}
-      { src: "{{ image.url }}", w: {{ image.width }}, h: {{ image.height }}, msrc: "{{ image.thumbnail }}", title: "Captured: {{ image.exifdata.DateTime }}" },
+      { src: "{{ image.url }}", w: {{ image.width }}, h: {{ image.height }}, msrc: "{{ image.thumbnail }}", tags: "{{ image.tags }}", title: "Captured: {{ image.exifdata.DateTime }}" },
       {%- else %}
-      { src: "{{ image.url }}", w: {{ image.width }}, h: {{ image.height }}, msrc: "{{ image.thumbnail }}" },
+      { src: "{{ image.url }}", w: {{ image.width }}, h: {{ image.height }}, msrc: "{{ image.thumbnail }}", tags: "{{ image.tags }}" },
       {%- endif %}
       {%- endfor %}
     ];
@@ -207,13 +222,42 @@
       fetch(urlToFetch, {
         method: 'get',
         signal: signal,
-      }).catch(function (err) {});
+      }).catch(function (err) { });
     }
 
     function cancel(img) {
       controllers[img].abort();
       delete controllers[img];
     }
+
+    {%- if tags|length > 0 %}
+    function filter() {
+      var selected_tags = [];
+      var tagdropdown, imagelist, figures, i, j, tags, incl;
+      tagdropdown = document.getElementById("tagdropdown").getElementsByTagName("li");
+      for (i = 0; i < tagdropdown.length; i++) {
+        if (tagdropdown[i].firstChild.firstChild.checked) {
+          selected_tags.push([tagdropdown[i].innerText])
+        }
+      }
+      imagelist = document.getElementById("imagelist");
+      figures = imagelist.getElementsByTagName("div");
+      for (i = 0; i < figures.length; i++) {
+        tags = items[i].tags;
+        incl = true;
+        for (j = 0; j < selected_tags.length; j++) {
+          if (tags.indexOf(selected_tags[j]) == -1) {
+            incl = false;
+          }
+        }
+        if (incl || selected_tags == []) {
+          figures[i].style.display = "";
+        } else {
+          figures[i].style.display = "none";
+        }
+      }
+    }
+    {%- endif %}
   </script>
   {%- endif %}
 </body>

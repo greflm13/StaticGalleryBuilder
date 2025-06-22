@@ -88,6 +88,10 @@
   font-family: "Montserrat", sans-serif;
 }
 
+.tagentry:hover {
+  background-color: var(--color2);
+}
+
 .column img {
   background-color: var(--bcolor4);
 }

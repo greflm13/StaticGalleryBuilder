@@ -79,6 +79,10 @@
   font-family: "Playfair Display", serif;
 }
 
+.tagentry:hover {
+  background-color: var(--color3);
+}
+
 .column img {
   background-color: var(--bcolor4);
 }

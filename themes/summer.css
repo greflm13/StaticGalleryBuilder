@@ -80,6 +80,11 @@
   font-family: "Roboto", sans-serif;
 }
 
+.tagentry:hover {
+  background-color: var(--bcolor3);
+  color: var(--bcolor2);
+}
+
 .column img {
   background-color: var(--bcolor4);
 }

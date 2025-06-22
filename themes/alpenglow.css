@@ -96,6 +96,10 @@ body {
   background-color: var(--color3);
 }
 
+.tagentry:hover {
+  background-color: var(--color7);
+}
+
 .column img {
   background-color: var(--bcolor1);
 }

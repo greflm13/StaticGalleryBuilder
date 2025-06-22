@@ -97,6 +97,7 @@ To generate a web manifest file:
 - The script generates the preview thumbnails in a `.thumbnails` subdirectory within the root folder.
 - The `.lock` file prevents multiple instances of the script from running simultaneously. Make sure to remove it if the script terminates unexpectedly.
 - Add a `info` file into any directory containing pictures and it will be read and displayed as a tooltip on the website.
+- Add tags to the Image exif or to `.metadata.json` to tag images for filtering.
 
 ## License
 

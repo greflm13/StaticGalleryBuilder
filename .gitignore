@@ -164,7 +164,7 @@ cython_debug/
 test/.static
 test/.thumbnails
 test/**/index.html
-test/**/.sizelist.json
+test/**/.metadata.json
 test/manifest.json
 themes/previews
 logs

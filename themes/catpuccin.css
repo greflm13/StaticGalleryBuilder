@@ -79,6 +79,10 @@
   font-family: "Nunito", sans-serif;
 }
 
+.tagentry:hover {
+  background-color: var(--color4);
+}
+
 .column img {
   background-color: var(--bcolor4);
 }
