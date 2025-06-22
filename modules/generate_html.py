@@ -145,15 +145,15 @@ def get_image_info(item: str, folder: str) -> dict[str, Any]:
                 del exifdata[key]
     else:
         exifdata = None
+    tags = []
+    xmp = None
     if xmp:
-        if xmp["xmpmeta"]["RDF"]["Description"].get("subject", False):
-            tags = xmp["xmpmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
-        else:
-            tags = []
-            xmp = None
-    else:
-        tags = []
-        xmp = None
+        if xmp.get("xmpmeta", False):
+            if xmp["xmpmeta"]["RDF"]["Description"].get("subject", False):
+                tags = xmp["xmpmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
+        if xmp.get("xapmeta", False):
+            if xmp["xapmeta"]["RDF"]["Description"].get("subject", False):
+                tags = xmp["xapmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
     return {"width": width, "height": height, "tags": tags, "exifdata": exifdata, "xmp": xmp}
 
 
