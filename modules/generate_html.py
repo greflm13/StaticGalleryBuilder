@@ -100,12 +100,14 @@ def get_image_info(item: str, folder: str) -> dict[str, Any]:
     try:
         with Image.open(file) as img:
             logger.info("extracting image information", extra={"file": file})
-            exif = img.getexif()
             width, height = img.size
+            exif = img.getexif()
+            xmp = img.getxmp()
+
     except UnidentifiedImageError:
         logger.error("cannot identify image file", extra={"file": file})
         print(f"cannot identify image file: {file}")
-        return {"width": None, "height": None, "tags": None, "exifdata": None}
+        return {"width": None, "height": None, "tags": None, "exifdata": None, "xmp": None}
     if exif:
         logger.info("extracting EXIF data", extra={"file": file})
         ifd = exif.get_ifd(ExifTags.IFD.Exif)
@@ -141,9 +143,14 @@ def get_image_info(item: str, folder: str) -> dict[str, Any]:
         for key in ["PrintImageMatching", "UserComment", "MakerNote"]:
             if key in exifdata:
                 del exifdata[key]
-        return {"width": width, "height": height, "tags": [], "exifdata": exifdata}
     else:
-        return {"width": width, "height": height, "tags": [], "exifdata": None}
+        exifdata = None
+    if xmp["xmpmeta"]["RDF"]["Description"].get("subject", False):
+        tags = xmp["xmpmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
+    else:
+        tags = []
+        xmp = None
+    return {"width": width, "height": height, "tags": tags, "exifdata": exifdata, "xmp": xmp}
 
 
 def process_image(item: str, folder: str, _args: Args, baseurl: str, metadata: dict[str, dict[str, int]], raw: list[str]) -> dict[str, Any]:
@@ -173,6 +180,7 @@ def process_image(item: str, folder: str, _args: Args, baseurl: str, metadata: d
         "height": metadata[item]["height"],
         "tags": metadata[item]["tags"],
         "exifdata": metadata[item].get("exifdata", ""),
+        "xmp": metadata[item].get("xmp", ""),
     }
     path = os.path.join(_args.root_directory, ".thumbnails", baseurl, item + ".jpg")
     if not os.path.exists(path) or _args.regenerate_thumbnails:
