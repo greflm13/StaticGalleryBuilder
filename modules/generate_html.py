@@ -102,7 +102,7 @@ def get_image_info(item: str, folder: str) -> dict[str, Any]:
             logger.info("extracting image information", extra={"file": file})
             width, height = img.size
             exif = img.getexif()
-            xmp = img.getxmp()
+            xmpdata = img.getxmp()
 
     except UnidentifiedImageError:
         logger.error("cannot identify image file", extra={"file": file})
@@ -147,13 +147,15 @@ def get_image_info(item: str, folder: str) -> dict[str, Any]:
         exifdata = None
     tags = []
     xmp = None
-    if xmp:
-        if xmp.get("xmpmeta", False):
-            if xmp["xmpmeta"]["RDF"]["Description"].get("subject", False):
-                tags = xmp["xmpmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
-        if xmp.get("xapmeta", False):
-            if xmp["xapmeta"]["RDF"]["Description"].get("subject", False):
-                tags = xmp["xapmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
+    if xmpdata:
+        if xmpdata.get("xmpmeta", False):
+            if xmpdata["xmpmeta"]["RDF"]["Description"].get("subject", False):
+                tags = xmpdata["xmpmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
+                xmp = xmpdata
+        if xmpdata.get("xapmeta", False):
+            if xmpdata["xapmeta"]["RDF"]["Description"].get("subject", False):
+                tags = xmpdata["xapmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
+                xmp = xmpdata
     return {"width": width, "height": height, "tags": tags, "exifdata": exifdata, "xmp": xmp}
 
 
