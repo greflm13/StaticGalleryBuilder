@@ -152,11 +152,15 @@ def get_image_info(item: str, folder: str) -> dict[str, Any]:
             if isinstance(xmpdata["xmpmeta"]["RDF"]["Description"], dict):
                 if xmpdata["xmpmeta"]["RDF"]["Description"].get("subject", False):
                     tags = xmpdata["xmpmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
+                    if isinstance(tags, str):
+                        tags = [tags]
                     xmp = xmpdata
         if xmpdata.get("xapmeta", False):
             if isinstance(xmpdata["xapmeta"]["RDF"]["Description"], dict):
                 if xmpdata["xapmeta"]["RDF"]["Description"].get("subject", False):
                     tags = xmpdata["xapmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
+                    if isinstance(tags, str):
+                        tags = [tags]
                     xmp = xmpdata
     return {"width": width, "height": height, "tags": tags, "exifdata": exifdata, "xmp": xmp}
 
