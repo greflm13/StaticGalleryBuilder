@@ -145,8 +145,12 @@ def get_image_info(item: str, folder: str) -> dict[str, Any]:
                 del exifdata[key]
     else:
         exifdata = None
-    if xmp["xmpmeta"]["RDF"]["Description"].get("subject", False):
-        tags = xmp["xmpmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
+    if xmp:
+        if xmp["xmpmeta"]["RDF"]["Description"].get("subject", False):
+            tags = xmp["xmpmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
+        else:
+            tags = []
+            xmp = None
     else:
         tags = []
         xmp = None
