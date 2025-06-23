@@ -1,246 +1,263 @@
 {
-    "extensions": {
-        "recommendations": [
-            "charliermarsh.ruff",
-            "esbenp.prettier-vscode",
-            "ms-edgedevtools.vscode-edge-devtools",
-            "ms-python.debugpy",
-            "ms-python.python",
-            "ms-python.vscode-pylance",
-            "samuelcolvin.jinjahtml",
-            "vscode.css-language-features",
-            "vscode.html-language-features",
+  "extensions": {
+    "recommendations": [
+      "charliermarsh.ruff",
+      "esbenp.prettier-vscode",
+      "ms-edgedevtools.vscode-edge-devtools",
+      "ms-python.debugpy",
+      "ms-python.python",
+      "ms-python.vscode-pylance",
+      "samuelcolvin.jinjahtml",
+      "vscode.css-language-features",
+      "vscode.html-language-features"
+    ]
+  },
+  "folders": [
+    {
+      "name": "StaticGalleryBuilder",
+      "path": "./"
+    }
+  ],
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "args": [
+          "-p",
+          "${workspaceFolder}/test",
+          "-w",
+          "file://${workspaceFolder}/test",
+          "-t",
+          "Pictures",
+          "--theme",
+          "themes/alpenglow.css",
+          "--use-fancy-folders",
+          "--web-manifest",
+          "-l",
+          "cc-by-nc-sa",
+          "-n",
+          "-m",
+          "--reverse-sort",
+          // "--regenerate-thumbnails",
+          // "--reread-metadata",
+          "--folderthumbnails"
         ],
+        "console": "integratedTerminal",
+        "name": "Testfolder",
+        "postDebugTask": "Delete Lockfile",
+        "program": "${workspaceFolder}/builder.py",
+        "request": "launch",
+        "type": "debugpy"
+      },
+      {
+        "args": [
+          "-p",
+          "/home/user/woek/Pictures",
+          "-w",
+          "file:///home/user/woek/Pictures",
+          "-t",
+          "Pictures",
+          "--theme",
+          "themes/default.css",
+          "--use-fancy-folders",
+          "--web-manifest",
+          "-n",
+          "-m",
+          // "--regenerate-thumbnails",
+          // "--reread-metadata",
+          "--folderthumbnails"
+        ],
+        "console": "integratedTerminal",
+        "name": "woek",
+        "postDebugTask": "Delete Lockfile 2",
+        "program": "${workspaceFolder}/builder.py",
+        "request": "launch",
+        "type": "debugpy"
+      },
+      {
+        "args": [
+          "--use-fancy-folders",
+          "-p",
+          "/mnt/nfs/pictures/",
+          "-w",
+          "https://pictures.sorogon.eu/",
+          "-t",
+          "Sorogon's Pictures",
+          "--theme",
+          "/home/user/git/github.com/greflm13/simple-picture-server/themes/alpenglow.css",
+          "-m",
+          "--exclude-folder",
+          "Scans",
+          "--exclude-folder",
+          "*/Galleries/*",
+          "--folderthumbnails",
+          "--reread-metadata"
+        ],
+        "console": "integratedTerminal",
+        "name": "production",
+        "program": "${workspaceFolder}/builder.py",
+        "request": "launch",
+        "type": "debugpy"
+      },
+      {
+        "args": [
+          "${workspaceFolder}/themes",
+          "https://pictures.sorogon.eu/public/Example/"
+        ],
+        "console": "integratedTerminal",
+        "name": "Generate Themes previews",
+        "program": "${workspaceFolder}/generate_previews.py",
+        "request": "launch",
+        "type": "debugpy"
+      }
+    ]
+  },
+  "settings": {
+    "[css]": {
+      "editor.defaultFormatter": "vscode.css-language-features"
     },
-    "folders": [
-        {
-            "name": "StaticGalleryBuilder",
-            "path": "./",
-        },
+    "[jinja-css]": {
+      "editor.defaultFormatter": "vscode.css-language-features"
+    },
+    "[jinja-html]": {
+      "editor.defaultFormatter": "vscode.html-language-features"
+    },
+    "[jinja-js]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[python]": {
+      "editor.defaultFormatter": "charliermarsh.ruff"
+    },
+    "black-formatter.args": ["-l 260"],
+    "black-formatter.interpreter": ["/usr/bin/python3"],
+    "editor.formatOnSave": false,
+    "emmet.includeLanguages": {
+      "jinja-css": "css",
+      "jinja-html": "html",
+      "jinja-js": "javascript",
+      "jinja-json": "json"
+    },
+    "files.associations": {
+      "**/*.css.j2": "jinja-css",
+      "**/*.css": "css",
+      "**/*.html.j2": "jinja-html"
+    },
+    "gitblame.inlineMessageEnabled": true,
+    "gitblame.inlineMessageFormat": "${author.name}, ${time.ago} • ${commit.summary}",
+    "gitblame.statusBarMessageFormat": "${author.name} (${time.ago})",
+    "html.format.indentHandlebars": true,
+    "html.format.templating": true,
+    "html.format.wrapAttributes": "preserve",
+    "html.format.wrapLineLength": 200,
+    "html.hover.documentation": true,
+    "html.suggest.html5": true,
+    "html.validate.scripts": true,
+    "html.validate.styles": true,
+    "json.schemaDownload.enable": true,
+    "json.schemas": [
+      {
+        "fileMatch": ["manifest.json.j2"],
+        "url": "https://json.schemastore.org/web-manifest-combined.json"
+      }
     ],
-    "launch": {
-        "version": "0.2.0",
-        "configurations": [
-            {
-                "args": [
-                    "-p",
-                    "${workspaceFolder}/test",
-                    "-w",
-                    "file://${workspaceFolder}/test",
-                    "-t",
-                    "Pictures",
-                    "--theme",
-                    "themes/alpenglow.css",
-                    "--use-fancy-folders",
-                    "--web-manifest",
-                    "-l",
-                    "cc-by-nc-sa",
-                    "-n",
-                    "-m",
-                    "--reverse-sort",
-                    "--regenerate-thumbnails",
-                    "--reread-metadata",
-                    "--folderthumbnails",
-                ],
-                "console": "integratedTerminal",
-                "name": "Testfolder",
-                "postDebugTask": "Delete Lockfile",
-                "program": "${workspaceFolder}/builder.py",
-                "request": "launch",
-                "type": "debugpy",
-            },
-            {
-                "args": [
-                    "-p",
-                    "/home/user/woek/Pictures",
-                    "-w",
-                    "file:///home/user/woek/Pictures",
-                    "-t",
-                    "Pictures",
-                    "--theme",
-                    "themes/default.css",
-                    "--use-fancy-folders",
-                    "--web-manifest",
-                    "-n",
-                    "-m",
-                    // "--regenerate-thumbnails",
-                    // "--reread-metadata",
-                    "--folderthumbnails",
-                ],
-                "console": "integratedTerminal",
-                "name": "woek",
-                "postDebugTask": "Delete Lockfile 2",
-                "program": "${workspaceFolder}/builder.py",
-                "request": "launch",
-                "type": "debugpy",
-            },
-            {
-                "args": [
-                    "${workspaceFolder}/themes",
-                    "https://pictures.sorogon.eu/public/Example/"
-                ],
-                "console": "integratedTerminal",
-                "name": "Generate Themes previews",
-                "program": "${workspaceFolder}/generate_previews.py",
-                "request": "launch",
-                "type": "debugpy",
-            }
-        ],
+    "prettier.htmlWhitespaceSensitivity": "css",
+    "pylint.args": [
+      "--disable=C0111",
+      "--disable=C0301",
+      "--good-names-rgxs=^[_a-z][_a-z0-9]?$"
+    ],
+    "python.analysis.inlayHints.callArgumentNames": "off",
+    "python.analysis.inlayHints.functionReturnTypes": false,
+    "python.analysis.inlayHints.variableTypes": false,
+    "yaml.schemas": {
+      "https://raw.githubusercontent.com/pamburus/hl/master/schema/json/config.schema.json": "file:///home/user/git/github.com/greflm13/StaticGalleryBuilder/hl_config.yaml"
     },
-    "settings": {
-        "[css]": {
-            "editor.defaultFormatter": "vscode.css-language-features",
+    "ruff.lineLength": 180
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "command": "rm -f ${workspaceFolder}/test/.lock",
+        "isBackground": true,
+        "label": "Delete Lockfile",
+        "problemMatcher": [],
+        "type": "shell",
+        "presentation": {
+          "echo": false,
+          "reveal": "never",
+          "focus": false,
+          "panel": "shared",
+          "showReuseMessage": false,
+          "clear": true
+        }
+      },
+      {
+        "command": "rm -f /home/user/woek/Pictures/.lock",
+        "isBackground": true,
+        "label": "Delete Lockfile 2",
+        "problemMatcher": [],
+        "type": "shell",
+        "presentation": {
+          "echo": false,
+          "reveal": "never",
+          "focus": false,
+          "panel": "shared",
+          "showReuseMessage": false,
+          "clear": true
+        }
+      },
+      {
+        "command": "pyinstaller builder.py modules/*.py -n StaticGalleryBuilder-$(cat .version)-linux -F --add-data files:files --add-data templates:templates --add-data .version:.",
+        "isBackground": false,
+        "label": "Build",
+        "problemMatcher": [],
+        "type": "shell",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared",
+          "showReuseMessage": false,
+          "clear": false
         },
-        "[jinja-css]": {
-            "editor.defaultFormatter": "vscode.css-language-features",
+        "group": {
+          "kind": "build",
+          "isDefault": true
         },
-        "[jinja-html]": {
-            "editor.defaultFormatter": "vscode.html-language-features",
+        "dependsOn": ["Clean"]
+      },
+      {
+        "command": "rm -rf build dist",
+        "isBackground": true,
+        "label": "Clean",
+        "problemMatcher": [],
+        "type": "shell",
+        "presentation": {
+          "echo": true,
+          "reveal": "never",
+          "focus": false,
+          "panel": "shared",
+          "showReuseMessage": false,
+          "clear": true
         },
-        "[jinja-js]": {
-            "editor.defaultFormatter": "esbenp.prettier-vscode",
-        },
-        "[python]": {
-            "editor.defaultFormatter": "charliermarsh.ruff",
-        },
-        "black-formatter.args": [
-            "-l 260",
-        ],
-        "black-formatter.interpreter": [
-            "/usr/bin/python3",
-        ],
-        "editor.formatOnSave": false,
-        "emmet.includeLanguages": {
-            "jinja-css": "css",
-            "jinja-html": "html",
-            "jinja-js": "javascript",
-            "jinja-json": "json",
-        },
-        "files.associations": {
-            "**/*.css.j2": "jinja-css",
-            "**/*.css": "css",
-            "**/*.html.j2": "jinja-html",
-        },
-        "gitblame.inlineMessageEnabled": true,
-        "gitblame.inlineMessageFormat": "${author.name}, ${time.ago} • ${commit.summary}",
-        "gitblame.statusBarMessageFormat": "${author.name} (${time.ago})",
-        "html.format.indentHandlebars": true,
-        "html.format.templating": true,
-        "html.format.wrapAttributes": "preserve",
-        "html.format.wrapLineLength": 200,
-        "html.hover.documentation": true,
-        "html.suggest.html5": true,
-        "html.validate.scripts": true,
-        "html.validate.styles": true,
-        "json.schemaDownload.enable": true,
-        "json.schemas": [
-            {
-                "fileMatch": [
-                    "manifest.json.j2",
-                ],
-                "url": "https://json.schemastore.org/web-manifest-combined.json",
-            },
-        ],
-        "prettier.htmlWhitespaceSensitivity": "css",
-        "pylint.args": [
-            "--disable=C0111",
-            "--disable=C0301",
-            "--good-names-rgxs=^[_a-z][_a-z0-9]?$",
-        ],
-        "python.analysis.inlayHints.callArgumentNames": "off",
-        "python.analysis.inlayHints.functionReturnTypes": false,
-        "python.analysis.inlayHints.variableTypes": false,
-        "yaml.schemas": {
-            "https://raw.githubusercontent.com/pamburus/hl/master/schema/json/config.schema.json": "file:///home/user/git/github.com/greflm13/StaticGalleryBuilder/hl_config.yaml"
-        },
-        "ruff.lineLength": 180,
-    },
-    "tasks": {
-        "version": "2.0.0",
-        "tasks": [
-            {
-                "command": "rm -f ${workspaceFolder}/test/.lock",
-                "isBackground": true,
-                "label": "Delete Lockfile",
-                "problemMatcher": [],
-                "type": "shell",
-                "presentation": {
-                    "echo": false,
-                    "reveal": "never",
-                    "focus": false,
-                    "panel": "shared",
-                    "showReuseMessage": false,
-                    "clear": true
-                }
-            },
-            {
-                "command": "rm -f /home/user/woek/Pictures/.lock",
-                "isBackground": true,
-                "label": "Delete Lockfile 2",
-                "problemMatcher": [],
-                "type": "shell",
-                "presentation": {
-                    "echo": false,
-                    "reveal": "never",
-                    "focus": false,
-                    "panel": "shared",
-                    "showReuseMessage": false,
-                    "clear": true
-                }
-            },
-            {
-                "command": "pyinstaller builder.py modules/*.py -n StaticGalleryBuilder-$(cat .version)-linux -F --add-data files:files --add-data templates:templates --add-data .version:.",
-                "isBackground": false,
-                "label": "Build",
-                "problemMatcher": [],
-                "type": "shell",
-                "presentation": {
-                    "echo": true,
-                    "reveal": "always",
-                    "focus": false,
-                    "panel": "shared",
-                    "showReuseMessage": false,
-                    "clear": false
-                },
-                "group": {
-                    "kind": "build",
-                    "isDefault": true
-                },
-                "dependsOn": [
-                    "Clean"
-                ]
-            },
-            {
-                "command": "rm -rf build dist",
-                "isBackground": true,
-                "label": "Clean",
-                "problemMatcher": [],
-                "type": "shell",
-                "presentation": {
-                    "echo": true,
-                    "reveal": "never",
-                    "focus": false,
-                    "panel": "shared",
-                    "showReuseMessage": false,
-                    "clear": true
-                },
-                "group": "build"
-            },
-            {
-                "command": "LESS=-SR hl logs/latest.jsonl --config hl_config.yaml",
-                "isBackground": false,
-                "label": "View Latest Log",
-                "problemMatcher": [],
-                "type": "shell",
-                "presentation": {
-                    "echo": false,
-                    "reveal": "always",
-                    "focus": true,
-                    "panel": "dedicated",
-                    "showReuseMessage": false,
-                    "clear": true
-                }
-            }
-        ],
-    },
+        "group": "build"
+      },
+      {
+        "command": "LESS=-SR hl logs/latest.jsonl --config hl_config.yaml",
+        "isBackground": false,
+        "label": "View Latest Log",
+        "problemMatcher": [],
+        "type": "shell",
+        "presentation": {
+          "echo": false,
+          "reveal": "always",
+          "focus": true,
+          "panel": "dedicated",
+          "showReuseMessage": false,
+          "clear": true
+        }
+      }
+    ]
+  }
 }

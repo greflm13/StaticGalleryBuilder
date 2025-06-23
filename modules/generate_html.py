@@ -9,6 +9,7 @@ from datetime import datetime
 from tqdm.auto import tqdm
 from PIL import Image, ExifTags, TiffImagePlugin, UnidentifiedImageError
 from jinja2 import Environment, FileSystemLoader
+from defusedxml import ElementTree
 
 from modules.logger import logger
 from modules import cclicense
@@ -32,6 +33,41 @@ env = Environment(loader=FileSystemLoader(os.path.join(SCRIPTDIR, "templates")))
 thumbnails: list[tuple[str, str, str]] = []
 info: dict[str, str] = {}
 licens: dict[str, str] = {}
+
+
+def getxmp(strbuffer: str) -> dict[str, Any]:
+    """
+    Returns a dictionary containing the XMP tags.
+    Requires defusedxml to be installed.
+
+    :returns: XMP tags in a dictionary.
+    """
+
+    def get_name(tag: str) -> str:
+        return re.sub("^{[^}]+}", "", tag)
+
+    def get_value(element) -> str | dict[str, Any] | None:
+        value: dict[str, Any] = {get_name(k): v for k, v in element.attrib.items()}
+        children = list(element)
+        if children:
+            for child in children:
+                name = get_name(child.tag)
+                child_value = get_value(child)
+                if name in value:
+                    if not isinstance(value[name], list):
+                        value[name] = [value[name]]
+                    value[name].append(child_value)
+                else:
+                    value[name] = child_value
+        elif value:
+            if element.text:
+                value["text"] = element.text
+        else:
+            return element.text
+        return value
+
+    root = ElementTree.fromstring(strbuffer)
+    return {get_name(root.tag): get_value(root)}
 
 
 def initialize_metadata(folder: str) -> dict[str, dict[str, int]]:
@@ -162,7 +198,31 @@ def get_image_info(item: str, folder: str) -> dict[str, Any]:
                     if isinstance(tags, str):
                         tags = [tags]
                     xmp = xmpdata
+    if None in tags:
+        tags.remove(None)
     return {"width": width, "height": height, "tags": tags, "exifdata": exifdata, "xmp": xmp}
+
+
+def get_tags(sidecarfile: str) -> list[str]:
+    with open(sidecarfile) as sidecar:
+        strbuffer = sidecar.read()
+    xmpdata = getxmp(strbuffer)
+    tags = []
+    if xmpdata.get("xmpmeta", False):
+        if isinstance(xmpdata["xmpmeta"]["RDF"]["Description"], dict):
+            if xmpdata["xmpmeta"]["RDF"]["Description"].get("subject", False):
+                tags = xmpdata["xmpmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
+                if isinstance(tags, str):
+                    tags = [tags]
+    if xmpdata.get("xapmeta", False):
+        if isinstance(xmpdata["xapmeta"]["RDF"]["Description"], dict):
+            if xmpdata["xapmeta"]["RDF"]["Description"].get("subject", False):
+                tags = xmpdata["xapmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
+                if isinstance(tags, str):
+                    tags = [tags]
+    if None in tags:
+        tags.remove(None)
+    return tags
 
 
 def process_image(item: str, folder: str, _args: Args, baseurl: str, metadata: dict[str, dict[str, int]], raw: list[str]) -> dict[str, Any]:
@@ -183,6 +243,9 @@ def process_image(item: str, folder: str, _args: Args, baseurl: str, metadata: d
     extsplit = os.path.splitext(item)
     if item not in metadata or _args.reread_metadata:
         metadata[item] = get_image_info(item, folder)
+    sidecarfile = os.path.join(folder, item + ".xmp")
+    if os.path.exists(sidecarfile):
+        metadata[item]["tags"] = get_tags(sidecarfile)
 
     image = {
         "url": f"{_args.web_root_url}{baseurl}{urllib.parse.quote(item)}",
