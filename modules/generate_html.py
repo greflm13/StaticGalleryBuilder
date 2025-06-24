@@ -184,6 +184,7 @@ def get_image_info(item: str, folder: str) -> dict[str, Any]:
     tags = []
     xmp = None
     if xmpdata:
+        logger.info("extracting XMP data", extra={"file": file})
         if xmpdata.get("xmpmeta", False):
             if isinstance(xmpdata["xmpmeta"]["RDF"]["Description"], dict):
                 if xmpdata["xmpmeta"]["RDF"]["Description"].get("subject", False):
@@ -204,6 +205,16 @@ def get_image_info(item: str, folder: str) -> dict[str, Any]:
 
 
 def get_tags(sidecarfile: str) -> list[str]:
+    """
+    Extracts Tags from XMP sidecar file
+
+    Args:
+        sidecarfile (str): The path to the XMP sidecar file.
+
+    Returns:
+        list[str]: List containing image tags.
+    """
+    logger.info("extracting XMP sidecar file data", extra={"file": sidecarfile})
     with open(sidecarfile) as sidecar:
         strbuffer = sidecar.read()
     xmpdata = getxmp(strbuffer)
@@ -245,7 +256,11 @@ def process_image(item: str, folder: str, _args: Args, baseurl: str, metadata: d
         metadata[item] = get_image_info(item, folder)
     sidecarfile = os.path.join(folder, item + ".xmp")
     if os.path.exists(sidecarfile):
-        metadata[item]["tags"] = get_tags(sidecarfile)
+        logger.info("xmp sidecar file found", extra={"file": sidecarfile})
+        try:
+            metadata[item]["tags"] = get_tags(sidecarfile)
+        except Exception as e:
+            logger.error(e)
 
     image = {
         "url": f"{_args.web_root_url}{baseurl}{urllib.parse.quote(item)}",
