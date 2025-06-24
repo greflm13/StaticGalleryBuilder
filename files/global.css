@@ -166,6 +166,8 @@ figure {
   opacity: 0;
   transition: opacity 0.3s;
   float: left;
+  max-height: 286px;
+  overflow: scroll;
 }
 
 .tooltip .infotext {
