@@ -185,20 +185,20 @@ def get_image_info(item: str, folder: str) -> dict[str, Any]:
     xmp = None
     if xmpdata:
         logger.info("extracting XMP data", extra={"file": file})
-        if xmpdata.get("xmpmeta", False):
-            if isinstance(xmpdata["xmpmeta"]["RDF"]["Description"], dict):
-                if xmpdata["xmpmeta"]["RDF"]["Description"].get("subject", False):
-                    tags = xmpdata["xmpmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
-                    if isinstance(tags, str):
-                        tags = [tags]
-                    xmp = xmpdata
-        if xmpdata.get("xapmeta", False):
-            if isinstance(xmpdata["xapmeta"]["RDF"]["Description"], dict):
-                if xmpdata["xapmeta"]["RDF"]["Description"].get("subject", False):
-                    tags = xmpdata["xapmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
-                    if isinstance(tags, str):
-                        tags = [tags]
-                    xmp = xmpdata
+        try:
+            tags = xmpdata["xmpmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
+            if isinstance(tags, str):
+                tags = [tags]
+            xmp = xmpdata
+        except TypeError:
+            ...
+        try:
+            tags = xmpdata["xapmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
+            if isinstance(tags, str):
+                tags = [tags]
+            xmp = xmpdata
+        except TypeError:
+            ...
     if None in tags:
         tags.remove(None)
     return {"width": width, "height": height, "tags": tags, "exifdata": exifdata, "xmp": xmp}
@@ -219,18 +219,20 @@ def get_tags(sidecarfile: str) -> list[str]:
         strbuffer = sidecar.read()
     xmpdata = getxmp(strbuffer)
     tags = []
-    if xmpdata.get("xmpmeta", False):
-        if isinstance(xmpdata["xmpmeta"]["RDF"]["Description"], dict):
-            if xmpdata["xmpmeta"]["RDF"]["Description"].get("subject", False):
-                tags = xmpdata["xmpmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
-                if isinstance(tags, str):
-                    tags = [tags]
-    if xmpdata.get("xapmeta", False):
-        if isinstance(xmpdata["xapmeta"]["RDF"]["Description"], dict):
-            if xmpdata["xapmeta"]["RDF"]["Description"].get("subject", False):
-                tags = xmpdata["xapmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
-                if isinstance(tags, str):
-                    tags = [tags]
+    try:
+        tags = xmpdata["xmpmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
+        if isinstance(tags, str):
+            tags = [tags]
+        xmp = xmpdata
+    except TypeError:
+        ...
+    try:
+        tags = xmpdata["xapmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
+        if isinstance(tags, str):
+            tags = [tags]
+        xmp = xmpdata
+    except TypeError:
+        ...
     if None in tags:
         tags.remove(None)
     return tags
