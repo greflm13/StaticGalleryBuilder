@@ -192,12 +192,16 @@ def get_image_info(item: str, folder: str) -> dict[str, Any]:
             xmp = xmpdata
         except TypeError:
             ...
+        except KeyError:
+            ...
         try:
             tags = xmpdata["xapmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
             if isinstance(tags, str):
                 tags = [tags]
             xmp = xmpdata
         except TypeError:
+            ...
+        except KeyError:
             ...
     if None in tags:
         tags.remove(None)
@@ -223,15 +227,17 @@ def get_tags(sidecarfile: str) -> list[str]:
         tags = xmpdata["xmpmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
         if isinstance(tags, str):
             tags = [tags]
-        xmp = xmpdata
     except TypeError:
+        ...
+    except KeyError:
         ...
     try:
         tags = xmpdata["xapmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
         if isinstance(tags, str):
             tags = [tags]
-        xmp = xmpdata
     except TypeError:
+        ...
+    except KeyError:
         ...
     if None in tags:
         tags.remove(None)
