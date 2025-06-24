@@ -205,6 +205,8 @@ def get_image_info(item: str, folder: str) -> dict[str, Any]:
             ...
     if None in tags:
         tags.remove(None)
+    if "st" in tags:
+        tags.remove("st")
     return {"width": width, "height": height, "tags": tags, "exifdata": exifdata, "xmp": xmp}
 
 
@@ -241,6 +243,8 @@ def get_tags(sidecarfile: str) -> list[str]:
         ...
     if None in tags:
         tags.remove(None)
+    if "st" in tags:
+        tags.remove("st")
     return tags
 
 
