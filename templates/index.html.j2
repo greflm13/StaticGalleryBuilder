@@ -85,22 +85,6 @@
   {% if images %}
   {%- set ns = namespace(count = 0) -%}
   <div class="row" id="imagelist">
-    {%- for image in images %}
-    <div class="column">
-      <figure>
-        <img src="{{ image.thumbnail }}" alt="{{ image.name }}" onclick="openSwipe({{ ns.count }})" onmouseover="prefetch({{ ns.count }})" onmouseleave="cancel({{ ns.count }})" />
-        {%- set ns.count = ns.count + 1 %}
-        <figcaption class="caption">{{ image.name }}
-          {%- if image.tiff %}
-          <a href="{{ image.tiff }}">TIFF</a>
-          {%- endif %}
-          {%- if image.raw %}
-          <a href="{{ image.raw }}">RAW</a>
-          {%- endif %}
-        </figcaption>
-      </figure>
-    </div>
-    {%- endfor %}
   </div>
   {%- endif %}
   {% if license %}
@@ -123,14 +107,14 @@
     {%- endif %}
     <span class="attribution">Made with <a href="https://github.com/greflm13/StaticGalleryBuilder" target="_blank" rel="noopener noreferrer">StaticGalleryBuilder {{ version }}</a> by <a
         href="https://github.com/greflm13" target="_blank" rel="noopener noreferrer">{{ logo }}</a>.</span>
-    <button onclick="topFunction()" id="totop" title="Back to Top">Back to Top</button>
+    <button type="button" onclick="topFunction()" id="totop" title="Back to Top">Back to Top</button>
   </div>
   {%- endif %}
   {%- else %}
   <div class="footer">
     <span class="attribution">Made with <a href="https://github.com/greflm13/StaticGalleryBuilder" target="_blank" rel="noopener noreferrer">StaticGalleryBuilder {{ version }}</a> by <a
         href="https://github.com/greflm13" target="_blank" rel="noopener noreferrer">{{ logo }}</a>.</span>
-    <button onclick="topFunction()" id="totop" title="Back to Top">Back to Top</button>
+    <button type="button" onclick="topFunction()" id="totop" title="Back to Top">Back to Top</button>
   </div>
   {%- endif %}
   {% if images %}
@@ -175,12 +159,13 @@
     var items = [
       {%- for image in images %}
       {%- if image.exifdata.DateTime %}
-      { src: "{{ image.url }}", w: {{ image.width }}, h: {{ image.height }}, msrc: "{{ image.thumbnail }}", tags: "{{ image.tags }}", title: "Captured: {{ image.exifdata.DateTime }}" },
+      { name: "{{ image.name }}", tiff: "{{ image.tiff }}", raw: "{{ image.raw }}", src: "{{ image.url }}", w: {{ image.width }}, h: {{ image.height }}, msrc: "{{ image.thumbnail }}", tags: "{{ image.tags }}", title: "Captured: {{ image.exifdata.DateTime }}" },
       {%- else %}
-      { src: "{{ image.url }}", w: {{ image.width }}, h: {{ image.height }}, msrc: "{{ image.thumbnail }}", tags: "{{ image.tags }}" },
+      { name: "{{ image.name }}", tiff: "{{ image.tiff }}", raw: "{{ image.raw }}", src: "{{ image.url }}", w: {{ image.width }}, h: {{ image.height }}, msrc: "{{ image.thumbnail }}", tags: "{{ image.tags }}" },
       {%- endif %}
       {%- endfor %}
     ];
+    var shown = [];
     var re = /pid=(\d+)/;
     var controllers = {}
 
@@ -188,15 +173,10 @@
       var options = {
         index: img
       };
-      var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, options);
+      var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, shown, options);
       gallery.init();
     }
-
-    if (re.test(window.location.href)) {
-      var pid = window.location.href.match(re)[1];
-      openSwipe(parseInt(pid));
-    }
-
+  
     let totopbutton = document.getElementById("totop");
 
     window.onscroll = function () { scrollFunction() };
@@ -211,6 +191,25 @@
 
     function topFunction() {
       window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+
+    window.onload = function () { filter() };
+
+    function updateImageList() {
+      var str = ""
+      var imagelist = document.getElementById("imagelist");
+      shown.forEach((item, index) => {
+        str += '<div class="column"><figure><img src="' + item.msrc + '" onclick="openSwipe(' + index + ')" onmouseover="prefetch(' + index + ')" onmouseleave="cancel(' + index + ')" /><figcaption class="caption">' + item.name;
+        if (item.tiff != "") {
+          str += ' <a href="' + item.tiff + '">TIFF</a>';
+        }
+        if (item.raw != "") {
+          str += ' <a href="' + item.raw + '">RAW</a>';
+        }
+        str += '</figcaption></figure></div>';
+      });
+
+      imagelist.innerHTML = str;
     }
 
     function prefetch(img) {
@@ -230,36 +229,37 @@
       delete controllers[img];
     }
 
-    {%- if tags|length > 0 %}
     function filter() {
       var selected_tags = [];
-      var tagdropdown, imagelist, figures, i, j, tags, incl;
+      var tagdropdown, tags, incl;
+      shown = [];
       tagdropdown = document.getElementById("tagdropdown").getElementsByTagName("li");
-      for (i = 0; i < tagdropdown.length; i++) {
+      for (var i = 0; i < tagdropdown.length; i++) {
         if (tagdropdown[i].firstChild.firstChild.checked) {
           selected_tags.push([tagdropdown[i].innerText])
         }
       }
-      imagelist = document.getElementById("imagelist");
-      figures = imagelist.getElementsByTagName("div");
-      for (i = 0; i < figures.length; i++) {
-        tags = items[i].tags;
+      items.forEach((item, index) => {
+        tags = item.tags;
         incl = true;
-        for (j = 0; j < selected_tags.length; j++) {
-          if (tags.indexOf(selected_tags[j]) == -1) {
+        selected_tags.forEach((tag) => {
+          if (tags.indexOf(tag) == -1) {
             incl = false;
           }
+        });
+        if (incl | selected_tags == []) {
+          shown.push(item)
         }
-        if (incl || selected_tags == []) {
-          figures[i].style.display = "";
-        } else {
-          figures[i].style.display = "none";
-        }
+      });
+      updateImageList();
+
+      if (re.test(window.location.href)) {
+        var pid = window.location.href.match(re)[1];
+        console.log(pid);
+        console.log(shown);
+        openSwipe(parseInt(pid));
       }
     }
-
-    filter()
-    {%- endif %}
   </script>
   {%- endif %}
 </body>

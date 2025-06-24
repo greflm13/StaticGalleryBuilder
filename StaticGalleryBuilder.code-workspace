@@ -38,8 +38,8 @@
           "-n",
           "-m",
           "--reverse-sort",
-          // "--regenerate-thumbnails",
-          // "--reread-metadata",
+          "--regenerate-thumbnails",
+          "--reread-metadata",
           "--folderthumbnails"
         ],
         "console": "integratedTerminal",
