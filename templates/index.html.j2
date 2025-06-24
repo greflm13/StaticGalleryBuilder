@@ -193,8 +193,6 @@
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
 
-    window.onload = function () { filter() };
-
     function updateImageList() {
       var str = ""
       var imagelist = document.getElementById("imagelist");
@@ -252,14 +250,24 @@
         }
       });
       updateImageList();
+    }
+
+    function onLoad() {
+      {%- if tags|length > 0 %}
+      filter();
+      {%- else %}
+      shown = items;
+      updateImageList();
+      {%- endif %}
 
       if (re.test(window.location.href)) {
         var pid = window.location.href.match(re)[1];
-        console.log(pid);
-        console.log(shown);
         openSwipe(parseInt(pid));
       }
     }
+  
+    window.onload = function () { onLoad() };
+
   </script>
   {%- endif %}
 </body>
