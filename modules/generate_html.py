@@ -98,8 +98,32 @@ def initialize_metadata(folder: str) -> dict[str, dict[str, int]]:
     # remove old sizelist if it exists
     sizelist_path = os.path.join(folder, ".sizelist.json")
     if os.path.exists(sizelist_path):
+        with open(sizelist_path, "r") as sizelist:
+            metadata = json.loads(sizelist.read())
         logger.warning("found old .sizelist.json, removing it...", extra={"path": sizelist_path})
         os.remove(sizelist_path)
+
+    # convert from old metadata format
+    if "images" not in metadata and "subfolders" not in metadata:
+        images = metadata.copy()
+        metadata = {}
+        metadata["images"] = images
+    elif "images" not in metadata:
+        metadata["images"] = {}
+    for k, v in metadata["images"].items():
+        if "width" in v:
+            metadata["images"][k]["w"] = v["width"]
+            del metadata["images"][k]["width"]
+        if "height" in v:
+            metadata["images"][k]["h"] = v["height"]
+            del metadata["images"][k]["height"]
+        if "tags" not in v:
+            metadata["images"][k]["tags"] = []
+        if "exifdata" not in v:
+            metadata["images"][k]["exifdata"] = None
+        if "xmp" not in v:
+            metadata["images"][k]["xmp"] = None
+
     return metadata
 
 
@@ -144,7 +168,7 @@ def get_image_info(item: str, folder: str) -> dict[str, Any]:
     except UnidentifiedImageError:
         logger.error("cannot identify image file", extra={"file": file})
         print(f"cannot identify image file: {file}")
-        return {"width": None, "height": None, "tags": None, "exifdata": None, "xmp": None}
+        return {"w": None, "h": None, "tags": None, "exifdata": None, "xmp": None}
     if exif:
         logger.info("extracting EXIF data", extra={"file": file})
         ifd = exif.get_ifd(ExifTags.IFD.Exif)
@@ -220,7 +244,7 @@ def get_image_info(item: str, folder: str) -> dict[str, Any]:
             pass
     if None in tags:
         tags.remove(None)
-    return {"width": width, "height": height, "tags": tags, "exifdata": exifdata, "xmp": xmp}
+    return {"w": width, "h": height, "tags": tags, "exifdata": exifdata, "xmp": xmp}
 
 
 def nested_dict():
@@ -318,25 +342,23 @@ def process_image(item: str, folder: str, _args: Args, baseurl: str, metadata: d
         dict[str, Any]: dictionary containing image details for HTML rendering.
     """
     extsplit = os.path.splitext(item)
-    if item not in metadata or _args.reread_metadata:
-        metadata[item] = get_image_info(item, folder)
+    if item not in metadata["images"] or _args.reread_metadata:
+        metadata["images"][item] = get_image_info(item, folder)
     sidecarfile = os.path.join(folder, item + ".xmp")
     if os.path.exists(sidecarfile):
         logger.info("xmp sidecar file found", extra={"file": sidecarfile})
         try:
-            metadata[item]["tags"] = get_tags(sidecarfile)
+            metadata["images"][item]["tags"] = get_tags(sidecarfile)
         except Exception as e:
             logger.error(e)
 
     image = {
-        "url": f"{_args.web_root_url}{baseurl}{urllib.parse.quote(item)}",
-        "thumbnail": f"{_args.web_root_url}.thumbnails/{baseurl}{urllib.parse.quote(item)}.jpg",
+        "src": f"{_args.web_root_url}{baseurl}{urllib.parse.quote(item)}",
+        "msrc": f"{_args.web_root_url}.thumbnails/{baseurl}{urllib.parse.quote(item)}.jpg",
         "name": item,
-        "width": metadata[item]["width"],
-        "height": metadata[item]["height"],
-        "tags": metadata[item]["tags"],
-        "exifdata": metadata[item].get("exifdata", ""),
-        "xmp": metadata[item].get("xmp", ""),
+        "w": metadata["images"][item]["w"],
+        "h": metadata["images"][item]["h"],
+        "tags": metadata["images"][item]["tags"],
     }
     path = os.path.join(_args.root_directory, ".thumbnails", baseurl, item + ".jpg")
     if not os.path.exists(path) or _args.regenerate_thumbnails:
@@ -354,10 +376,13 @@ def process_image(item: str, folder: str, _args: Args, baseurl: str, metadata: d
             else:
                 logger.info("raw file found", extra={"file": file, "extension": _raw})
                 image["raw"] = url
-    return image
+
+    metadata["images"][item].update(image)
+
+    return image, metadata
 
 
-def generate_html(folder: str, title: str, _args: Args, raw: list[str], version: str, logo) -> None:
+def generate_html(folder: str, title: str, _args: Args, raw: list[str], version: str, logo) -> list[str]:
     """
     Generates HTML content for a folder of images.
 
@@ -373,14 +398,22 @@ def generate_html(folder: str, title: str, _args: Args, raw: list[str], version:
             logger.info("removing .metadata.json", extra={"folder": folder})
             os.remove(os.path.join(folder, ".metadata.json"))
     metadata = initialize_metadata(folder)
-    items = sorted(os.listdir(folder))
+    if _args.reverse_sort:
+        items = sorted(os.listdir(folder), reverse=True)
+    else:
+        items = sorted(os.listdir(folder))
 
     contains_files = False
     images = []
     subfolders = []
+    subfoldertags = []
     foldername = folder.removeprefix(_args.root_directory)
     foldername = f"{foldername}/" if foldername else ""
     baseurl = urllib.parse.quote(foldername)
+
+    gone = [item for item in metadata["images"] if item not in items]
+    for gon in gone:
+        del metadata["images"][gon]
 
     create_thumbnail_folder(foldername, _args.root_directory)
 
@@ -389,11 +422,12 @@ def generate_html(folder: str, title: str, _args: Args, raw: list[str], version:
         for item in tqdm(items, total=len(items), desc=f"Getting image infos - {folder}", unit="files", ascii=True, dynamic_ncols=True):
             if item not in EXCLUDES and not item.startswith("."):
                 if os.path.isdir(os.path.join(folder, item)):
-                    process_subfolder(item, folder, baseurl, subfolders, _args, raw, version, logo)
+                    subfoldertags = process_subfolder(item, folder, baseurl, subfolders, _args, raw, version, logo)
                 else:
                     contains_files = True
                     if os.path.splitext(item)[1].lower() in _args.file_extensions:
-                        images.append(process_image(item, folder, _args, baseurl, metadata, raw))
+                        img, metadata = process_image(item, folder, _args, baseurl, metadata, raw)
+                        images.append(img)
                     if item == "info":
                         process_info_file(folder, item)
                     if item == "LICENSE":
@@ -402,24 +436,27 @@ def generate_html(folder: str, title: str, _args: Args, raw: list[str], version:
         for item in items:
             if item not in EXCLUDES and not item.startswith("."):
                 if os.path.isdir(os.path.join(folder, item)):
-                    process_subfolder(item, folder, baseurl, subfolders, _args, raw, version, logo)
+                    subfoldertags = process_subfolder(item, folder, baseurl, subfolders, _args, raw, version, logo)
                 else:
                     contains_files = True
                     if os.path.splitext(item)[1].lower() in _args.file_extensions:
-                        images.append(process_image(item, folder, _args, baseurl, metadata, raw))
+                        img, metadata = process_image(item, folder, _args, baseurl, metadata, raw)
+                        images.append(img)
                     if item == "info":
                         process_info_file(folder, item)
                     if item == "LICENSE":
                         process_license(folder, item)
 
+    metadata["subfolders"] = subfolders
     update_metadata(metadata, folder)
 
     if should_generate_html(images, contains_files, _args):
-        create_html_file(folder, title, foldername, images, subfolders, _args, version, logo)
+        subfoldertags = create_html_file(folder, title, foldername, images, subfolders, _args, version, logo, subfoldertags)
     else:
         if os.path.exists(os.path.join(folder, "index.html")):
             logger.info("removing existing index.html", extra={"folder": folder})
             os.remove(os.path.join(folder, "index.html"))
+    return subfoldertags
 
 
 def create_thumbnail_folder(foldername: str, root_directory: str) -> None:
@@ -436,7 +473,7 @@ def create_thumbnail_folder(foldername: str, root_directory: str) -> None:
         os.mkdir(thumbnails_path)
 
 
-def process_subfolder(item: str, folder: str, baseurl: str, subfolders: list[dict[str, str | None]], _args: Args, raw: list[str], version: str, logo: str) -> None:
+def process_subfolder(item: str, folder: str, baseurl: str, subfolders: list[dict[str, str | None]], _args: Args, raw: list[str], version: str, logo: str) -> list[str]:
     """
     Processes a subfolder.
 
@@ -462,10 +499,11 @@ def process_subfolder(item: str, folder: str, baseurl: str, subfolders: list[dic
             else:
                 thumb = f"{_args.web_root_url}.thumbnails/{baseurl}{urllib.parse.quote(item)}/{urllib.parse.quote(thumbitems[0])}.jpg"
 
-    subfolders.append({"url": subfolder_url, "name": item, "thumb": thumb})
+    subfolders.append({"url": subfolder_url, "name": item, "thumb": thumb, "metadata": f"{_args.web_root_url}{baseurl}{urllib.parse.quote(item)}/.metadata.json"})
     if item not in _args.exclude_folders:
         if not any(fnmatch.fnmatchcase(os.path.join(folder, item), exclude) for exclude in _args.exclude_folders):
-            generate_html(os.path.join(folder, item), os.path.join(folder, item).removeprefix(_args.root_directory), _args, raw, version, logo)
+            return generate_html(os.path.join(folder, item), os.path.join(folder, item).removeprefix(_args.root_directory), _args, raw, version, logo)
+    return []
 
 
 def process_license(folder: str, item: str) -> None:
@@ -510,7 +548,9 @@ def should_generate_html(images: list[dict[str, Any]], contains_files, _args: Ar
     return images or (_args.use_fancy_folders and not contains_files) or (_args.use_fancy_folders and _args.ignore_other_files)
 
 
-def create_html_file(folder: str, title: str, foldername: str, images: list[dict[str, Any]], subfolders: list[dict[str, str]], _args: Args, version: str, logo: str) -> None:
+def create_html_file(
+    folder: str, title: str, foldername: str, images: list[dict[str, Any]], subfolders: list[dict[str, str]], _args: Args, version: str, logo: str, subfoldertags: list[str]
+) -> list[str]:
     """
     Creates the HTML file using the template.
 
@@ -545,7 +585,7 @@ def create_html_file(folder: str, title: str, foldername: str, images: list[dict
     for img in images:
         alltags.update(img["tags"])
 
-    nested_tags = parse_hierarchical_tags(alltags)
+    alltags.update(set(subfoldertags))
 
     folder_info = info.get(urllib.parse.quote(folder), "").split("\n")
     _info = [i for i in folder_info if len(i) > 1] if folder_info else None
@@ -589,18 +629,27 @@ def create_html_file(folder: str, title: str, foldername: str, images: list[dict
         header=header,
         license=license_info,
         subdirectories=subfolders,
-        images=images,
         info=_info,
         webmanifest=_args.generate_webmanifest,
         version=version,
         logo=logo,
         licensefile=license_url,
-        tags=nested_tags,
+        tags=parse_hierarchical_tags(alltags),
     )
 
     with open(html_file, "w", encoding="utf-8") as f:
         logger.info("writing html file", extra={"path": html_file})
         f.write(content)
+
+    if len(subfoldertags) > 1 and len(alltags) > 1:
+        alltags.update(set(subfoldertags))
+        return sorted(alltags)
+    elif len(subfoldertags) > 1:
+        return sorted(subfoldertags)
+    elif len(alltags) > 1:
+        return sorted(alltags)
+    else:
+        return []
 
 
 def list_folder(folder: str, title: str, _args: Args, raw: list[str], version: str, logo: str) -> list[tuple[str, str, str]]:

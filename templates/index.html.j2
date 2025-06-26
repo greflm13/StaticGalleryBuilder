@@ -1,16 +1,16 @@
 {%- macro render_tags(tag_tree, parent) -%}
-  <ol>
-    {%- for key, value in tag_tree.items() %}
-      <li class="tagentry">
-        <label onclick="filter()" title="{{ key }}" id="{{ parent }}|{{ key }}">
-          <input type="checkbox" />{{ key }}
-        </label>
-        {%- if value %}
-          {{ render_tags(value, parent + '|' + key) }}
-        {%- endif %}
-      </li>
-    {%- endfor %}
-  </ol>
+<ol>
+  {%- for key, value in tag_tree.items() %}
+  <li class="tagentry">
+    <label onclick="filter()" title="{{ key }}" id="{{ parent }}|{{ key }}">
+      <input class="tag" type="checkbox" />{{ key }}
+    </label>
+    {%- if value %}
+    {{ render_tags(value, parent + '|' + key) }}
+    {%- endif %}
+  </li>
+  {%- endfor %}
+</ol>
 {%- endmacro -%}
 <!DOCTYPE html>
 <html lang="en">
@@ -35,12 +35,10 @@
   <link rel="preload" href="{{ root }}.static/pswp/default-skin/default-skin.css" as="style">
   <link rel="modulepreload" href="{{ root }}.static/pswp/photoswipe.min.js">
   <link rel="modulepreload" href="{{ root }}.static/pswp/photoswipe-ui-default.min.js">
-  {%- if images %}
   <link rel="stylesheet" href="{{ root }}.static/pswp/photoswipe.css">
   <link rel="stylesheet" href="{{ root }}.static/pswp/default-skin/default-skin.css">
   <script src="{{ root }}.static/pswp/photoswipe.min.js"></script>
   <script src="{{ root }}.static/pswp/photoswipe-ui-default.min.js"></script>
-  {%- endif %}
 </head>
 
 <body>
@@ -67,6 +65,11 @@
         <li class="tooltip">
           <a>Filter by Tags</a>
           <ol class="tooltiptext tagdropdown" id="tagdropdown">
+            <span class="tagentry">
+              <label onclick="recursive()">
+                <input type="checkbox" id="recursive" />recursive filter
+              </label>
+            </span>
             {{ render_tags(tags, '') }}
           </ol>
         </li>
@@ -95,11 +98,8 @@
     </div>
     {%- endif %}
   </div>
-  {% if images %}
-  {%- set ns = namespace(count = 0) -%}
   <div class="row" id="imagelist">
   </div>
-  {%- endif %}
   {% if license %}
   {%- if 'CC' in license.type %}
   <div class="footer" xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/">
@@ -130,7 +130,6 @@
     <button type="button" onclick="topFunction()" id="totop" title="Back to Top">Back to Top</button>
   </div>
   {%- endif %}
-  {% if images %}
   <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="pswp__bg"></div>
     <div class="pswp__scroll-wrap">
@@ -168,29 +167,86 @@
     </div>
   </div>
   <script>
-    var pswpElement = document.querySelectorAll('.pswp')[0];
-    var items = [
-      {%- for image in images %}
-      {%- if image.exifdata.DateTime %}
-      { name: "{{ image.name }}", tiff: "{{ image.tiff }}", raw: "{{ image.raw }}", src: "{{ image.url }}", w: {{ image.width }}, h: {{ image.height }}, msrc: "{{ image.thumbnail }}", tags: "{{ image.tags }}", title: "Captured: {{ image.exifdata.DateTime }}" },
-      {%- else %}
-      { name: "{{ image.name }}", tiff: "{{ image.tiff }}", raw: "{{ image.raw }}", src: "{{ image.url }}", w: {{ image.width }}, h: {{ image.height }}, msrc: "{{ image.thumbnail }}", tags: "{{ image.tags }}" },
-      {%- endif %}
-      {%- endfor %}
-    ];
-    var re = /pid=(\d+)/;
-    var filterre = /#(.*)/;
-    var controllers = {}
+    const pswpElement = document.querySelectorAll('.pswp')[0];
+    const re = /pid=(\d+)/;
+    const filterre = /#(.*)/;
+    let items = [];
+    let shown = [];
+    let subfolders = [];
+    let controllers = {};
+    let currentFolder = "";
+
+    function requestMetadata() {
+      fetch(".metadata.json").then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+        .then(data => {
+          items = Object.values(data.images);
+          subfolders = data.subfolders;
+          if (filterre.test(window.location.href)) {
+            var selected = window.location.href.match(filterre)[1].split(",");
+            setFilter(selected);
+          }
+          filter();
+
+          if (re.test(window.location.href)) {
+            var pid = window.location.href.match(re)[1];
+            openSwipe(parseInt(pid));
+          }
+
+          if (items == []) {
+            document.getElementById("imagelist").style.display = "none"
+          } else {
+            document.getElementById("imagelist").style.display = ""
+          }
+        })
+        .catch(error => console.error('Failed to fetch data:', error));
+    }
 
     function openSwipe(img) {
-      var options = {
+      const options = {
         index: img
       };
-      var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, shown, options);
+      const gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, shown, options);
       gallery.init();
     }
 
-    let totopbutton = document.getElementById("totop");
+    async function recursive(sub = undefined) {
+      const ischecked = document.getElementById("recursive").checked;
+      const folders = document.getElementsByClassName("folders")[0];
+      if (sub == undefined) {
+        sub = subfolders;
+      }
+      if (ischecked) {
+        if (folders != undefined) {
+          folders.style.display = "none";
+        }
+        for (const folder of sub) {
+          currentFolder = folder.name;
+          try {
+            const response = await fetch(folder.metadata);
+            const data = await response.json();
+            if (data.subfolders.length > 0) {
+              await recursive(data.subfolders);
+            }
+            items = items.concat(Object.values(data.images));
+            filter();
+          } catch (error) {
+            console.error('Failed to fetch folder metadata:', error);
+          }
+        }
+      } else {
+        if (folders != undefined) {
+          folders.style.display = "";
+        }
+        requestMetadata();
+      }
+    }
+
+    const totopbutton = document.getElementById("totop");
 
     window.onscroll = function () { scrollFunction() };
 
@@ -206,15 +262,15 @@
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
 
-    function updateImageList(images) {
-      var str = ""
-      var imagelist = document.getElementById("imagelist");
-      images.forEach((item, index) => {
+    function updateImageList() {
+      let str = ""
+      let imagelist = document.getElementById("imagelist");
+      shown.forEach((item, index) => {
         str += '<div class="column"><figure><img src="' + item.msrc + '" onclick="openSwipe(' + index + ')" onmouseover="prefetch(' + index + ')" onmouseleave="cancel(' + index + ')" /><figcaption class="caption">' + item.name;
-        if (item.tiff != "") {
+        if (item.tiff != "" & item.tiff != undefined) {
           str += ' <a href="' + item.tiff + '">TIFF</a>';
         }
-        if (item.raw != "") {
+        if (item.raw != "" & item.raw != undefined) {
           str += ' <a href="' + item.raw + '">RAW</a>';
         }
         str += '</figcaption></figure></div>';
@@ -241,32 +297,37 @@
     }
 
     function filter() {
+      shown = [];
+
       window.location.href = window.location.href.split("#")[0] + "#";
 
       const selected_tags = [];
-      const shown = [];
-
-      const tagcheckboxes = document.querySelectorAll("#tagdropdown input[type='checkbox']:checked");
+      const tagcheckboxes = document.querySelectorAll("#tagdropdown input[class='tag']:checked");
 
       tagcheckboxes.forEach((checkbox) => {
         const tag = checkbox.parentElement.id.trim().substring(1);
         selected_tags.push(tag);
       });
-      console.log(selected_tags);
 
       const urltags = selected_tags.join(",");
 
-      items.forEach((item) => {
-        const tags = item.tags || [];
-        const include = selected_tags.every(tag => tags.includes(tag));
-        if (include || selected_tags.length === 0) {
-          shown.push(item);
-        }
-      });
+      const isRecursiveChecked = document.getElementById("recursive").checked;
 
-      updateImageList(shown);
+      for (const item of items) {
+        const tags = item.tags || [];
+        const include = selected_tags.every(tag => tags.some(t => t.startsWith(tag)));
+
+        if (include || selected_tags.length === 0) {
+          if (isRecursiveChecked || item.folder === currentFolder) {
+            shown.push(item);
+          }
+        }
+      }
+
+      updateImageList();
       window.location.href += urltags;
     }
+
 
     function setFilter(selected) {
       tagdropdown = document.getElementById("tagdropdown").getElementsByTagName("li");
@@ -280,28 +341,14 @@
     }
 
     function onLoad() {
-      {%- if tags | length > 0 %}
-      if (filterre.test(window.location.href)) {
-        var selected = window.location.href.match(filterre)[1].split(",");
-        setFilter(selected);
-      }
-      filter();
-      {%- else %}
-      updateImageList(items);
-      {%- endif %}
-
-      if (re.test(window.location.href)) {
-        var pid = window.location.href.match(re)[1];
-        openSwipe(parseInt(pid));
-      }
+      requestMetadata();
     }
 
-    window.addEventListener ? 
-      window.addEventListener("load", onLoad, false) : 
+    window.addEventListener ?
+      window.addEventListener("load", onLoad, false) :
       window.attachEvent && window.attachEvent("onload", onLoad);
 
   </script>
-  {%- endif %}
 </body>
 
 </html>
