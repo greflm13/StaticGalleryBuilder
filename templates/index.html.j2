@@ -174,7 +174,6 @@
     let shown = [];
     let subfolders = [];
     let controllers = {};
-    let currentFolder = "";
 
     function requestMetadata() {
       fetch(".metadata.json").then(response => {
@@ -195,12 +194,6 @@
           if (re.test(window.location.href)) {
             var pid = window.location.href.match(re)[1];
             openSwipe(parseInt(pid));
-          }
-
-          if (items == []) {
-            document.getElementById("imagelist").style.display = "none"
-          } else {
-            document.getElementById("imagelist").style.display = ""
           }
         })
         .catch(error => console.error('Failed to fetch data:', error));
@@ -225,7 +218,6 @@
           folders.style.display = "none";
         }
         for (const folder of sub) {
-          currentFolder = folder.name;
           try {
             const response = await fetch(folder.metadata);
             const data = await response.json();
@@ -300,6 +292,7 @@
       shown = [];
 
       window.location.href = window.location.href.split("#")[0] + "#";
+      const path = window.location.href.split("#")[0].replace("index.html", "");
 
       const selected_tags = [];
       const tagcheckboxes = document.querySelectorAll("#tagdropdown input[class='tag']:checked");
@@ -318,7 +311,12 @@
         const include = selected_tags.every(tag => tags.some(t => t.startsWith(tag)));
 
         if (include || selected_tags.length === 0) {
-          if (isRecursiveChecked || item.folder === currentFolder) {
+          if (!isRecursiveChecked) {
+            if (item.src.replace(item.name, "") == path) {
+              shown.push(item);
+            }
+          }
+          else {
             shown.push(item);
           }
         }
@@ -328,15 +326,19 @@
       window.location.href += urltags;
     }
 
-
     function setFilter(selected) {
-      tagdropdown = document.getElementById("tagdropdown").getElementsByTagName("li");
+      const tagcheckboxes = document.querySelectorAll("#tagdropdown input[class='tag']");
       selected.forEach((tag) => {
-        for (var i = 0; i < tagdropdown.length; i++) {
+        tagcheckboxes.forEach((checkbox) => {
+          if (checkbox.parentElement.id.trim().substring(1).replace(" ", "%20") == tag) {
+            checkbox.checked = true;
+          }
+        });
+        {# for (var i = 0; i < tagdropdown.length; i++) {
           if (tagdropdown[i].innerText == tag) {
             tagdropdown[i].firstChild.firstChild.checked = true;
           }
-        }
+        } #}
       });
     }
 
