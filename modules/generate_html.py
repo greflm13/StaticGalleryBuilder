@@ -5,6 +5,7 @@ import fnmatch
 import json
 from typing import Any
 from datetime import datetime
+from collections import defaultdict
 
 from tqdm.auto import tqdm
 from PIL import Image, ExifTags, TiffImagePlugin, UnidentifiedImageError
@@ -189,25 +190,64 @@ def get_image_info(item: str, folder: str) -> dict[str, Any]:
             tags = xmpdata["xmpmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
             if isinstance(tags, str):
                 tags = [tags]
-            xmp = xmpdata
         except TypeError:
-            ...
+            pass
         except KeyError:
-            ...
+            pass
         try:
             tags = xmpdata["xapmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
             if isinstance(tags, str):
                 tags = [tags]
-            xmp = xmpdata
         except TypeError:
-            ...
+            pass
         except KeyError:
-            ...
+            pass
+        try:
+            tags = xmpdata["xmpmeta"]["RDF"]["Description"]["hierarchicalSubject"]["Bag"]["li"]
+            if isinstance(tags, str):
+                tags = [tags]
+        except TypeError:
+            pass
+        except KeyError:
+            pass
+        try:
+            tags = xmpdata["xapmeta"]["RDF"]["Description"]["hierarchicalSubject"]["Bag"]["li"]
+            if isinstance(tags, str):
+                tags = [tags]
+        except TypeError:
+            pass
+        except KeyError:
+            pass
     if None in tags:
         tags.remove(None)
-    if "st" in tags:
-        tags.remove("st")
     return {"width": width, "height": height, "tags": tags, "exifdata": exifdata, "xmp": xmp}
+
+
+def nested_dict():
+    return defaultdict(nested_dict)
+
+
+def insert_path(d, path):
+    for part in path[:-1]:
+        d = d[part]
+    last = path[-1]
+    if not isinstance(d[last], dict):
+        d[last] = {}
+
+
+def finalize(d):
+    if isinstance(d, defaultdict):
+        # Sort keys before recursion
+        return {k: finalize(d[k]) for k in sorted(d)}
+    return d or []
+
+
+def parse_hierarchical_tags(tags, delimiter="|"):
+    tree = nested_dict()
+    for tag in tags:
+        parts = tag.split(delimiter)
+        insert_path(tree, parts)
+    return finalize(tree)
 
 
 def get_tags(sidecarfile: str) -> list[str]:
@@ -230,21 +270,35 @@ def get_tags(sidecarfile: str) -> list[str]:
         if isinstance(tags, str):
             tags = [tags]
     except TypeError:
-        ...
+        pass
     except KeyError:
-        ...
+        pass
     try:
         tags = xmpdata["xapmeta"]["RDF"]["Description"]["subject"]["Bag"]["li"]
         if isinstance(tags, str):
             tags = [tags]
     except TypeError:
-        ...
+        pass
     except KeyError:
-        ...
+        pass
+    try:
+        tags = xmpdata["xmpmeta"]["RDF"]["Description"]["hierarchicalSubject"]["Bag"]["li"]
+        if isinstance(tags, str):
+            tags = [tags]
+    except TypeError:
+        pass
+    except KeyError:
+        pass
+    try:
+        tags = xmpdata["xapmeta"]["RDF"]["Description"]["hierarchicalSubject"]["Bag"]["li"]
+        if isinstance(tags, str):
+            tags = [tags]
+    except TypeError:
+        pass
+    except KeyError:
+        pass
     if None in tags:
         tags.remove(None)
-    if "st" in tags:
-        tags.remove("st")
     return tags
 
 
@@ -489,9 +543,9 @@ def create_html_file(folder: str, title: str, foldername: str, images: list[dict
 
     alltags = set()
     for img in images:
-        for tag in img["tags"]:
-            alltags.add(tag)
-    alltags = sorted(alltags)
+        alltags.update(img["tags"])
+
+    nested_tags = parse_hierarchical_tags(alltags)
 
     folder_info = info.get(urllib.parse.quote(folder), "").split("\n")
     _info = [i for i in folder_info if len(i) > 1] if folder_info else None
@@ -541,7 +595,7 @@ def create_html_file(folder: str, title: str, foldername: str, images: list[dict
         version=version,
         logo=logo,
         licensefile=license_url,
-        tags=alltags,
+        tags=nested_tags,
     )
 
     with open(html_file, "w", encoding="utf-8") as f:

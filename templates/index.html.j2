@@ -1,3 +1,17 @@
+{%- macro render_tags(tag_tree, parent) -%}
+  <ol>
+    {%- for key, value in tag_tree.items() %}
+      <li class="tagentry">
+        <label onclick="filter()" title="{{ key }}" id="{{ parent }}|{{ key }}">
+          <input type="checkbox" />{{ key }}
+        </label>
+        {%- if value %}
+          {{ render_tags(value, parent + '|' + key) }}
+        {%- endif %}
+      </li>
+    {%- endfor %}
+  </ol>
+{%- endmacro -%}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -49,15 +63,14 @@
         <li class="title"><span class="header">{{ header }}</span></li>
       </div>
       <div class="navright">
-        {%- if tags|length > 0 %}
-        <li class="tooltip"><a>Filter by Tags</a>
+        {% if tags %}
+        <li class="tooltip">
+          <a>Filter by Tags</a>
           <ol class="tooltiptext tagdropdown" id="tagdropdown">
-            {%- for tag in tags -%}
-            <li class="tagentry"><label onclick="filter()"><input type="checkbox" />{{ tag }}</label></li><br />
-            {%- endfor -%}
+            {{ render_tags(tags, '') }}
           </ol>
         </li>
-        {%- endif %}
+        {% endif %}
         {%- if licensefile %}
         <li class="license"><a href="{{ licensefile }}">License</a></li>
         {%- endif %}
@@ -165,7 +178,6 @@
       {%- endif %}
       {%- endfor %}
     ];
-    var shown = [];
     var re = /pid=(\d+)/;
     var filterre = /#(.*)/;
     var controllers = {}
@@ -194,10 +206,10 @@
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
 
-    function updateImageList() {
+    function updateImageList(images) {
       var str = ""
       var imagelist = document.getElementById("imagelist");
-      shown.forEach((item, index) => {
+      images.forEach((item, index) => {
         str += '<div class="column"><figure><img src="' + item.msrc + '" onclick="openSwipe(' + index + ')" onmouseover="prefetch(' + index + ')" onmouseleave="cancel(' + index + ')" /><figcaption class="caption">' + item.name;
         if (item.tiff != "") {
           str += ' <a href="' + item.tiff + '">TIFF</a>';
@@ -229,31 +241,31 @@
     }
 
     function filter() {
-      window.location.href = window.location.href.split("#")[0] + "#"
-      var selected_tags = [];
-      var tagdropdown, tags, incl;
-      shown = [];
-      tagdropdown = document.getElementById("tagdropdown").getElementsByTagName("li");
-      for (var i = 0; i < tagdropdown.length; i++) {
-        if (tagdropdown[i].firstChild.firstChild.checked) {
-          selected_tags.push([tagdropdown[i].innerText])
-        }
-      }
-      var urltags = selected_tags.join(",");
-      items.forEach((item, index) => {
-        tags = item.tags;
-        incl = true;
-        selected_tags.forEach((tag) => {
-          if (tags.indexOf(tag) == -1) {
-            incl = false;
-          }
-        });
-        if (incl | selected_tags == []) {
-          shown.push(item)
+      window.location.href = window.location.href.split("#")[0] + "#";
+
+      const selected_tags = [];
+      const shown = [];
+
+      const tagcheckboxes = document.querySelectorAll("#tagdropdown input[type='checkbox']:checked");
+
+      tagcheckboxes.forEach((checkbox) => {
+        const tag = checkbox.parentElement.id.trim().substring(1);
+        selected_tags.push(tag);
+      });
+      console.log(selected_tags);
+
+      const urltags = selected_tags.join(",");
+
+      items.forEach((item) => {
+        const tags = item.tags || [];
+        const include = selected_tags.every(tag => tags.includes(tag));
+        if (include || selected_tags.length === 0) {
+          shown.push(item);
         }
       });
-      updateImageList();
-      window.location.href += urltags
+
+      updateImageList(shown);
+      window.location.href += urltags;
     }
 
     function setFilter(selected) {
@@ -275,8 +287,7 @@
       }
       filter();
       {%- else %}
-      shown = items;
-      updateImageList();
+      updateImageList(items);
       {%- endif %}
 
       if (re.test(window.location.href)) {

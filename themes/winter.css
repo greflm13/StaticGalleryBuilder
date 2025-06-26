@@ -88,7 +88,7 @@
   font-family: "Montserrat", sans-serif;
 }
 
-.tagentry:hover {
+.tagentry > label:hover {
   background-color: var(--color2);
 }
 

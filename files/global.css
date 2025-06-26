@@ -176,6 +176,7 @@ figure {
 
 .tooltip .tagdropdown {
   padding: 0;
+  margin: 0;
 }
 
 .tooltip:hover .tooltiptext {
@@ -194,6 +195,11 @@ figure {
   cursor: pointer;
   margin: 0;
   padding: 0;
+}
+
+.tooltip .tooltiptext ol {
+  margin-left: 0;
+  padding-left: 0.5em;
 }
 
 .tooltip .tooltiptext .tagentry label {

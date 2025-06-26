@@ -76,7 +76,7 @@
   background-color: var(--bcolor2);
 }
 
-.tagentry:hover {
+.tagentry > label:hover {
   background-color: var(--bcolor4);
 }
 
