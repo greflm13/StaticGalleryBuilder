@@ -406,7 +406,7 @@ def generate_html(folder: str, title: str, _args: Args, raw: list[str], version:
     contains_files = False
     images = []
     subfolders = []
-    subfoldertags = []
+    subfoldertags = set()
     foldername = folder.removeprefix(_args.root_directory)
     foldername = f"{foldername}/" if foldername else ""
     baseurl = urllib.parse.quote(foldername)
@@ -422,7 +422,7 @@ def generate_html(folder: str, title: str, _args: Args, raw: list[str], version:
         for item in tqdm(items, total=len(items), desc=f"Getting image infos - {folder}", unit="files", ascii=True, dynamic_ncols=True):
             if item not in EXCLUDES and not item.startswith("."):
                 if os.path.isdir(os.path.join(folder, item)):
-                    subfoldertags = process_subfolder(item, folder, baseurl, subfolders, _args, raw, version, logo)
+                    subfoldertags.update(process_subfolder(item, folder, baseurl, subfolders, _args, raw, version, logo))
                 else:
                     contains_files = True
                     if os.path.splitext(item)[1].lower() in _args.file_extensions:
@@ -436,7 +436,7 @@ def generate_html(folder: str, title: str, _args: Args, raw: list[str], version:
         for item in items:
             if item not in EXCLUDES and not item.startswith("."):
                 if os.path.isdir(os.path.join(folder, item)):
-                    subfoldertags = process_subfolder(item, folder, baseurl, subfolders, _args, raw, version, logo)
+                    subfoldertags.update(process_subfolder(item, folder, baseurl, subfolders, _args, raw, version, logo))
                 else:
                     contains_files = True
                     if os.path.splitext(item)[1].lower() in _args.file_extensions:
@@ -641,15 +641,7 @@ def create_html_file(
         logger.info("writing html file", extra={"path": html_file})
         f.write(content)
 
-    if len(subfoldertags) > 1 and len(alltags) > 1:
-        alltags.update(set(subfoldertags))
-        return sorted(alltags)
-    elif len(subfoldertags) > 1:
-        return sorted(subfoldertags)
-    elif len(alltags) > 1:
-        return sorted(alltags)
-    else:
-        return []
+    return sorted(alltags)
 
 
 def list_folder(folder: str, title: str, _args: Args, raw: list[str], version: str, logo: str) -> list[tuple[str, str, str]]:

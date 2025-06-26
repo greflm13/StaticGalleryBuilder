@@ -91,7 +91,6 @@
           "--exclude-folder",
           "*/Galleries/*",
           "--folderthumbnails",
-          "--reread-metadata"
         ],
         "console": "integratedTerminal",
         "name": "production",
