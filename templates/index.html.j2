@@ -291,7 +291,7 @@
     function filter() {
       shown = [];
 
-      window.location.href = window.location.href.split("#")[0] + "#";
+      const curr = window.location.href.split("#")[0] + "#";
       const path = window.location.href.split("#")[0].replace("index.html", "");
 
       const selected_tags = [];
@@ -323,7 +323,7 @@
       }
 
       updateImageList();
-      window.location.href += urltags;
+      window.location.href = curr + urltags;
     }
 
     function setFilter(selected) {
@@ -334,11 +334,6 @@
             checkbox.checked = true;
           }
         });
-        {# for (var i = 0; i < tagdropdown.length; i++) {
-          if (tagdropdown[i].innerText == tag) {
-            tagdropdown[i].firstChild.firstChild.checked = true;
-          }
-        } #}
       });
     }
 
