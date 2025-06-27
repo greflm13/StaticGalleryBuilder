@@ -170,6 +170,7 @@
     const pswpElement = document.querySelectorAll('.pswp')[0];
     const re = /pid=(\d+)/;
     const filterre = /#(.*)/;
+    const recursere = /\?recursive/;
     let items = [];
     let shown = [];
     let subfolders = [];
@@ -186,13 +187,17 @@
           items = Object.values(data.images);
           subfolders = data.subfolders;
           if (filterre.test(window.location.href)) {
-            var selected = window.location.href.match(filterre)[1].split(",");
+            const selected = window.location.href.match(filterre)[1].split(",");
             setFilter(selected);
+          }
+          if (recursere.test(window.location.href)) {
+            document.getElementById("recursive").checked = true;
+            recursive();
           }
           filter();
 
           if (re.test(window.location.href)) {
-            var pid = window.location.href.match(re)[1];
+            const pid = window.location.href.match(re)[1];
             openSwipe(parseInt(pid));
           }
         })
@@ -208,12 +213,16 @@
     }
 
     async function recursive(sub = undefined) {
+      const curr = window.location.href.split("#")
+      const content = document.getRootNode().innerHTML;
+      const title = document.title;
       const ischecked = document.getElementById("recursive").checked;
       const folders = document.getElementsByClassName("folders")[0];
       if (sub == undefined) {
         sub = subfolders;
       }
       if (ischecked) {
+        window.history.replaceState({ "html": content, "pageTitle": title }, "", curr[0].split("?")[0] + "?recursive#" + curr[1])
         if (folders != undefined) {
           folders.style.display = "none";
         }
@@ -231,6 +240,7 @@
           }
         }
       } else {
+        window.history.replaceState({ "html": content, "pageTitle": title }, "", curr[0].split("?")[0] + "#" + curr[1])
         if (folders != undefined) {
           folders.style.display = "";
         }
