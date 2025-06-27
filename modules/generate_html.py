@@ -398,10 +398,7 @@ def generate_html(folder: str, title: str, _args: Args, raw: list[str], version:
             logger.info("removing .metadata.json", extra={"folder": folder})
             os.remove(os.path.join(folder, ".metadata.json"))
     metadata = initialize_metadata(folder)
-    if _args.reverse_sort:
-        items = sorted(os.listdir(folder), reverse=True)
-    else:
-        items = sorted(os.listdir(folder))
+    items = sorted(os.listdir(folder))
 
     contains_files = False
     images = []
@@ -448,6 +445,10 @@ def generate_html(folder: str, title: str, _args: Args, raw: list[str], version:
                         process_license(folder, item)
 
     metadata["subfolders"] = subfolders
+    if _args.reverse_sort:
+        metadata["images"] = {key: metadata["images"][key] for key in sorted(metadata["images"], reverse=True)}
+    else:
+        metadata["images"] = {key: metadata["images"][key] for key in sorted(metadata["images"])}
     update_metadata(metadata, folder)
 
     if should_generate_html(images, contains_files, _args):
