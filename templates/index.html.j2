@@ -213,34 +213,46 @@
     }
 
     async function recursive(sub = undefined) {
-      const curr = window.location.href.split("#")
+      const curr = window.location.href.split("#");
       const content = document.getRootNode().innerHTML;
       const title = document.title;
       const ischecked = document.getElementById("recursive").checked;
       const folders = document.getElementsByClassName("folders")[0];
+
       if (sub == undefined) {
         sub = subfolders;
       }
+
       if (ischecked) {
-        window.history.replaceState({ "html": content, "pageTitle": title }, "", curr[0].split("?")[0] + "?recursive#" + curr[1])
+        window.history.replaceState({ "html": content, "pageTitle": title }, "", curr[0].split("?")[0] + "?recursive#" + curr[1]);
         if (folders != undefined) {
           folders.style.display = "none";
         }
+
         for (const folder of sub) {
           try {
             const response = await fetch(folder.metadata);
             const data = await response.json();
+
+            const existingItems = new Set(items.map(item => item.src));
+
+            for (const image of Object.values(data.images)) {
+              if (!existingItems.has(image.src)) {
+                items.push(image);
+              }
+            }
+
             if (data.subfolders.length > 0) {
               await recursive(data.subfolders);
             }
-            items = items.concat(Object.values(data.images));
+
             filter();
           } catch (error) {
             console.error('Failed to fetch folder metadata:', error);
           }
         }
       } else {
-        window.history.replaceState({ "html": content, "pageTitle": title }, "", curr[0].split("?")[0] + "#" + curr[1])
+        window.history.replaceState({ "html": content, "pageTitle": title }, "", curr[0].split("?")[0] + "#" + curr[1]);
         if (folders != undefined) {
           folders.style.display = "";
         }
@@ -325,8 +337,7 @@
             if (item.src.replace(item.name, "") == path) {
               shown.push(item);
             }
-          }
-          else {
+          } else {
             shown.push(item);
           }
         }
