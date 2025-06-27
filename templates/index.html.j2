@@ -292,7 +292,7 @@
       shown = [];
 
       const curr = window.location.href.split("#")[0] + "#";
-      const path = window.location.href.split("#")[0].replace("index.html", "");
+      const path = window.location.href.split("#")[0].replace("index.html", "").replace("(", "%28").replace(")", "%29");
 
       const selected_tags = [];
       const tagcheckboxes = document.querySelectorAll("#tagdropdown input[class='tag']:checked");
