@@ -3,7 +3,7 @@
   {%- for key, value in tag_tree.items() %}
   <li class="tagentry">
     <label onclick="filter()" title="{{ key }}" id="{{ parent }}|{{ key }}">
-      <input class="tag" type="checkbox" />{{ key }}
+      <input class="tag" type="checkbox" />{{ key }}{# {% if value %} <object data="{{ root }}.static/icons/arrow-down.svg" height="15em"></object>{% endif %} #}
     </label>
     {%- if value %}
     {{ render_tags(value, parent + '|' + key) }}
@@ -62,8 +62,8 @@
       </div>
       <div class="navright">
         {% if tags %}
-        <li class="tooltip">
-          <a>Filter by Tags</a>
+        <li class="tooltip" onclick="tagdropdown()">
+          <a>Filter by Tags {#<object data="{{ root }}.static/icons/arrow-down.svg" height="15em"></object>#}</a>
           <ol class="tooltiptext tagdropdown" id="tagdropdown">
             <span class="tagentry">
               <label onclick="recursive()">
@@ -175,6 +175,7 @@
     let shown = [];
     let subfolders = [];
     let controllers = {};
+    {# let tagdropdownshown = false; #}
 
     function requestMetadata() {
       fetch(".metadata.json").then(response => {
@@ -203,6 +204,20 @@
         })
         .catch(error => console.error('Failed to fetch data:', error));
     }
+
+    {# function tagdropdown() {
+      if (tagdropdownshown) {
+        document.getElementById("tagdropdown").style.display = "none";
+        document.getElementById("tagdropdown").style.opacity = 0;
+        document.getElementById("tagdropdown").parentElement.getElementsByTagName("a")[0].getElementsByTagName("object")[0].style = "transform: rotate(0deg)";
+        tagdropdownshown = false;
+      } else {
+        document.getElementById("tagdropdown").style.display = "block";
+        document.getElementById("tagdropdown").style.opacity = 1;
+        document.getElementById("tagdropdown").parentElement.getElementsByTagName("a")[0].getElementsByTagName("object")[0].style = "transform: rotate(180deg)";
+        tagdropdownshown = true;
+      }
+    } #}
 
     function openSwipe(img) {
       const options = {
@@ -314,7 +329,7 @@
       shown = [];
 
       const curr = window.location.href.split("#")[0] + "#";
-      const path = window.location.href.split("#")[0].replace("index.html", "").replace("(", "%28").replace(")", "%29");
+      const path = decodeURIComponent(window.location.href.split("#")[0].replace("index.html", ""))
 
       const selected_tags = [];
       const tagcheckboxes = document.querySelectorAll("#tagdropdown input[class='tag']:checked");
@@ -326,8 +341,6 @@
         }
         selected_tags.push(tag);
       });
-
-      console.log(selected_tags);
 
       const urltags = selected_tags.join(",");
 
@@ -346,7 +359,7 @@
 
         if (include || selected_tags.length === 0) {
           if (!isRecursiveChecked) {
-            if (item.src.replace(item.name, "") == path) {
+            if (decodeURIComponent(item.src.replace(item.name, "")) == path) {
               shown.push(item);
             }
           } else {

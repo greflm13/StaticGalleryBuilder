@@ -157,7 +157,11 @@ figure {
   cursor: pointer;
 }
 
-.tooltip .tooltiptext {
+.tooltip a object {
+  cursor: pointer;
+}
+
+.tooltiptext {
   display: none;
   cursor: default;
   width: max-content;
@@ -179,12 +183,12 @@ figure {
   margin: 0;
 }
 
-.tooltip:hover .tooltiptext {
+.tooltip:hover .infotext {
   display: block;
   opacity: 1;
 }
 
-.tooltip:active .tooltiptext {
+.tooltip:active .infotext {
   display: block;
   opacity: 1;
 }
