@@ -320,9 +320,14 @@
       const tagcheckboxes = document.querySelectorAll("#tagdropdown input[class='tag']:checked");
 
       tagcheckboxes.forEach((checkbox) => {
-        const tag = checkbox.parentElement.id.trim().substring(1);
+        let tag = checkbox.parentElement.id.trim().substring(1);
+        if (checkbox.parentElement.parentElement.children.length > 1) {
+          tag += "|"
+        }
         selected_tags.push(tag);
       });
+
+      console.log(selected_tags);
 
       const urltags = selected_tags.join(",");
 
@@ -330,7 +335,14 @@
 
       for (const item of items) {
         const tags = item.tags || [];
-        const include = selected_tags.every(tag => tags.some(t => t.startsWith(tag)));
+        const include = selected_tags.every(selected => {
+          const isParent = selected.endsWith('|');
+          if (isParent) {
+            return tags.some(t => t.startsWith(selected));
+          } else {
+            return tags.includes(selected);
+          }
+        });
 
         if (include || selected_tags.length === 0) {
           if (!isRecursiveChecked) {

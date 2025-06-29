@@ -9,7 +9,6 @@
                 <rdf:Bag>
                     <rdf:li>st</rdf:li>
                     <rdf:li>cloud</rdf:li>
-                    <rdf:li>cloudy</rdf:li>
                     <rdf:li>fly</rdf:li>
                     <rdf:li>sky</rdf:li>
                 </rdf:Bag>
@@ -17,7 +16,6 @@
             <lr:hierarchicalSubject>
                 <rdf:Bag>
                     <rdf:li>st|cloud</rdf:li>
-                    <rdf:li>st|cloudy</rdf:li>
                     <rdf:li>st|fly</rdf:li>
                     <rdf:li>st|sky</rdf:li>
                 </rdf:Bag>
