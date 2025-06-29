@@ -97,7 +97,11 @@ body {
   background-color: var(--color6);
 }
 
-.tagentry > label:hover {
+.tagentry label:hover {
+  background-color: var(--color3);
+}
+
+.tagentry .tagtoggle:hover {
   background-color: var(--color3);
 }
 

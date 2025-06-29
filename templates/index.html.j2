@@ -1,16 +1,24 @@
 {%- macro render_tags(tag_tree, parent) -%}
-<ol>
-  {%- for key, value in tag_tree.items() %}
-  <li class="tagentry">
-    <label onclick="filter()" title="{{ key }}" id="{{ parent }}|{{ key }}">
-      <input class="tag" type="checkbox" />{{ key }}{# {% if value %} <object data="{{ root }}.static/icons/arrow-down.svg" height="15em"></object>{% endif %} #}
-    </label>
-    {%- if value %}
+{%- for key, value in tag_tree.items() %}
+<li class="tagentry">
+  <div class="tagflex">
+    <label class="tag" title="{{ key }}" id="{{ parent }}|{{ key }}">
+      <input type="checkbox" class="tagcheckbox" />{{ key }}
+    </label>{% if value %} <span class="tagtoggle" data-tagid="{{ parent }}|{{ key }}">
+      <svg width="1em" height="1em" viewBox="0 0 129.87601 129.87624">
+        <g id="layer1" transform="translate(-33.816833,-52.685642)">
+          <path stroke="currentColor" style="fill:none;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+            d="M 54.476483,95.484647 98.754836,139.76308 143.03319,95.484647" id="path1" />
+        </g>
+      </svg></span>{% endif %}
+  </div>
+  {%- if value %}
+  <ol class="tagentryparent">
     {{ render_tags(value, parent + '|' + key) }}
-    {%- endif %}
-  </li>
-  {%- endfor %}
-</ol>
+  </ol>
+  {%- endif %}
+</li><br>
+{%- endfor %}
 {%- endmacro -%}
 <!DOCTYPE html>
 <html lang="en">
@@ -62,8 +70,13 @@
       </div>
       <div class="navright">
         {% if tags %}
-        <li class="tooltip" onclick="tagdropdown()">
-          <a>Filter by Tags {#<object data="{{ root }}.static/icons/arrow-down.svg" height="15em"></object>#}</a>
+        <li class="tooltip">
+          <a id="tagtogglelink">Filter by Tags <svg width="0.8em" height="0.8em" viewBox="0 0 129.87601 129.87624">
+              <g id="layer1" transform="translate(-33.816833,-52.685642)">
+                <path stroke="currentColor" style="fill:none;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+                  d="M 54.476483,95.484647 98.754836,139.76308 143.03319,95.484647" id="path1" />
+              </g>
+            </svg></a>
           <ol class="tooltiptext tagdropdown" id="tagdropdown">
             <span class="tagentry">
               <label onclick="recursive()">
@@ -175,7 +188,7 @@
     let shown = [];
     let subfolders = [];
     let controllers = {};
-    {# let tagdropdownshown = false; #}
+    let tagdropdownshown = false;
 
     function requestMetadata() {
       fetch(".metadata.json").then(response => {
@@ -205,19 +218,39 @@
         .catch(error => console.error('Failed to fetch data:', error));
     }
 
-    {# function tagdropdown() {
-      if (tagdropdownshown) {
-        document.getElementById("tagdropdown").style.display = "none";
-        document.getElementById("tagdropdown").style.opacity = 0;
-        document.getElementById("tagdropdown").parentElement.getElementsByTagName("a")[0].getElementsByTagName("object")[0].style = "transform: rotate(0deg)";
-        tagdropdownshown = false;
-      } else {
-        document.getElementById("tagdropdown").style.display = "block";
-        document.getElementById("tagdropdown").style.opacity = 1;
-        document.getElementById("tagdropdown").parentElement.getElementsByTagName("a")[0].getElementsByTagName("object")[0].style = "transform: rotate(180deg)";
-        tagdropdownshown = true;
-      }
-    } #}
+    function setupTagHandlers() {
+      const tagContainer = document.getElementById("tagdropdown");
+
+      tagContainer.addEventListener("change", debounce(filter, 150));
+
+      tagContainer.addEventListener("click", function (event) {
+        const toggle = event.target.closest(".tagtoggle");
+        if (toggle) {
+          event.stopPropagation();
+          const tagid = toggle.dataset.toggleid;
+          toggleTag(tagid);
+        }
+      });
+    }
+
+    function toggleTag(tagid) {
+      const tag = document.getElementById(tagid);
+      const ol = tag?.closest(".tagentry")?.querySelector(".tagentryparent");
+      const svg = tag?.parentElement.querySelector(".tagtoggle svg");
+
+      if (!ol || !svg) return;
+
+      ol.classList.toggle("show");
+      svg.style.transform = ol.classList.contains("show") ? "rotate(180deg)" : "rotate(0deg)";
+    }
+
+    function debounce(fn, delay) {
+      let timeoutId;
+      return function (...args) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => fn.apply(this, args), delay);
+      };
+    }
 
     function openSwipe(img) {
       const options = {
@@ -332,7 +365,7 @@
       const path = decodeURIComponent(window.location.href.split("#")[0].replace("index.html", ""))
 
       const selected_tags = [];
-      const tagcheckboxes = document.querySelectorAll("#tagdropdown input[class='tag']:checked");
+      const tagcheckboxes = document.querySelectorAll("#tagdropdown input[class='tagcheckbox']:checked");
 
       tagcheckboxes.forEach((checkbox) => {
         let tag = checkbox.parentElement.id.trim().substring(1);
@@ -373,7 +406,7 @@
     }
 
     function setFilter(selected) {
-      const tagcheckboxes = document.querySelectorAll("#tagdropdown input[class='tag']");
+      const tagcheckboxes = document.querySelectorAll("#tagdropdown input[class='tagcheckbox']");
       selected.forEach((tag) => {
         tagcheckboxes.forEach((checkbox) => {
           if (checkbox.parentElement.id.trim().substring(1).replace(" ", "%20") == tag) {
@@ -383,8 +416,40 @@
       });
     }
 
+    function setupDropdownToggle() {
+      const toggleLink = document.getElementById("tagtogglelink");
+      const dropdown = document.getElementById("tagdropdown");
+
+      toggleLink.addEventListener("click", function (event) {
+        event.stopPropagation();
+        const svg = this.querySelector("svg");
+        dropdown.classList.toggle("show");
+        if (svg) svg.style.transform = dropdown.classList.contains("show") ? "rotate(180deg)" : "rotate(0deg)";
+        tagdropdownshown = dropdown.classList.contains("show");
+      });
+
+      document.addEventListener("click", function (event) {
+        if (!dropdown.contains(event.target) && !toggleLink.contains(event.target)) {
+          dropdown.classList.remove("show");
+          tagdropdownshown = false;
+          const svg = toggleLink.querySelector("svg");
+          if (svg) svg.style.transform = "rotate(0deg)";
+        }
+      });
+    }
+
     function onLoad() {
+      document.querySelectorAll('.tagtoggle').forEach(toggle => {
+        toggle.addEventListener('mouseup', function (event) {
+          event.stopPropagation();
+          const tagid = this.getAttribute('data-tagid');
+          toggleTag(tagid);
+        });
+      });
       requestMetadata();
+      setupDropdownToggle();
+      setupTagHandlers();
+      document.getElementById("recursive").addEventListener("change", debounce(recursive, 150));
     }
 
     window.addEventListener ?

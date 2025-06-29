@@ -79,7 +79,11 @@
   font-family: "Nunito", sans-serif;
 }
 
-.tagentry > label:hover {
+.tagentry label:hover {
+  background-color: var(--color4);
+}
+
+.tagentry .tagtoggle:hover {
   background-color: var(--color4);
 }
 
