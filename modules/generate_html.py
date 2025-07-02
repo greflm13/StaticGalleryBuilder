@@ -242,6 +242,13 @@ def get_image_info(item: str, folder: str) -> dict[str, Any]:
             pass
         except KeyError:
             pass
+    sidecarfile = os.path.join(folder, item + ".xmp")
+    if os.path.exists(sidecarfile):
+        logger.info("xmp sidecar file found", extra={"file": sidecarfile})
+        try:
+            tags = get_tags(sidecarfile)
+        except Exception as e:
+            logger.error(e)
     if None in tags:
         tags.remove(None)
     return {"w": width, "h": height, "tags": tags, "exifdata": exifdata, "xmp": xmp}
@@ -261,7 +268,6 @@ def insert_path(d, path):
 
 def finalize(d):
     if isinstance(d, defaultdict):
-        # Sort keys before recursion
         return {k: finalize(d[k]) for k in sorted(d)}
     return d or []
 
@@ -342,10 +348,10 @@ def process_image(item: str, folder: str, _args: Args, baseurl: str, metadata: d
         dict[str, Any]: dictionary containing image details for HTML rendering.
     """
     extsplit = os.path.splitext(item)
+    sidecarfile = os.path.join(folder, item + ".xmp")
     if item not in metadata["images"] or _args.reread_metadata:
         metadata["images"][item] = get_image_info(item, folder)
-    sidecarfile = os.path.join(folder, item + ".xmp")
-    if os.path.exists(sidecarfile):
+    if _args.reread_sidecar and os.path.exists(sidecarfile):
         logger.info("xmp sidecar file found", extra={"file": sidecarfile})
         try:
             metadata["images"][item]["tags"] = get_tags(sidecarfile)
@@ -382,7 +388,7 @@ def process_image(item: str, folder: str, _args: Args, baseurl: str, metadata: d
     return image, metadata
 
 
-def generate_html(folder: str, title: str, _args: Args, raw: list[str], version: str, logo) -> list[str]:
+def generate_html(folder: str, title: str, _args: Args, raw: list[str], version: str, logo: str) -> list[str]:
     """
     Generates HTML content for a folder of images.
 
@@ -500,10 +506,11 @@ def process_subfolder(item: str, folder: str, baseurl: str, subfolders: list[dic
             else:
                 thumb = f"{_args.web_root_url}.thumbnails/{baseurl}{urllib.parse.quote(item)}/{urllib.parse.quote(thumbitems[0])}.jpg"
 
-    subfolders.append({"url": subfolder_url, "name": item, "thumb": thumb, "metadata": f"{_args.web_root_url}{baseurl}{urllib.parse.quote(item)}/.metadata.json"})
     if item not in _args.exclude_folders:
         if not any(fnmatch.fnmatchcase(os.path.join(folder, item), exclude) for exclude in _args.exclude_folders):
+            subfolders.append({"url": subfolder_url, "name": item, "thumb": thumb, "metadata": f"{_args.web_root_url}{baseurl}{urllib.parse.quote(item)}/.metadata.json"})
             return generate_html(os.path.join(folder, item), os.path.join(folder, item).removeprefix(_args.root_directory), _args, raw, version, logo)
+    subfolders.append({"url": subfolder_url, "name": item, "thumb": thumb, "metadata": None})
     return []
 
 

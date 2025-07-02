@@ -55,6 +55,7 @@ The script supports several command-line options to customize its behavior. Belo
 - `--ignore-other-files`: Ignore files that do not match the specified extensions.
 - `--regenerate-thumbnails`: Regenerate thumbnails even if they already exist.
 - `--reread-metadata`: Reread image metadata if it already exists.
+- `--reread-sidecar`: Reread sidecar file data.
 - `--reverse-sort`: Sort images by reverse name order.
 - `--theme-path PATH`: Specify the path to the CSS theme file. Default is the provided default theme.
 - `--use-fancy-folders`: Enable fancy folder view instead of the default Apache directory listing.

@@ -93,9 +93,6 @@
       </div>
     </ol>
     {% if subdirectories %}
-    {%- for subdirectory in subdirectories %}
-    <link rel="preload" href="{{ subdirectory.url }}/index.html" type="text/html">
-    {%- endfor %}
     <div class="folders">
       {%- for subdirectory in subdirectories %}
       <a href="{{ subdirectory.url }}">
@@ -221,6 +218,10 @@
     function setupTagHandlers() {
       const tagContainer = document.getElementById("tagdropdown");
 
+      if (tagContainer == null) {
+        return;
+      }
+
       tagContainer.addEventListener("change", debounce(filter, 150));
 
       tagContainer.addEventListener("click", function (event) {
@@ -264,48 +265,81 @@
       const curr = window.location.href.split("#");
       const content = document.getRootNode().innerHTML;
       const title = document.title;
-      const ischecked = document.getElementById("recursive").checked;
-      const folders = document.getElementsByClassName("folders")[0];
+      const isChecked = document.getElementById("recursive").checked;
+      const folders = document.querySelector(".folders");
 
-      if (sub == undefined) {
-        sub = subfolders;
+      if (!isChecked) {
+        if (folders) folders.style.display = "";
+        window.history.replaceState({ html: content, pageTitle: title }, "", curr[0].split("?")[0] + "#" + curr[1]);
+        requestMetadata();
+        return;
       }
 
-      if (ischecked) {
-        window.history.replaceState({ "html": content, "pageTitle": title }, "", curr[0].split("?")[0] + "?recursive#" + curr[1]);
-        if (folders != undefined) {
-          folders.style.display = "none";
-        }
+      if (folders) folders.style.display = "none";
+      window.history.replaceState({ html: content, pageTitle: title }, "", curr[0].split("?")[0] + "?recursive#" + curr[1]);
 
-        for (const folder of sub) {
+      const visited = new Set();
+      const existingItems = new Set();
+      const newItems = [];
+
+      try {
+        const response = await fetch(".metadata.json");
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        const data = await response.json();
+
+        items = [];
+        subfolders = data.subfolders || [];
+        sub = subfolders;
+
+        for (const image of Object.values(data.images || {})) {
+          newItems.push(image);
+          existingItems.add(image.src);
+        }
+      } catch (error) {
+        console.error("Failed to fetch base .metadata.json:", error);
+        return;
+      }
+
+      async function fetchFoldersRecursively(folderList) {
+        if (!Array.isArray(folderList)) return;
+
+        const nextLevel = [];
+
+        await Promise.all(folderList.map(async (folder) => {
+          if (!folder || !folder.metadata || visited.has(folder.url)) return;
+          visited.add(folder.url);
+
+          if (!folder.metadata) return;
+
           try {
             const response = await fetch(folder.metadata);
+            if (!response.ok) throw new Error(`Failed to fetch ${folder.metadata}`);
             const data = await response.json();
 
-            const existingItems = new Set(items.map(item => item.src));
-
-            for (const image of Object.values(data.images)) {
+            for (const image of Object.values(data.images || {})) {
               if (!existingItems.has(image.src)) {
-                items.push(image);
+                newItems.push(image);
+                existingItems.add(image.src);
               }
             }
 
-            if (data.subfolders.length > 0) {
-              await recursive(data.subfolders);
+            if (Array.isArray(data.subfolders)) {
+              nextLevel.push(...data.subfolders);
             }
-
-            filter();
           } catch (error) {
-            console.error('Failed to fetch folder metadata:', error);
+            console.error("Failed to fetch folder metadata:", error);
           }
+        }));
+
+        if (nextLevel.length > 0) {
+          await fetchFoldersRecursively(nextLevel);
         }
-      } else {
-        window.history.replaceState({ "html": content, "pageTitle": title }, "", curr[0].split("?")[0] + "#" + curr[1]);
-        if (folders != undefined) {
-          folders.style.display = "";
-        }
-        requestMetadata();
       }
+
+      await fetchFoldersRecursively(sub);
+
+      items = [...newItems];
+      filter();
     }
 
     const totopbutton = document.getElementById("totop");
@@ -360,6 +394,7 @@
 
     function filter() {
       shown = [];
+      let isRecursiveChecked = false;
 
       const curr = window.location.href.split("#")[0] + "#";
       const path = decodeURIComponent(window.location.href.split("#")[0].replace("index.html", ""))
@@ -377,7 +412,9 @@
 
       const urltags = selected_tags.join(",");
 
-      const isRecursiveChecked = document.getElementById("recursive").checked;
+      try {
+        isRecursiveChecked = document.getElementById("recursive").checked;
+      } catch { }
 
       for (const item of items) {
         const tags = item.tags || [];
@@ -420,6 +457,10 @@
       const toggleLink = document.getElementById("tagtogglelink");
       const dropdown = document.getElementById("tagdropdown");
 
+      if (toggleLink == null) {
+        return;
+      }
+
       toggleLink.addEventListener("click", function (event) {
         event.stopPropagation();
         const svg = this.querySelector("svg");
@@ -449,7 +490,8 @@
       requestMetadata();
       setupDropdownToggle();
       setupTagHandlers();
-      document.getElementById("recursive").addEventListener("change", debounce(recursive, 150));
+      const recurseEl = document.getElementById("recursive")
+      if (recurseEl != null) { recurseEl.addEventListener("change", debounce(recursive, 150)); }
     }
 
     window.addEventListener ?

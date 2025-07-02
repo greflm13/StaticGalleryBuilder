@@ -90,7 +90,7 @@
           "Scans",
           "--exclude-folder",
           "*/Galleries/*",
-          "--folderthumbnails",
+          "--folderthumbnails"
         ],
         "console": "integratedTerminal",
         "name": "production",
@@ -246,6 +246,21 @@
         "command": "LESS=-SR hl logs/latest.jsonl --config hl_config.yaml",
         "isBackground": false,
         "label": "View Latest Log",
+        "problemMatcher": [],
+        "type": "shell",
+        "presentation": {
+          "echo": false,
+          "reveal": "always",
+          "focus": true,
+          "panel": "dedicated",
+          "showReuseMessage": false,
+          "clear": true
+        }
+      },
+      {
+        "command": "COLUMNS=120 ./builder.py --generate-help-preview help.svg",
+        "isBackground": false,
+        "label": "Create help svg",
         "problemMatcher": [],
         "type": "shell",
         "presentation": {

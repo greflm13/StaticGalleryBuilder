@@ -67,6 +67,7 @@ class Args:
     non_interactive_mode: bool
     regenerate_thumbnails: bool
     reread_metadata: bool
+    reread_sidecar: bool
     reverse_sort: bool
     root_directory: str
     site_title: str
@@ -87,6 +88,7 @@ class Args:
         result["non_interactive_mode"] = self.non_interactive_mode
         result["regenerate_thumbnails"] = self.regenerate_thumbnails
         result["reread_metadata"] = self.reread_metadata
+        result["reread_sidecar"] = self.reread_sidecar
         result["reverse_sort"] = self.reverse_sort
         result["root_directory"] = self.root_directory
         result["site_title"] = self.site_title
@@ -112,27 +114,28 @@ def parse_arguments(version: str) -> Args:
     """
     # fmt: off
     if RICH:
-        parser = argparse.ArgumentParser(description="Generate HTML files for a static image hosting website.", formatter_class=RichHelpFormatter)
+        parser = argparse.ArgumentParser(description="generate HTML files for a static image hosting website", formatter_class=RichHelpFormatter)
     else:
-        parser = argparse.ArgumentParser(description="Generate HTML files for a static image hosting website.")
-    parser.add_argument("-a", "--author-name", help="Name of the author of the images.", default=DEFAULT_AUTHOR, type=str, dest="author_name", metavar="AUTHOR")
-    parser.add_argument("-e", "--file-extensions", help="File extensions to include (can be specified multiple times).", action="append", dest="file_extensions", metavar="EXTENSION")
-    parser.add_argument("-l", "--license-type", help="Specify the license type for the images.", choices=["cc-zero", "cc-by", "cc-by-sa", "cc-by-nd", "cc-by-nc", "cc-by-nc-sa", "cc-by-nc-nd"], default=None, dest="license_type", metavar="LICENSE")
-    parser.add_argument("-m", "--web-manifest", help="Generate a web manifest file.", action="store_true", default=False, dest="generate_webmanifest")
-    parser.add_argument("-n", "--non-interactive-mode", help="Run in non-interactive mode, disabling progress bars.", action="store_true", default=False, dest="non_interactive_mode")
-    parser.add_argument("-p", "--root-directory", help="Root directory containing the images.", required=True, type=str, dest="root_directory", metavar="ROOT")
-    parser.add_argument("-t", "--site-title", help="Title of the image hosting site.", required=True, type=str, dest="site_title", metavar="TITLE")
-    parser.add_argument("-w", "--web-root-url", help="Base URL of the web root for the image hosting site.", required=True, type=str, dest="web_root_url", metavar="URL")
-    parser.add_argument("--exclude-folder", help="Folders to exclude from processing, globs supported (can be specified multiple times).", action="append", dest="exclude_folders", metavar="FOLDER")
-    parser.add_argument("--folderthumbnails", help="Generate subfolder thumbnails (first image in folder will be shown)", action="store_true", default=False, dest="folder_thumbs")
+        parser = argparse.ArgumentParser(description="generate HTML files for a static image hosting website")
+    parser.add_argument("-a", "--author-name", help="name of the author of the images", default=DEFAULT_AUTHOR, type=str, dest="author_name", metavar="AUTHOR")
+    parser.add_argument("-e", "--file-extensions", help="file extensions to include (can be specified multiple times)", action="append", dest="file_extensions", metavar="EXTENSION")
+    parser.add_argument("-l", "--license-type", help="specify the license type for the images", choices=["cc-zero", "cc-by", "cc-by-sa", "cc-by-nd", "cc-by-nc", "cc-by-nc-sa", "cc-by-nc-nd"], default=None, dest="license_type", metavar="LICENSE")
+    parser.add_argument("-m", "--web-manifest", help="generate a web manifest file", action="store_true", default=False, dest="generate_webmanifest")
+    parser.add_argument("-n", "--non-interactive-mode", help="run in non-interactive mode, disabling progress bars", action="store_true", default=False, dest="non_interactive_mode")
+    parser.add_argument("-p", "--root-directory", help="root directory containing the images", required=True, type=str, dest="root_directory", metavar="ROOT")
+    parser.add_argument("-t", "--site-title", help="title of the image hosting site", required=True, type=str, dest="site_title", metavar="TITLE")
+    parser.add_argument("-w", "--web-root-url", help="base URL of the web root for the image hosting site", required=True, type=str, dest="web_root_url", metavar="URL")
+    parser.add_argument("--exclude-folder", help="folders to exclude from processing, globs supported (can be specified multiple times)", action="append", dest="exclude_folders", metavar="FOLDER")
+    parser.add_argument("--folderthumbnails", help="generate subfolder thumbnails (first image in folder will be shown)", action="store_true", default=False, dest="folder_thumbs")
     if RICH:
         parser.add_argument("--generate-help-preview", action=HelpPreviewAction, path="help.svg", )
-    parser.add_argument("--ignore-other-files", help="Ignore files that do not match the specified extensions.", action="store_true", default=False, dest="ignore_other_files")
-    parser.add_argument("--regenerate-thumbnails", help="Regenerate thumbnails even if they already exist.", action="store_true", default=False, dest="regenerate_thumbnails")
-    parser.add_argument("--reread-metadata", help="Reread image metadata", action="store_true", default=False, dest="reread_metadata")
-    parser.add_argument("--reverse-sort", help="Sort images in reverse order.", action="store_true", default=False, dest="reverse_sort")
-    parser.add_argument("--theme-path", help="Path to the CSS theme file.", default=DEFAULT_THEME_PATH, type=str, dest="theme_path", metavar="PATH")
-    parser.add_argument("--use-fancy-folders", help="Enable fancy folder view instead of the default Apache directory listing.", action="store_true", default=False, dest="use_fancy_folders")
+    parser.add_argument("--ignore-other-files", help="ignore files that do not match the specified extensions", action="store_true", default=False, dest="ignore_other_files")
+    parser.add_argument("--regenerate-thumbnails", help="regenerate thumbnails even if they already exist", action="store_true", default=False, dest="regenerate_thumbnails")
+    parser.add_argument("--reread-metadata", help="reread image metadata", action="store_true", default=False, dest="reread_metadata")
+    parser.add_argument("--reread-sidecar", help="reread sidecar files", action="store_true", default=False, dest="reread_sidecar")
+    parser.add_argument("--reverse-sort", help="sort images in reverse order", action="store_true", default=False, dest="reverse_sort")
+    parser.add_argument("--theme-path", help="path to the CSS theme file", default=DEFAULT_THEME_PATH, type=str, dest="theme_path", metavar="PATH")
+    parser.add_argument("--use-fancy-folders", help="enable fancy folder view instead of the default Apache directory listing", action="store_true", default=False, dest="use_fancy_folders")
     parser.add_argument("--version", action="version", version=f"%(prog)s {version}")
     parsed_args = parser.parse_args()
     # fmt: on
@@ -147,6 +150,7 @@ def parse_arguments(version: str) -> Args:
         non_interactive_mode=parsed_args.non_interactive_mode,
         regenerate_thumbnails=parsed_args.regenerate_thumbnails,
         reread_metadata=parsed_args.reread_metadata,
+        reread_sidecar=parsed_args.reread_sidecar,
         reverse_sort=parsed_args.reverse_sort,
         root_directory=parsed_args.root_directory,
         site_title=parsed_args.site_title,
