@@ -208,7 +208,7 @@ input {
 }
 
 .tooltiptext.tagdropdown.show {
-  max-height: 286px;
+  max-height: 80vh;
   overflow-y: scroll;
   opacity: 1;
 }
@@ -232,7 +232,7 @@ input {
 }
 
 .tagentryparent.show {
-  max-height: 286px;
+  max-height: 80vh;
   opacity: 1;
   overflow-y: scroll;
 }

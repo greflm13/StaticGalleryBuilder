@@ -28,7 +28,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ title }}</title>
   {%- if webmanifest %}
-  <link rel="manifest" href="/.static/manifest.json">
+  <link rel="manifest" href="/.static/manifest.webmanifest">
   {%- endif %}
   <link rel="preload" href="{{ stylesheet }}" as="style">
   {%- if theme %}
@@ -43,10 +43,12 @@
   <link rel="preload" href="{{ root }}.static/pswp/default-skin/default-skin.css" as="style">
   <link rel="modulepreload" href="{{ root }}.static/pswp/photoswipe.min.js">
   <link rel="modulepreload" href="{{ root }}.static/pswp/photoswipe-ui-default.min.js">
+  <link rel="modulepreload" href="{{ root }}.static/functionality.min.js">
   <link rel="stylesheet" href="{{ root }}.static/pswp/photoswipe.css">
   <link rel="stylesheet" href="{{ root }}.static/pswp/default-skin/default-skin.css">
   <script src="{{ root }}.static/pswp/photoswipe.min.js"></script>
   <script src="{{ root }}.static/pswp/photoswipe-ui-default.min.js"></script>
+  <script src="{{ root }}.static/functionality.min.js"></script>
 </head>
 
 <body>
@@ -78,8 +80,9 @@
               </g>
             </svg></a>
           <ol class="tooltiptext tagdropdown" id="tagdropdown">
+            <span class="tagentry" id="reset-filter"><label>reset filter</label></span>
             <span class="tagentry">
-              <label onclick="recursive()">
+              <label>
                 <input type="checkbox" id="recursive" />recursive filter
               </label>
             </span>
@@ -130,14 +133,14 @@
     {%- endif %}
     <span class="attribution">Made with <a href="https://github.com/greflm13/StaticGalleryBuilder" target="_blank" rel="noopener noreferrer">StaticGalleryBuilder {{ version }}</a> by <a
         href="https://github.com/greflm13" target="_blank" rel="noopener noreferrer">{{ logo }}</a>.</span>
-    <button type="button" onclick="topFunction()" id="totop" title="Back to Top">Back to Top</button>
+    <button type="button" id="totop" title="Back to Top">Back to Top</button>
   </div>
   {%- endif %}
   {%- else %}
   <div class="footer">
     <span class="attribution">Made with <a href="https://github.com/greflm13/StaticGalleryBuilder" target="_blank" rel="noopener noreferrer">StaticGalleryBuilder {{ version }}</a> by <a
         href="https://github.com/greflm13" target="_blank" rel="noopener noreferrer">{{ logo }}</a>.</span>
-    <button type="button" onclick="topFunction()" id="totop" title="Back to Top">Back to Top</button>
+    <button type="button" id="totop" title="Back to Top">Back to Top</button>
   </div>
   {%- endif %}
   <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
@@ -176,329 +179,9 @@
       </div>
     </div>
   </div>
-  <script>
-    const pswpElement = document.querySelectorAll('.pswp')[0];
-    const re = /pid=(\d+)/;
-    const filterre = /#(.*)/;
-    const recursere = /\?recursive/;
-    let items = [];
-    let shown = [];
-    let subfolders = [];
-    let controllers = {};
-    let tagdropdownshown = false;
-
-    function requestMetadata() {
-      fetch(".metadata.json").then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-        .then(data => {
-          items = Object.values(data.images);
-          subfolders = data.subfolders;
-          if (filterre.test(window.location.href)) {
-            const selected = window.location.href.match(filterre)[1].split(",");
-            setFilter(selected);
-          }
-          if (recursere.test(window.location.href)) {
-            document.getElementById("recursive").checked = true;
-            recursive();
-          }
-          filter();
-
-          if (re.test(window.location.href)) {
-            const pid = window.location.href.match(re)[1];
-            openSwipe(parseInt(pid));
-          }
-        })
-        .catch(error => console.error('Failed to fetch data:', error));
-    }
-
-    function setupTagHandlers() {
-      const tagContainer = document.getElementById("tagdropdown");
-
-      if (tagContainer == null) {
-        return;
-      }
-
-      tagContainer.addEventListener("change", debounce(filter, 150));
-
-      tagContainer.addEventListener("click", function (event) {
-        const toggle = event.target.closest(".tagtoggle");
-        if (toggle) {
-          event.stopPropagation();
-          const tagid = toggle.dataset.toggleid;
-          toggleTag(tagid);
-        }
-      });
-    }
-
-    function toggleTag(tagid) {
-      const tag = document.getElementById(tagid);
-      const ol = tag?.closest(".tagentry")?.querySelector(".tagentryparent");
-      const svg = tag?.parentElement.querySelector(".tagtoggle svg");
-
-      if (!ol || !svg) return;
-
-      ol.classList.toggle("show");
-      svg.style.transform = ol.classList.contains("show") ? "rotate(180deg)" : "rotate(0deg)";
-    }
-
-    function debounce(fn, delay) {
-      let timeoutId;
-      return function (...args) {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => fn.apply(this, args), delay);
-      };
-    }
-
-    function openSwipe(img) {
-      const options = {
-        index: img
-      };
-      const gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, shown, options);
-      gallery.init();
-    }
-
-    async function recursive(sub = undefined) {
-      const curr = window.location.href.split("#");
-      const content = document.getRootNode().innerHTML;
-      const title = document.title;
-      const isChecked = document.getElementById("recursive").checked;
-      const folders = document.querySelector(".folders");
-
-      if (!isChecked) {
-        if (folders) folders.style.display = "";
-        window.history.replaceState({ html: content, pageTitle: title }, "", curr[0].split("?")[0] + "#" + curr[1]);
-        requestMetadata();
-        return;
-      }
-
-      if (folders) folders.style.display = "none";
-      window.history.replaceState({ html: content, pageTitle: title }, "", curr[0].split("?")[0] + "?recursive#" + curr[1]);
-
-      const visited = new Set();
-      const existingItems = new Set();
-      const newItems = [];
-
-      try {
-        const response = await fetch(".metadata.json");
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-        const data = await response.json();
-
-        items = [];
-        subfolders = data.subfolders || [];
-        sub = subfolders;
-
-        for (const image of Object.values(data.images || {})) {
-          newItems.push(image);
-          existingItems.add(image.src);
-        }
-      } catch (error) {
-        console.error("Failed to fetch base .metadata.json:", error);
-        return;
-      }
-
-      async function fetchFoldersRecursively(folderList) {
-        if (!Array.isArray(folderList)) return;
-
-        const nextLevel = [];
-
-        await Promise.all(folderList.map(async (folder) => {
-          if (!folder || !folder.metadata || visited.has(folder.url)) return;
-          visited.add(folder.url);
-
-          if (!folder.metadata) return;
-
-          try {
-            const response = await fetch(folder.metadata);
-            if (!response.ok) throw new Error(`Failed to fetch ${folder.metadata}`);
-            const data = await response.json();
-
-            for (const image of Object.values(data.images || {})) {
-              if (!existingItems.has(image.src)) {
-                newItems.push(image);
-                existingItems.add(image.src);
-              }
-            }
-
-            if (Array.isArray(data.subfolders)) {
-              nextLevel.push(...data.subfolders);
-            }
-          } catch (error) {
-            console.error("Failed to fetch folder metadata:", error);
-          }
-        }));
-
-        if (nextLevel.length > 0) {
-          await fetchFoldersRecursively(nextLevel);
-        }
-      }
-
-      await fetchFoldersRecursively(sub);
-
-      items = [...newItems];
-      filter();
-    }
-
-    const totopbutton = document.getElementById("totop");
-
-    window.onscroll = function () { scrollFunction() };
-
-    function scrollFunction() {
-      if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-        totopbutton.style.display = "block";
-      } else {
-        totopbutton.style.display = "none";
-      }
-    }
-
-    function topFunction() {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    }
-
-    function updateImageList() {
-      let str = ""
-      let imagelist = document.getElementById("imagelist");
-      shown.forEach((item, index) => {
-        str += '<div class="column"><figure><img src="' + item.msrc + '" onclick="openSwipe(' + index + ')" onmouseover="prefetch(' + index + ')" onmouseleave="cancel(' + index + ')" /><figcaption class="caption">' + item.name;
-        if (item.tiff != "" & item.tiff != undefined) {
-          str += ' <a href="' + item.tiff + '">TIFF</a>';
-        }
-        if (item.raw != "" & item.raw != undefined) {
-          str += ' <a href="' + item.raw + '">RAW</a>';
-        }
-        str += '</figcaption></figure></div>';
-      });
-
-      imagelist.innerHTML = str;
-    }
-
-    function prefetch(img) {
-      const controller = new AbortController()
-      const signal = controller.signal
-      controllers[img] = controller;
-      let urlToFetch = items[img].src;
-
-      fetch(urlToFetch, {
-        method: 'get',
-        signal: signal,
-      }).catch(function (err) { });
-    }
-
-    function cancel(img) {
-      controllers[img].abort();
-      delete controllers[img];
-    }
-
-    function filter() {
-      shown = [];
-      let isRecursiveChecked = false;
-
-      const curr = window.location.href.split("#")[0] + "#";
-      const path = decodeURIComponent(window.location.href.split("#")[0].replace("index.html", ""))
-
-      const selected_tags = [];
-      const tagcheckboxes = document.querySelectorAll("#tagdropdown input[class='tagcheckbox']:checked");
-
-      tagcheckboxes.forEach((checkbox) => {
-        let tag = checkbox.parentElement.id.trim().substring(1);
-        if (checkbox.parentElement.parentElement.children.length > 1) {
-          tag += "|"
-        }
-        selected_tags.push(tag);
-      });
-
-      const urltags = selected_tags.join(",");
-
-      try {
-        isRecursiveChecked = document.getElementById("recursive").checked;
-      } catch { }
-
-      for (const item of items) {
-        const tags = item.tags || [];
-        const include = selected_tags.every(selected => {
-          const isParent = selected.endsWith('|');
-          if (isParent) {
-            return tags.some(t => t.startsWith(selected));
-          } else {
-            return tags.includes(selected);
-          }
-        });
-
-        if (include || selected_tags.length === 0) {
-          if (!isRecursiveChecked) {
-            if (decodeURIComponent(item.src.replace(item.name, "")) == path) {
-              shown.push(item);
-            }
-          } else {
-            shown.push(item);
-          }
-        }
-      }
-
-      updateImageList();
-      window.location.href = curr + urltags;
-    }
-
-    function setFilter(selected) {
-      const tagcheckboxes = document.querySelectorAll("#tagdropdown input[class='tagcheckbox']");
-      selected.forEach((tag) => {
-        tagcheckboxes.forEach((checkbox) => {
-          if (checkbox.parentElement.id.trim().substring(1).replace(" ", "%20") == tag) {
-            checkbox.checked = true;
-          }
-        });
-      });
-    }
-
-    function setupDropdownToggle() {
-      const toggleLink = document.getElementById("tagtogglelink");
-      const dropdown = document.getElementById("tagdropdown");
-
-      if (toggleLink == null) {
-        return;
-      }
-
-      toggleLink.addEventListener("click", function (event) {
-        event.stopPropagation();
-        const svg = this.querySelector("svg");
-        dropdown.classList.toggle("show");
-        if (svg) svg.style.transform = dropdown.classList.contains("show") ? "rotate(180deg)" : "rotate(0deg)";
-        tagdropdownshown = dropdown.classList.contains("show");
-      });
-
-      document.addEventListener("click", function (event) {
-        if (!dropdown.contains(event.target) && !toggleLink.contains(event.target)) {
-          dropdown.classList.remove("show");
-          tagdropdownshown = false;
-          const svg = toggleLink.querySelector("svg");
-          if (svg) svg.style.transform = "rotate(0deg)";
-        }
-      });
-    }
-
-    function onLoad() {
-      document.querySelectorAll('.tagtoggle').forEach(toggle => {
-        toggle.addEventListener('mouseup', function (event) {
-          event.stopPropagation();
-          const tagid = this.getAttribute('data-tagid');
-          toggleTag(tagid);
-        });
-      });
-      requestMetadata();
-      setupDropdownToggle();
-      setupTagHandlers();
-      const recurseEl = document.getElementById("recursive")
-      if (recurseEl != null) { recurseEl.addEventListener("change", debounce(recursive, 150)); }
-    }
-
-    window.addEventListener ?
-      window.addEventListener("load", onLoad, false) :
-      window.attachEvent && window.attachEvent("onload", onLoad);
-
-  </script>
 </body>
+<script>
+  new PhotoGallery();
+</script>
 
 </html>

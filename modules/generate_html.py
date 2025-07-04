@@ -3,6 +3,7 @@ import re
 import urllib.parse
 import fnmatch
 import json
+import html
 from typing import Any
 from datetime import datetime
 from collections import defaultdict
@@ -11,6 +12,7 @@ from tqdm.auto import tqdm
 from PIL import Image, ExifTags, TiffImagePlugin, UnidentifiedImageError
 from jinja2 import Environment, FileSystemLoader
 from defusedxml import ElementTree
+from bs4 import BeautifulSoup
 
 from modules.logger import logger
 from modules import cclicense
@@ -516,17 +518,18 @@ def process_subfolder(item: str, folder: str, baseurl: str, subfolders: list[dic
 
 def process_license(folder: str, item: str) -> None:
     """
-    Processes a LICENSE file.
+    Processes a LICENSE file, preserving formatting in HTML.
 
     Args:
-        folder (str): The folder containing the info file.
-        item (str): The licenses file name.
+        folder (str): The folder containing the LICENSE file.
+        item (str): The LICENSE file name.
     """
-    with open(os.path.join(folder, item), encoding="utf-8") as f:
-        logger.info("processing LICENSE", extra={"path": os.path.join(folder, item)})
-        licens[urllib.parse.quote(folder)] = (
-            f.read().replace("\n", "</br>\n").replace("    ", "&emsp;").replace("  ", "&ensp;").replace("sp; ", "sp;&ensp;").replace("&ensp;&ensp;", "&emsp;")
-        )
+    path = os.path.join(folder, item)
+    with open(path, encoding="utf-8") as f:
+        logger.info("processing LICENSE", extra={"path": path})
+        raw_text = f.read()
+        escaped_text = html.escape(raw_text)
+        licens[urllib.parse.quote(folder)] = f"<pre>{escaped_text}</pre>"
 
 
 def process_info_file(folder: str, item: str) -> None:
@@ -554,6 +557,11 @@ def should_generate_html(images: list[dict[str, Any]], contains_files, _args: Ar
         bool: True if HTML should be generated, False otherwise.
     """
     return images or (_args.use_fancy_folders and not contains_files) or (_args.use_fancy_folders and _args.ignore_other_files)
+
+
+def format_html(html: str) -> str:
+    soup = BeautifulSoup(html, "html5lib")
+    return soup.prettify()
 
 
 def create_html_file(
@@ -624,7 +632,7 @@ def create_html_file(
                 logo=logo,
                 licensefile=folder_license,
             )
-            f.write(content)
+            f.write(format_html(content))
 
     html = env.get_template("index.html.j2")
     content = html.render(
@@ -646,8 +654,8 @@ def create_html_file(
     )
 
     with open(html_file, "w", encoding="utf-8") as f:
-        logger.info("writing html file", extra={"path": html_file})
-        f.write(content)
+        logger.info("writing formatted html file", extra={"path": html_file})
+        f.write(format_html(content))
 
     return sorted(alltags)
 

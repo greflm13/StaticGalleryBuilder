@@ -146,7 +146,7 @@ def render_manifest_json(_args: Args, icon_list: list[Icon], colors: dict[str, s
     colors : dict[str, str]
         dictionary containing color scheme and theme color.
     """
-    manifest = env.get_template("manifest.json.j2")
+    manifest = env.get_template("manifest.webmanifest.j2")
     content = manifest.render(
         name=_args.web_root_url.replace("https://", "").replace("http://", "").replace("/", ""),
         short_name=_args.site_title,
@@ -154,8 +154,8 @@ def render_manifest_json(_args: Args, icon_list: list[Icon], colors: dict[str, s
         background_color=colors["bcolor1"],
         theme_color=colors["theme_color"],
     )
-    with open(os.path.join(_args.root_directory, ".static", "manifest.json"), "w", encoding="utf-8") as f:
-        logger.info("rendering manifest.json", extra={"path": os.path.join(_args.root_directory, ".static", "manifest.json")})
+    with open(os.path.join(_args.root_directory, ".static", "manifest.webmanifest"), "w", encoding="utf-8") as f:
+        logger.info("rendering manifest.webmanifest", extra={"path": os.path.join(_args.root_directory, ".static", "manifest.webmanifest")})
         f.write(content)
 
 

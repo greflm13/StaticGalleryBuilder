@@ -11,6 +11,7 @@ from pathlib import Path
 
 from tqdm.auto import tqdm
 from PIL import Image, ImageOps
+from jsmin import jsmin
 
 from modules.argumentparser import parse_arguments, Args
 
@@ -123,6 +124,10 @@ def copy_static_files(_args: Args) -> None:
     with open(os.path.join(static_dir, "theme.css"), "x", encoding="utf-8") as f:
         logger.info("writing theme file")
         f.write(themehead + '\n.foldericon {\n  content: url("data:image/svg+xml,' + svg + '");\n}\n' + themetail)
+    logger.info("minifying javascript")
+    with open(os.path.join(SCRIPTDIR, "templates", "functionality.js"), "r", encoding="utf-8") as js_file:
+        with open(os.path.join(static_dir, "functionality.min.js"), "w+", encoding="utf-8") as min_file:
+            min_file.write(jsmin(js_file.read()))
 
 
 def generate_thumbnail(arguments: tuple[str, str, str]) -> None:

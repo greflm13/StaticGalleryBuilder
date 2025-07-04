@@ -21,13 +21,16 @@
 
 <body>
   <div class="header">
-    <ul class="navbar">
-      <li><a href="{{ root }}">Home</a></li>
-      {%- if parent %}
-      <li><a href="{{ parent }}">Parent Directory</a></li>
-      {%- endif %}
-      <li class="title"><span class="header">{{ header }}</span></li>
-    </ul>
+    <ol class="navbar">
+      <div class="navleft">
+        <li><a href="{{ root }}">Home</a></li>
+        {%- if parent %}
+        <li><a href="{{ parent }}">Parent Directory</a></li>
+        {%- endif %}
+      </div>
+      <div class="navcenter">
+        <li class="title"><span class="header">{{ header }}</span></li>
+      </div>
   </div>
   {%- if licensefile %}
   <div class="licensefile">
