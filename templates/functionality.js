@@ -76,6 +76,7 @@ class PhotoGallery {
     const title = document.title;
     const folders = document.querySelector(".folders");
     if (folders) folders.style.display = "";
+    document.getElementById("recursive").checked = false;
     document
       .querySelectorAll("#tagdropdown input.tagcheckbox:checked")
       .forEach((checkbox) => (checkbox.checked = false));
