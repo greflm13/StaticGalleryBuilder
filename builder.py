@@ -174,7 +174,7 @@ def main(args) -> None:
 
     try:
         Path(lock_file).touch()
-        logger.info("starting builder", extra={"version": VERSION})
+        logger.info("starting builder", extra={"version": VERSION, "arguments": args})
 
         logger.info("getting logo from sorogon.eu")
         req = urllib.request.Request("https://files.sorogon.eu/logo.svg")

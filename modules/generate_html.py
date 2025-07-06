@@ -599,7 +599,8 @@ def create_html_file(
 
     alltags = set()
     for img in images:
-        alltags.update(img["tags"])
+        if img["tags"]:
+            alltags.update(img["tags"])
 
     alltags.update(set(subfoldertags))
 

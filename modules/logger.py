@@ -95,7 +95,7 @@ def setup_logger(level=logging.INFO):
     """
     _logger = logging.getLogger(name="defaultlogger")
 
-    supported_keys = ["asctime", "created", "filename", "funcName", "levelname", "levelno", "lineno", "module", "msecs", "message", "name", "pathname", "process", "processName", "relativeCreated", "thread", "threadName", "taskName"]
+    supported_keys = ["asctime", "created", "filename", "funcName", "levelname", "levelno", "lineno", "module", "msecs", "message", "process", "processName", "relativeCreated", "thread", "threadName"]
 
     custom_format = " ".join(log_format(supported_keys))
     formatter = jsonlogger.JsonFormatter(custom_format)
@@ -121,7 +121,7 @@ def setup_consolelogger(level=logging.INFO):
     """
     _logger = logging.getLogger(name="consolelogger")
 
-    supported_keys = ["asctime", "created", "filename", "funcName", "levelname", "levelno", "lineno", "module", "msecs", "message", "name", "pathname", "process", "processName", "relativeCreated", "thread", "threadName", "taskName"]
+    supported_keys = ["asctime", "created", "filename", "funcName", "levelname", "levelno", "lineno", "module", "msecs", "message", "process", "processName", "relativeCreated", "thread", "threadName"]
 
     custom_format = " ".join(log_format(supported_keys))
     formatter = jsonlogger.JsonFormatter(custom_format)
