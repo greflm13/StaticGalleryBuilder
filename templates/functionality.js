@@ -195,7 +195,7 @@ class PhotoGallery {
   filter() {
     this.shown = [];
     const path = decodeURIComponent(
-      window.location.origin.replace("index.html", "")
+      window.location.origin + window.location.pathname.replace("index.html", "")
     );
     const selectedTags = [];
 
