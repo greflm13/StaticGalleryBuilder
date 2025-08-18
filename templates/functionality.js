@@ -1,9 +1,6 @@
 class PhotoGallery {
   constructor() {
     this.pswpElement = document.querySelector(".pswp");
-    this.re = /pid=(\d+)/;
-    this.filterRe = /#(.*)/;
-    this.recursiveRe = /\?recursive/;
     this.items = [];
     this.shown = [];
     this.subfolders = [];
@@ -71,7 +68,6 @@ class PhotoGallery {
   }
 
   reset() {
-    const curr = window.location.href.split("#");
     const content = document.documentElement.innerHTML;
     const title = document.title;
     const folders = document.querySelector(".folders");
@@ -83,13 +79,13 @@ class PhotoGallery {
     window.history.replaceState(
       { html: content, pageTitle: title },
       "",
-      curr[0].split("?")[0] + "#"
+      window.location.origin + window.location.pathname
     );
     this.requestMetadata();
   }
 
   async recursive() {
-    const curr = window.location.href.split("#");
+    const loc = window.location;
     const content = document.documentElement.innerHTML;
     const title = document.title;
     const isChecked = document.getElementById("recursive")?.checked;
@@ -97,20 +93,22 @@ class PhotoGallery {
 
     if (!isChecked) {
       if (folders) folders.style.display = "";
+      loc.searchParams.delete("recursive");
       window.history.replaceState(
         { html: content, pageTitle: title },
         "",
-        curr[0].split("?")[0] + "#" + (curr[1] || "")
+        loc
       );
       this.requestMetadata();
       return;
     }
 
     if (folders) folders.style.display = "none";
+    loc.searchParams.append("recursive", true)
     window.history.replaceState(
       { html: content, pageTitle: title },
       "",
-      curr[0].split("?")[0] + "?recursive#" + (curr[1] || "")
+      loc
     );
 
     const visited = new Set();
@@ -164,6 +162,8 @@ class PhotoGallery {
   }
 
   requestMetadata() {
+    const hash = window.location.hash;
+    const searchParams = new URLSearchParams(window.location.search);
     fetch(".metadata.json")
       .then((response) => {
         if (!response.ok) throw new Error("Failed to fetch metadata");
@@ -173,21 +173,19 @@ class PhotoGallery {
         this.items = Object.values(data.images || {});
         this.subfolders = data.subfolders || [];
 
-        if (this.filterRe.test(window.location.href)) {
-          const selected = window.location.href
-            .match(this.filterRe)[1]
-            .split(",");
+        if (hash != "") {
+          const selected = hash.replace("#", "").split(",");
           this.setFilter(selected);
         }
-        if (this.recursiveRe.test(window.location.href)) {
+        if (searchParams.get("recursive") != null) {
           const recChk = document.getElementById("recursive");
           if (recChk) recChk.checked = true;
           this.recursive();
         } else {
           this.filter();
         }
-        if (this.re.test(window.location.href)) {
-          const pid = window.location.href.match(this.re)[1];
+        const pid = searchParams.get("pid");
+        if (pid != null) {
           this.openSwipe(parseInt(pid));
         }
       })
@@ -196,9 +194,8 @@ class PhotoGallery {
 
   filter() {
     this.shown = [];
-    const curr = window.location.href.split("#")[0] + "#";
     const path = decodeURIComponent(
-      window.location.href.split("#")[0].replace("index.html", "")
+      window.location.origin.replace("index.html", "")
     );
     const selectedTags = [];
 
@@ -239,7 +236,7 @@ class PhotoGallery {
       }
     }
     this.updateImageList();
-    window.location.href = curr + urltags;
+    window.location.hash = urltags;
   }
 
   updateImageList() {
