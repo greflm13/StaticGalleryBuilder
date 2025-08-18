@@ -85,7 +85,7 @@ class PhotoGallery {
   }
 
   async recursive() {
-    const loc = window.location;
+    const loc = new URL(window.location.href);
     const content = document.documentElement.innerHTML;
     const title = document.title;
     const isChecked = document.getElementById("recursive")?.checked;
