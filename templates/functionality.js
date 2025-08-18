@@ -71,6 +71,11 @@ class PhotoGallery {
     const content = document.documentElement.innerHTML;
     const title = document.title;
     const folders = document.querySelector(".folders");
+    let path = window.location.origin + window.location.pathname;
+    if (path.startsWith("null")) {
+      path = window.location.protocol + "//" + path.substring(4);
+    }
+
     if (folders) folders.style.display = "";
     document.getElementById("recursive").checked = false;
     document
@@ -79,7 +84,7 @@ class PhotoGallery {
     window.history.replaceState(
       { html: content, pageTitle: title },
       "",
-      window.location.origin + window.location.pathname
+      path
     );
     this.requestMetadata();
   }
@@ -94,22 +99,15 @@ class PhotoGallery {
     if (!isChecked) {
       if (folders) folders.style.display = "";
       loc.searchParams.delete("recursive");
-      window.history.replaceState(
-        { html: content, pageTitle: title },
-        "",
-        loc
-      );
+      window.history.replaceState({ html: content, pageTitle: title }, "", loc);
       this.requestMetadata();
       return;
     }
 
     if (folders) folders.style.display = "none";
-    loc.searchParams.append("recursive", true)
-    window.history.replaceState(
-      { html: content, pageTitle: title },
-      "",
-      loc
-    );
+    loc.searchParams.delete("recursive");
+    loc.searchParams.append("recursive", true);
+    window.history.replaceState({ html: content, pageTitle: title }, "", loc);
 
     const visited = new Set();
     const existingItems = new Set();
@@ -184,19 +182,20 @@ class PhotoGallery {
         } else {
           this.filter();
         }
-        const pid = searchParams.get("pid");
-        if (pid != null) {
-          this.openSwipe(parseInt(pid));
-        }
       })
       .catch(() => {});
   }
 
   filter() {
+    const searchParams = new URLSearchParams(window.location.search);
     this.shown = [];
-    const path = decodeURIComponent(
-      window.location.origin + window.location.pathname.replace("index.html", "")
+    let path = decodeURIComponent(
+      window.location.origin +
+        window.location.pathname.replace("index.html", "")
     );
+    if (path.startsWith("null")) {
+      path = window.location.protocol + "//" + path.substring(4);
+    }
     const selectedTags = [];
 
     document
@@ -237,6 +236,11 @@ class PhotoGallery {
     }
     this.updateImageList();
     window.location.hash = urltags;
+
+    const pid = searchParams.get("pid") - 1;
+    if (pid != -1) {
+      this.openSwipe(pid);
+    }
   }
 
   updateImageList() {
