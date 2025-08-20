@@ -190,8 +190,7 @@ class PhotoGallery {
     const searchParams = new URLSearchParams(window.location.search);
     this.shown = [];
     let path = decodeURIComponent(
-      window.location.origin +
-        window.location.pathname.replace("index.html", "")
+      window.location.origin + window.location.pathname.replace("index.html", "")
     );
     if (path.startsWith("null")) {
       path = window.location.protocol + "//" + path.substring(4);
@@ -226,7 +225,7 @@ class PhotoGallery {
 
       if (include || selectedTags.length === 0) {
         if (!isRecursiveChecked) {
-          if (decodeURIComponent(item.src.replace(item.name, "")) === path) {
+          if (decodeURIComponent(item.src).replace(item.name, "") === path) {
             this.shown.push(item);
           }
         } else {
