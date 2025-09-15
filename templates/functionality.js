@@ -248,8 +248,8 @@ class PhotoGallery {
     let str = "";
     this.shown.forEach((item, index) => {
       str += `<div class="column"><figure><img src="${item.msrc}" data-index="${index}" /><figcaption class="caption">${item.name}`;
-      if (item.tiff) str += ` <a href="${item.tiff}">TIFF</a>`;
-      if (item.raw) str += ` <a href="${item.raw}">RAW</a>`;
+      if (item.tiff) str += `&nbsp;<a href="${item.tiff}">TIFF</a>`;
+      if (item.raw) str += `&nbsp;<a href="${item.raw}">RAW</a>`;
       str += "</figcaption></figure></div>";
     });
     imagelist.innerHTML = str;
