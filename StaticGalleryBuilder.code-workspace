@@ -90,6 +90,8 @@
           "Scans",
           "--exclude-folder",
           "*/Galleries/*",
+          "--exclude-folder",
+          "*/Wallpaper/*",
           "--folderthumbnails"
         ],
         "console": "integratedTerminal",
@@ -160,10 +162,12 @@
       }
     ],
     "prettier.htmlWhitespaceSensitivity": "css",
-    "pylint.args": [
-      "--disable=C0111",
-      "--disable=C0301",
-      "--good-names-rgxs=^[_a-z][_a-z0-9]?$"
+    "python-envs.pythonProjects": [
+      {
+        "path": "",
+        "envManager": "ms-python.python:pyenv",
+        "packageManager": "ms-python.python:pip"
+      }
     ],
     "python.analysis.inlayHints.callArgumentNames": "off",
     "python.analysis.inlayHints.functionReturnTypes": false,

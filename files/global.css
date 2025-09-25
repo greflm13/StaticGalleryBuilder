@@ -66,6 +66,13 @@ body {
   padding: 0 2px;
 }
 
+.centerload {
+  margin-top: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 figure {
   margin: 0;
 }

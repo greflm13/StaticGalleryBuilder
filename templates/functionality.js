@@ -81,15 +81,19 @@ class PhotoGallery {
     document
       .querySelectorAll("#tagdropdown input.tagcheckbox:checked")
       .forEach((checkbox) => (checkbox.checked = false));
-    window.history.replaceState(
-      { html: content, pageTitle: title },
-      "",
-      path
-    );
+    window.history.replaceState({ html: content, pageTitle: title }, "", path);
     this.requestMetadata();
   }
 
+  showLoader() {
+    const imagelist = document.getElementById("imagelist");
+    imagelist.innerHTML = '<span class="loader"></span>';
+    imagelist.classList.add("centerload");
+    imagelist.classList.remove("row");
+  }
+
   async recursive() {
+    this.showLoader();
     const loc = new URL(window.location.href);
     const content = document.documentElement.innerHTML;
     const title = document.title;
@@ -160,6 +164,7 @@ class PhotoGallery {
   }
 
   requestMetadata() {
+    this.showLoader();
     const hash = window.location.hash;
     const searchParams = new URLSearchParams(window.location.search);
     fetch(".metadata.json")
@@ -190,7 +195,8 @@ class PhotoGallery {
     const searchParams = new URLSearchParams(window.location.search);
     this.shown = [];
     let path = decodeURIComponent(
-      window.location.origin + window.location.pathname.replace("index.html", "")
+      window.location.origin +
+        window.location.pathname.replace("index.html", "")
     );
     if (path.startsWith("null")) {
       path = window.location.protocol + "//" + path.substring(4);
@@ -252,7 +258,11 @@ class PhotoGallery {
       if (item.raw) str += `&nbsp;<a href="${item.raw}">RAW</a>`;
       str += "</figcaption></figure></div>";
     });
-    imagelist.innerHTML = str;
+    setTimeout(function () {
+      imagelist.classList.add("row");
+      imagelist.classList.remove("centerload");
+      imagelist.innerHTML = str;
+    }, 5000);
   }
 
   setFilter(selected) {
