@@ -258,11 +258,9 @@ class PhotoGallery {
       if (item.raw) str += `&nbsp;<a href="${item.raw}">RAW</a>`;
       str += "</figcaption></figure></div>";
     });
-    setTimeout(function () {
-      imagelist.classList.add("row");
-      imagelist.classList.remove("centerload");
-      imagelist.innerHTML = str;
-    }, 5000);
+    imagelist.classList.add("row");
+    imagelist.classList.remove("centerload");
+    imagelist.innerHTML = str;
   }
 
   setFilter(selected) {
