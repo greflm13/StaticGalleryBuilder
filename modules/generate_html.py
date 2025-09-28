@@ -125,6 +125,8 @@ def initialize_metadata(folder: str) -> dict[str, dict[str, int]]:
             metadata["images"][k]["exifdata"] = None
         if "xmp" not in v:
             metadata["images"][k]["xmp"] = None
+        if "title" not in v:
+            metadata["images"][k]["title"] = v["name"]
 
     return metadata
 
@@ -367,6 +369,7 @@ def process_image(item: str, folder: str, _args: Args, baseurl: str, metadata: d
         "w": metadata["images"][item]["w"],
         "h": metadata["images"][item]["h"],
         "tags": metadata["images"][item]["tags"],
+        "title": item,
     }
     path = os.path.join(_args.root_directory, ".thumbnails", baseurl, item + ".jpg")
     if not os.path.exists(path) or _args.regenerate_thumbnails:
