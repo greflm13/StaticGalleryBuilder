@@ -54,7 +54,7 @@ class PhotoGallery {
     const controller = new AbortController();
     const signal = controller.signal;
     this.controllers[imgIndex] = controller;
-    const urlToFetch = this.items[imgIndex]?.src;
+    const urlToFetch = this.shown[imgIndex]?.src;
     if (urlToFetch) {
       fetch(urlToFetch, { method: "GET", signal }).catch(() => {});
     }
