@@ -277,7 +277,8 @@ a.pswp__share--download:hover {
   font-size: 13px;
   padding: 10px;
   line-height: 20px;
-  color: #CCC; }
+  color: #CCC; 
+  text-align: center; }
 
 .pswp__caption--empty {
   display: none; }
