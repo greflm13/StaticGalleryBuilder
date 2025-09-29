@@ -38,7 +38,12 @@ class PhotoGallery {
 
   openSwipe(imgIndex) {
     const options = { index: imgIndex };
-    const gallery = new PhotoSwipe(this.pswpElement, PhotoSwipeUI_Default, this.shown, options);
+    const gallery = new PhotoSwipe(
+      this.pswpElement,
+      PhotoSwipeUI_Default,
+      this.shown,
+      options
+    );
     gallery.init();
   }
 
@@ -73,7 +78,9 @@ class PhotoGallery {
 
     if (folders) folders.style.display = "";
     document.getElementById("recursive").checked = false;
-    document.querySelectorAll("#tagdropdown input.tagcheckbox:checked").forEach((checkbox) => (checkbox.checked = false));
+    document
+      .querySelectorAll("#tagdropdown input.tagcheckbox:checked")
+      .forEach((checkbox) => (checkbox.checked = false));
     window.history.replaceState({ html: content, pageTitle: title }, "", path);
     this.requestMetadata();
   }
@@ -143,7 +150,8 @@ class PhotoGallery {
                 existingItems.add(image.src);
               }
             }
-            if (Array.isArray(data.subfolders)) nextLevel.push(...data.subfolders);
+            if (Array.isArray(data.subfolders))
+              nextLevel.push(...data.subfolders);
           } catch {}
         })
       );
@@ -186,30 +194,39 @@ class PhotoGallery {
   filter() {
     const searchParams = new URLSearchParams(window.location.search);
     this.shown = [];
-    let path = decodeURIComponent(window.location.origin + window.location.pathname.replace("index.html", ""));
+    let path = decodeURIComponent(
+      window.location.origin +
+        window.location.pathname.replace("index.html", "")
+    );
     if (path.startsWith("null")) {
       path = window.location.protocol + "//" + path.substring(4);
     }
     const selectedTags = [];
 
-    document.querySelectorAll("#tagdropdown input.tagcheckbox:checked").forEach((checkbox) => {
-      let tag = checkbox.parentElement.id.trim().substring(1);
-      if (checkbox.parentElement.parentElement.children.length > 1) tag += "|";
-      selectedTags.push(tag);
-    });
+    document
+      .querySelectorAll("#tagdropdown input.tagcheckbox:checked")
+      .forEach((checkbox) => {
+        let tag = checkbox.parentElement.id.trim().substring(1);
+        if (checkbox.parentElement.parentElement.children.length > 1)
+          tag += "|";
+        selectedTags.push(tag);
+      });
 
     const urltags = selectedTags.join(",");
 
     let isRecursiveChecked = false;
     try {
-      isRecursiveChecked = document.getElementById("recursive")?.checked || false;
+      isRecursiveChecked =
+        document.getElementById("recursive")?.checked || false;
     } catch {}
 
     for (const item of this.items) {
       const tags = item.tags || [];
       const include = selectedTags.every((selected) => {
         const isParent = selected.endsWith("|");
-        return isParent ? tags.some((t) => t.startsWith(selected)) : tags.includes(selected);
+        return isParent
+          ? tags.some((t) => t.startsWith(selected))
+          : tags.includes(selected);
       });
 
       if (include || selectedTags.length === 0) {
@@ -235,10 +252,16 @@ class PhotoGallery {
     let current = obj;
     for (let i = 0; i < path.length; i++) {
       const part = path[i];
-      if (!current[part]) {
-        current[part] = {};
+      if (i === path.length - 1) {
+        if (!current[part]) {
+          current[part] = null;
+        }
+      } else {
+        if (!current[part] || typeof current[part] !== "object") {
+          current[part] = {};
+        }
+        current = current[part];
       }
-      current = current[part];
     }
   }
 
@@ -248,7 +271,11 @@ class PhotoGallery {
       Object.keys(obj)
         .sort()
         .forEach((key) => {
-          result[key] = finalize(obj[key]);
+          if (obj[key] === null) {
+            result[key] = [];
+          } else {
+            result[key] = this.finalize(obj[key]);
+          }
         });
       return result;
     }
@@ -259,10 +286,26 @@ class PhotoGallery {
     const tree = {};
     for (const tag of tags) {
       const parts = tag.split(delimiter);
-      insertPath(tree, parts);
+      this.insertPath(tree, parts);
     }
-    return finalize(tree);
+    return this.finalize(tree);
   }
+
+  renderTree = (obj, depth = 0) => {
+    let lines = [];
+    const indent = "&nbsp;&nbsp;".repeat(depth);
+    for (const key of Object.keys(obj)) {
+      lines.push(indent + key);
+      if (Array.isArray(obj[key])) {
+        for (const val of obj[key]) {
+          lines.push("&nbsp;&nbsp;".repeat(depth + 1) + val);
+        }
+      } else if (typeof obj[key] === "object" && obj[key] !== null) {
+        lines = lines.concat(this.renderTree(obj[key], depth + 1));
+      }
+    }
+    return lines.join("\n");
+  };
 
   updateImageList() {
     const imagelist = document.getElementById("imagelist");
@@ -270,7 +313,11 @@ class PhotoGallery {
     let str = "";
     this.shown.forEach((item, index) => {
       let tags = this.parseHierarchicalTags(item.tags || []);
-      str += `<div class="column" title="${tags}"><figure><img src="${item.msrc}" data-index="${index}" /><figcaption class="caption">${item.name}`;
+      str += `<div class="column"><figure title="${this.renderTree(
+        tags
+      )}"><img src="${
+        item.msrc
+      }" data-index="${index}" /><figcaption class="caption">${item.name}`;
       if (item.tiff) str += `&nbsp;<a href="${item.tiff}">TIFF</a>`;
       if (item.raw) str += `&nbsp;<a href="${item.raw}">RAW</a>`;
       str += "</figcaption></figure></div>";
@@ -281,13 +328,20 @@ class PhotoGallery {
   }
 
   setFilter(selected) {
-    document.querySelectorAll("#tagdropdown input.tagcheckbox").forEach((checkbox) => {
-      selected.forEach((tag) => {
-        if (checkbox.parentElement.id.trim().substring(1).replace(" ", "%20") === tag) {
-          checkbox.checked = true;
-        }
+    document
+      .querySelectorAll("#tagdropdown input.tagcheckbox")
+      .forEach((checkbox) => {
+        selected.forEach((tag) => {
+          if (
+            checkbox.parentElement.id
+              .trim()
+              .substring(1)
+              .replace(" ", "%20") === tag
+          ) {
+            checkbox.checked = true;
+          }
+        });
       });
-    });
   }
 
   toggleTag(tagid) {
@@ -296,7 +350,9 @@ class PhotoGallery {
     const svg = tag?.parentElement.querySelector(".tagtoggle svg");
     if (!ol || !svg) return;
     ol.classList.toggle("show");
-    svg.style.transform = ol.classList.contains("show") ? "rotate(180deg)" : "rotate(0deg)";
+    svg.style.transform = ol.classList.contains("show")
+      ? "rotate(180deg)"
+      : "rotate(0deg)";
   }
 
   setupDropdownToggle() {
@@ -308,12 +364,18 @@ class PhotoGallery {
       event.stopPropagation();
       const svg = toggleLink.querySelector("svg");
       dropdown.classList.toggle("show");
-      if (svg) svg.style.transform = dropdown.classList.contains("show") ? "rotate(180deg)" : "rotate(0deg)";
+      if (svg)
+        svg.style.transform = dropdown.classList.contains("show")
+          ? "rotate(180deg)"
+          : "rotate(0deg)";
       this.tagDropdownShown = dropdown.classList.contains("show");
     });
 
     document.addEventListener("click", (event) => {
-      if (!dropdown.contains(event.target) && !toggleLink.contains(event.target)) {
+      if (
+        !dropdown.contains(event.target) &&
+        !toggleLink.contains(event.target)
+      ) {
         dropdown.classList.remove("show");
         this.tagDropdownShown = false;
         const svg = toggleLink.querySelector("svg");
@@ -340,11 +402,14 @@ class PhotoGallery {
   }
 
   setupClickHandlers() {
-    const resetEl = document.getElementById("reset-filter")?.querySelector("label");
+    const resetEl = document
+      .getElementById("reset-filter")
+      ?.querySelector("label");
     if (resetEl) resetEl.addEventListener("click", this.reset);
 
     const recurseEl = document.getElementById("recursive");
-    if (recurseEl) recurseEl.addEventListener("change", this.debounce(this.recursive, 150));
+    if (recurseEl)
+      recurseEl.addEventListener("change", this.debounce(this.recursive, 150));
 
     const totop = document.getElementById("totop");
     if (totop) totop.addEventListener("click", this.topFunction);
@@ -377,7 +442,10 @@ class PhotoGallery {
   scrollFunction() {
     const totopbutton = document.getElementById("totop");
     if (!totopbutton) return;
-    if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+    if (
+      document.body.scrollTop > 20 ||
+      document.documentElement.scrollTop > 20
+    ) {
       totopbutton.style.display = "block";
     } else {
       totopbutton.style.display = "none";
