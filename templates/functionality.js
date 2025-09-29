@@ -38,12 +38,7 @@ class PhotoGallery {
 
   openSwipe(imgIndex) {
     const options = { index: imgIndex };
-    const gallery = new PhotoSwipe(
-      this.pswpElement,
-      PhotoSwipeUI_Default,
-      this.shown,
-      options
-    );
+    const gallery = new PhotoSwipe(this.pswpElement, PhotoSwipeUI_Default, this.shown, options);
     gallery.init();
   }
 
@@ -78,9 +73,7 @@ class PhotoGallery {
 
     if (folders) folders.style.display = "";
     document.getElementById("recursive").checked = false;
-    document
-      .querySelectorAll("#tagdropdown input.tagcheckbox:checked")
-      .forEach((checkbox) => (checkbox.checked = false));
+    document.querySelectorAll("#tagdropdown input.tagcheckbox:checked").forEach((checkbox) => (checkbox.checked = false));
     window.history.replaceState({ html: content, pageTitle: title }, "", path);
     this.requestMetadata();
   }
@@ -150,8 +143,7 @@ class PhotoGallery {
                 existingItems.add(image.src);
               }
             }
-            if (Array.isArray(data.subfolders))
-              nextLevel.push(...data.subfolders);
+            if (Array.isArray(data.subfolders)) nextLevel.push(...data.subfolders);
           } catch {}
         })
       );
@@ -194,39 +186,30 @@ class PhotoGallery {
   filter() {
     const searchParams = new URLSearchParams(window.location.search);
     this.shown = [];
-    let path = decodeURIComponent(
-      window.location.origin +
-        window.location.pathname.replace("index.html", "")
-    );
+    let path = decodeURIComponent(window.location.origin + window.location.pathname.replace("index.html", ""));
     if (path.startsWith("null")) {
       path = window.location.protocol + "//" + path.substring(4);
     }
     const selectedTags = [];
 
-    document
-      .querySelectorAll("#tagdropdown input.tagcheckbox:checked")
-      .forEach((checkbox) => {
-        let tag = checkbox.parentElement.id.trim().substring(1);
-        if (checkbox.parentElement.parentElement.children.length > 1)
-          tag += "|";
-        selectedTags.push(tag);
-      });
+    document.querySelectorAll("#tagdropdown input.tagcheckbox:checked").forEach((checkbox) => {
+      let tag = checkbox.parentElement.id.trim().substring(1);
+      if (checkbox.parentElement.parentElement.children.length > 1) tag += "|";
+      selectedTags.push(tag);
+    });
 
     const urltags = selectedTags.join(",");
 
     let isRecursiveChecked = false;
     try {
-      isRecursiveChecked =
-        document.getElementById("recursive")?.checked || false;
+      isRecursiveChecked = document.getElementById("recursive")?.checked || false;
     } catch {}
 
     for (const item of this.items) {
       const tags = item.tags || [];
       const include = selectedTags.every((selected) => {
         const isParent = selected.endsWith("|");
-        return isParent
-          ? tags.some((t) => t.startsWith(selected))
-          : tags.includes(selected);
+        return isParent ? tags.some((t) => t.startsWith(selected)) : tags.includes(selected);
       });
 
       if (include || selectedTags.length === 0) {
@@ -248,12 +231,46 @@ class PhotoGallery {
     }
   }
 
+  insertPath(obj, path) {
+    let current = obj;
+    for (let i = 0; i < path.length; i++) {
+      const part = path[i];
+      if (!current[part]) {
+        current[part] = {};
+      }
+      current = current[part];
+    }
+  }
+
+  finalize(obj) {
+    if (typeof obj === "object" && obj !== null && !Array.isArray(obj)) {
+      const result = {};
+      Object.keys(obj)
+        .sort()
+        .forEach((key) => {
+          result[key] = finalize(obj[key]);
+        });
+      return result;
+    }
+    return obj || [];
+  }
+
+  parseHierarchicalTags(tags, delimiter = "|") {
+    const tree = {};
+    for (const tag of tags) {
+      const parts = tag.split(delimiter);
+      insertPath(tree, parts);
+    }
+    return finalize(tree);
+  }
+
   updateImageList() {
     const imagelist = document.getElementById("imagelist");
     if (!imagelist) return;
     let str = "";
     this.shown.forEach((item, index) => {
-      str += `<div class="column"><figure><img src="${item.msrc}" data-index="${index}" /><figcaption class="caption">${item.name}`;
+      let tags = this.parseHierarchicalTags(item.tags || []);
+      str += `<div class="column" title="${tags}"><figure><img src="${item.msrc}" data-index="${index}" /><figcaption class="caption">${item.name}`;
       if (item.tiff) str += `&nbsp;<a href="${item.tiff}">TIFF</a>`;
       if (item.raw) str += `&nbsp;<a href="${item.raw}">RAW</a>`;
       str += "</figcaption></figure></div>";
@@ -264,20 +281,13 @@ class PhotoGallery {
   }
 
   setFilter(selected) {
-    document
-      .querySelectorAll("#tagdropdown input.tagcheckbox")
-      .forEach((checkbox) => {
-        selected.forEach((tag) => {
-          if (
-            checkbox.parentElement.id
-              .trim()
-              .substring(1)
-              .replace(" ", "%20") === tag
-          ) {
-            checkbox.checked = true;
-          }
-        });
+    document.querySelectorAll("#tagdropdown input.tagcheckbox").forEach((checkbox) => {
+      selected.forEach((tag) => {
+        if (checkbox.parentElement.id.trim().substring(1).replace(" ", "%20") === tag) {
+          checkbox.checked = true;
+        }
       });
+    });
   }
 
   toggleTag(tagid) {
@@ -286,9 +296,7 @@ class PhotoGallery {
     const svg = tag?.parentElement.querySelector(".tagtoggle svg");
     if (!ol || !svg) return;
     ol.classList.toggle("show");
-    svg.style.transform = ol.classList.contains("show")
-      ? "rotate(180deg)"
-      : "rotate(0deg)";
+    svg.style.transform = ol.classList.contains("show") ? "rotate(180deg)" : "rotate(0deg)";
   }
 
   setupDropdownToggle() {
@@ -300,18 +308,12 @@ class PhotoGallery {
       event.stopPropagation();
       const svg = toggleLink.querySelector("svg");
       dropdown.classList.toggle("show");
-      if (svg)
-        svg.style.transform = dropdown.classList.contains("show")
-          ? "rotate(180deg)"
-          : "rotate(0deg)";
+      if (svg) svg.style.transform = dropdown.classList.contains("show") ? "rotate(180deg)" : "rotate(0deg)";
       this.tagDropdownShown = dropdown.classList.contains("show");
     });
 
     document.addEventListener("click", (event) => {
-      if (
-        !dropdown.contains(event.target) &&
-        !toggleLink.contains(event.target)
-      ) {
+      if (!dropdown.contains(event.target) && !toggleLink.contains(event.target)) {
         dropdown.classList.remove("show");
         this.tagDropdownShown = false;
         const svg = toggleLink.querySelector("svg");
@@ -338,14 +340,11 @@ class PhotoGallery {
   }
 
   setupClickHandlers() {
-    const resetEl = document
-      .getElementById("reset-filter")
-      ?.querySelector("label");
+    const resetEl = document.getElementById("reset-filter")?.querySelector("label");
     if (resetEl) resetEl.addEventListener("click", this.reset);
 
     const recurseEl = document.getElementById("recursive");
-    if (recurseEl)
-      recurseEl.addEventListener("change", this.debounce(this.recursive, 150));
+    if (recurseEl) recurseEl.addEventListener("change", this.debounce(this.recursive, 150));
 
     const totop = document.getElementById("totop");
     if (totop) totop.addEventListener("click", this.topFunction);
@@ -378,10 +377,7 @@ class PhotoGallery {
   scrollFunction() {
     const totopbutton = document.getElementById("totop");
     if (!totopbutton) return;
-    if (
-      document.body.scrollTop > 20 ||
-      document.documentElement.scrollTop > 20
-    ) {
+    if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
       totopbutton.style.display = "block";
     } else {
       totopbutton.style.display = "none";
