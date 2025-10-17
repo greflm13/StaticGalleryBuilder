@@ -62,6 +62,7 @@ class Args:
     file_extensions: list[str]
     folder_thumbs: bool
     generate_webmanifest: bool
+    ignore_extensions: list[str]
     ignore_other_files: bool
     license_type: Optional[str]
     non_interactive_mode: bool
@@ -82,6 +83,7 @@ class Args:
         result["file_extensions"] = self.file_extensions
         result["folder_thumbs"] = self.folder_thumbs
         result["generate_webmanifest"] = self.generate_webmanifest
+        result["ignore_extensions"] = self.ignore_extensions
         result["ignore_other_files"] = self.ignore_other_files
         if self.license_type is not None:
             result["license_type"] = self.license_type
@@ -130,6 +132,7 @@ def parse_arguments(version: str) -> Args:
     if RICH:
         parser.add_argument("--generate-help-preview", action=HelpPreviewAction, path="help.svg", )
     parser.add_argument("--ignore-other-files", help="ignore files that do not match the specified extensions", action="store_true", default=False, dest="ignore_other_files")
+    parser.add_argument("--ignore-extension", help="file extensions to ignore (can be specified multiple times)", action="append", dest="ignore_extensions", metavar="EXTENSION")
     parser.add_argument("--regenerate-thumbnails", help="regenerate thumbnails even if they already exist", action="store_true", default=False, dest="regenerate_thumbnails")
     parser.add_argument("--reread-metadata", help="reread image metadata", action="store_true", default=False, dest="reread_metadata")
     parser.add_argument("--reread-sidecar", help="reread sidecar files", action="store_true", default=False, dest="reread_sidecar")
@@ -146,6 +149,7 @@ def parse_arguments(version: str) -> Args:
         folder_thumbs=parsed_args.folder_thumbs,
         generate_webmanifest=parsed_args.generate_webmanifest,
         ignore_other_files=parsed_args.ignore_other_files,
+        ignore_extensions=parsed_args.ignore_extensions,
         license_type=parsed_args.license_type,
         non_interactive_mode=parsed_args.non_interactive_mode,
         regenerate_thumbnails=parsed_args.regenerate_thumbnails,
