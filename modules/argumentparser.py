@@ -132,7 +132,7 @@ def parse_arguments(version: str) -> Args:
     if RICH:
         parser.add_argument("--generate-help-preview", action=HelpPreviewAction, path="help.svg", )
     parser.add_argument("--ignore-other-files", help="ignore files that do not match the specified extensions", action="store_true", default=False, dest="ignore_other_files")
-    parser.add_argument("--ignore-extension", help="file extensions to ignore (can be specified multiple times)", action="append", dest="ignore_extensions", metavar="EXTENSION")
+    parser.add_argument("--ignore-extension", help="file extensions to ignore (can be specified multiple times)", action="append", default=[], dest="ignore_extensions", metavar="EXTENSION")
     parser.add_argument("--regenerate-thumbnails", help="regenerate thumbnails even if they already exist", action="store_true", default=False, dest="regenerate_thumbnails")
     parser.add_argument("--reread-metadata", help="reread image metadata", action="store_true", default=False, dest="reread_metadata")
     parser.add_argument("--reread-sidecar", help="reread sidecar files", action="store_true", default=False, dest="reread_sidecar")
