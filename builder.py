@@ -230,6 +230,9 @@ def main(args) -> None:
                     dynamic_ncols=True,
                 ):
                     pass
+    except Exception as e:
+        logger.critical("an unhandled exception occurred: %s", str(e), exc_info=True)
+        print(f"An unhandled exception occurred: {str(e)}")
     finally:
         os.remove(LOCKFILE)
         logger.info("finished builder", extra={"version": VERSION})
