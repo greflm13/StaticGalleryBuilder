@@ -171,6 +171,7 @@ def main(args) -> None:
     thumbnails: list[tuple[str, str, str]] = []
 
     args, raw = init_globals(args, RAW_EXTENSIONS)
+    thumbdir = os.path.join(args.root_directory, ".thumbnails")
 
     try:
         Path(LOCKFILE).touch()
@@ -195,7 +196,6 @@ def main(args) -> None:
             logger.warning("reread metadata flag is set to true, all image metadata will be reread")
         if args.regenerate_thumbnails:
             logger.warning("regenerate thumbnails flag is set to true, all thumbnails will be regenerated")
-            thumbdir = os.path.join(args.root_directory, ".thumbnails")
             if os.path.exists(thumbdir):
                 logger.info("removing old thumbnails folder")
                 shutil.rmtree(thumbdir)
