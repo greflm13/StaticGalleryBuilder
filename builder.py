@@ -37,8 +37,8 @@ NOT_LIST = ["*/Galleries/*", "Archives"]
 
 args = parse_arguments(VERSION)
 
-lock_file = os.path.join(args.root_directory, ".lock")
-if os.path.exists(lock_file):
+LOCKFILE = os.path.join(args.root_directory, ".lock")
+if os.path.exists(LOCKFILE):
     print("Another instance of this program is running.")
     sys.exit()
 else:
@@ -168,12 +168,12 @@ def main(args) -> None:
     """
     Main function to process images and generate a static image hosting website.
     """
-    thumbnails: list[tuple[str, str, str, bool]] = []
+    thumbnails: list[tuple[str, str, str]] = []
 
     args, raw = init_globals(args, RAW_EXTENSIONS)
 
     try:
-        Path(lock_file).touch()
+        Path(LOCKFILE).touch()
         logger.info("starting builder", extra={"version": VERSION, "arguments": args})
 
         logger.info("getting logo from sorogon.eu")
@@ -195,10 +195,11 @@ def main(args) -> None:
             logger.warning("reread metadata flag is set to true, all image metadata will be reread")
         if args.regenerate_thumbnails:
             logger.warning("regenerate thumbnails flag is set to true, all thumbnails will be regenerated")
-            if os.path.exists(os.path.join(args.root_directory, ".thumbnails")):
+            thumbdir = os.path.join(args.root_directory, ".thumbnails")
+            if os.path.exists(thumbdir):
                 logger.info("removing old thumbnails folder")
-                shutil.rmtree(os.path.join(args.root_directory, ".thumbnails"))
-        os.makedirs(os.path.join(args.root_directory, ".thumbnails"), exist_ok=True)
+                shutil.rmtree(thumbdir)
+        os.makedirs(thumbdir, exist_ok=True)
 
         copy_static_files(args)
         icons(args)
@@ -230,7 +231,7 @@ def main(args) -> None:
                 ):
                     pass
     finally:
-        os.remove(lock_file)
+        os.remove(LOCKFILE)
         logger.info("finished builder", extra={"version": VERSION})
 
 

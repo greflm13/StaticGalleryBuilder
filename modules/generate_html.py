@@ -17,6 +17,7 @@ from bs4 import BeautifulSoup
 from modules.logger import logger
 from modules import cclicense
 from modules.argumentparser import Args
+from modules.datatypes.metadata import Metadata, ImageMetadata, SubfolderMetadata
 
 # Constants for file paths and exclusions
 if __package__ is None:
@@ -73,7 +74,7 @@ def getxmp(strbuffer: str) -> dict[str, Any]:
     return {get_name(root.tag): get_value(root)}
 
 
-def initialize_metadata(folder: str) -> dict[str, dict[str, int]]:
+def initialize_metadata(folder: str) -> Metadata:
     """
     Initializes the metadata JSON file if it doesn't exist.
 
@@ -128,10 +129,10 @@ def initialize_metadata(folder: str) -> dict[str, dict[str, int]]:
         if "title" not in v:
             metadata["images"][k]["title"] = v["name"]
 
-    return metadata
+    return Metadata.from_dict(metadata)
 
 
-def update_metadata(metadata: dict[str, dict[str, Any]], folder: str) -> None:
+def update_metadata(metadata: Metadata, folder: str) -> None:
     """
     Updates the metadata JSON file.
 
@@ -143,14 +144,14 @@ def update_metadata(metadata: dict[str, dict[str, Any]], folder: str) -> None:
     if metadata:
         with open(metadata_path, "w", encoding="utf-8") as metadatafile:
             logger.info("writing metadata file", extra={"file": metadata_path})
-            metadatafile.write(json.dumps(metadata, indent=4))
+            metadatafile.write(json.dumps(metadata.to_dict(), indent=4))
     else:
         if os.path.exists(metadata_path):
             logger.info("deleting empty metadata file", extra={"file": metadata_path})
             os.remove(metadata_path)
 
 
-def get_image_info(item: str, folder: str) -> dict[str, Any]:
+def get_image_info(item: str, folder: str) -> ImageMetadata:
     """
     Extracts image information and EXIF data.
 
@@ -172,7 +173,7 @@ def get_image_info(item: str, folder: str) -> dict[str, Any]:
     except UnidentifiedImageError:
         logger.error("cannot identify image file", extra={"file": file})
         print(f"cannot identify image file: {file}")
-        return {"w": None, "h": None, "tags": None, "exifdata": None, "xmp": None}
+        return ImageMetadata(w=None, h=None, tags=[], exifdata=None, xmp=None, src="", msrc="", name="", title="")
     if exif:
         logger.info("extracting EXIF data", extra={"file": file})
         ifd = exif.get_ifd(ExifTags.IFD.Exif)
@@ -253,9 +254,11 @@ def get_image_info(item: str, folder: str) -> dict[str, Any]:
             tags = get_tags(sidecarfile)
         except Exception as e:
             logger.error(e)
-    if None in tags:
-        tags.remove(None)
-    return {"w": width, "h": height, "tags": tags, "exifdata": exifdata, "xmp": xmp}
+    if None in tags:  # type: ignore
+        tags.remove(None)  # type: ignore
+    if not isinstance(tags, list):
+        tags = []
+    return ImageMetadata(w=width, h=height, tags=tags, exifdata=exifdata, xmp=xmp, src="", msrc="", name="", title="")
 
 
 def nested_dict():
@@ -331,12 +334,12 @@ def get_tags(sidecarfile: str) -> list[str]:
         pass
     except KeyError:
         pass
-    if None in tags:
-        tags.remove(None)
-    return tags
+    if None in tags:  # type: ignore
+        tags.remove(None)  # type: ignore
+    return tags  # type: ignore
 
 
-def process_image(item: str, folder: str, _args: Args, baseurl: str, metadata: dict[str, dict[str, int]], raw: list[str]) -> dict[str, Any]:
+def process_image(item: str, folder: str, _args: Args, baseurl: str, metadata: Metadata, raw: list[str]) -> tuple[ImageMetadata, Metadata]:
     """
     Processes an image and prepares its data for the HTML template.
 
@@ -353,24 +356,21 @@ def process_image(item: str, folder: str, _args: Args, baseurl: str, metadata: d
     """
     extsplit = os.path.splitext(item)
     sidecarfile = os.path.join(folder, item + ".xmp")
-    if item not in metadata["images"] or _args.reread_metadata:
-        metadata["images"][item] = get_image_info(item, folder)
+    if item not in metadata.images or _args.reread_metadata:
+        metadata.images[item] = get_image_info(item, folder)
     if _args.reread_sidecar and os.path.exists(sidecarfile):
         logger.info("xmp sidecar file found", extra={"file": sidecarfile})
         try:
-            metadata["images"][item]["tags"] = get_tags(sidecarfile)
+            metadata.images[item].tags = get_tags(sidecarfile)
         except Exception as e:
             logger.error(e)
 
-    image = {
-        "src": f"{_args.web_root_url}{baseurl}{urllib.parse.quote(item)}",
-        "msrc": f"{_args.web_root_url}.thumbnails/{baseurl}{urllib.parse.quote(item)}.jpg",
-        "name": item,
-        "w": metadata["images"][item]["w"],
-        "h": metadata["images"][item]["h"],
-        "tags": metadata["images"][item]["tags"],
-        "title": item,
-    }
+    image = metadata.images[item]
+    image.src = f"{_args.web_root_url}{baseurl}{urllib.parse.quote(item)}"
+    image.msrc = f"{_args.web_root_url}.thumbnails/{baseurl}{urllib.parse.quote(item)}.jpg"
+    image.name = item
+    image.title = item
+
     path = os.path.join(_args.root_directory, ".thumbnails", baseurl, item + ".jpg")
     if not os.path.exists(path) or _args.regenerate_thumbnails:
         if os.path.exists(path):
@@ -383,17 +383,17 @@ def process_image(item: str, folder: str, _args: Args, baseurl: str, metadata: d
             url = f"{_args.web_root_url}{baseurl}{urllib.parse.quote(extsplit[0])}{_raw}"
             if _raw in (".tif", ".tiff"):
                 logger.info("tiff file found", extra={"file": file})
-                image["tiff"] = url
+                image.tiff = url
             else:
                 logger.info("raw file found", extra={"file": file, "extension": _raw})
-                image["raw"] = url
+                image.raw = url
 
-    metadata["images"][item].update(image)
+    metadata.images[item] = image
 
     return image, metadata
 
 
-def generate_html(folder: str, title: str, _args: Args, raw: list[str], version: str, logo: str) -> list[str]:
+def generate_html(folder: str, title: str, _args: Args, raw: list[str], version: str, logo: str) -> set[str]:
     """
     Generates HTML content for a folder of images.
 
@@ -412,16 +412,16 @@ def generate_html(folder: str, title: str, _args: Args, raw: list[str], version:
     items = sorted(os.listdir(folder))
 
     contains_files = False
-    images = []
-    subfolders = []
-    subfoldertags = set()
+    images: list[ImageMetadata] = []
+    subfolders: list[SubfolderMetadata] = []
+    subfoldertags: set[str] = set()
     foldername = folder.removeprefix(_args.root_directory)
     foldername = f"{foldername}/" if foldername else ""
     baseurl = urllib.parse.quote(foldername)
 
-    gone = [item for item in metadata["images"] if item not in items]
+    gone = [item for item in metadata.images if item not in items]
     for gon in gone:
-        del metadata["images"][gon]
+        del metadata.images[gon]
 
     create_thumbnail_folder(foldername, _args.root_directory)
 
@@ -455,11 +455,11 @@ def generate_html(folder: str, title: str, _args: Args, raw: list[str], version:
                     if item == "LICENSE":
                         process_license(folder, item)
 
-    metadata["subfolders"] = subfolders
+    metadata.subfolders = subfolders
     if _args.reverse_sort:
-        metadata["images"] = {key: metadata["images"][key] for key in sorted(metadata["images"], reverse=True)}
+        metadata.sort(reverse=True)
     else:
-        metadata["images"] = {key: metadata["images"][key] for key in sorted(metadata["images"])}
+        metadata.sort()
     update_metadata(metadata, folder)
 
     if should_generate_html(images, contains_files, _args):
@@ -485,7 +485,7 @@ def create_thumbnail_folder(foldername: str, root_directory: str) -> None:
         os.mkdir(thumbnails_path)
 
 
-def process_subfolder(item: str, folder: str, baseurl: str, subfolders: list[dict[str, str | None]], _args: Args, raw: list[str], version: str, logo: str) -> list[str]:
+def process_subfolder(item: str, folder: str, baseurl: str, subfolders: list[SubfolderMetadata], _args: Args, raw: list[str], version: str, logo: str) -> set[str]:
     """
     Processes a subfolder.
 
@@ -513,10 +513,10 @@ def process_subfolder(item: str, folder: str, baseurl: str, subfolders: list[dic
 
     if item not in _args.exclude_folders:
         if not any(fnmatch.fnmatchcase(os.path.join(folder, item), exclude) for exclude in _args.exclude_folders):
-            subfolders.append({"url": subfolder_url, "name": item, "thumb": thumb, "metadata": f"{_args.web_root_url}{baseurl}{urllib.parse.quote(item)}/.metadata.json"})
+            subfolders.append(SubfolderMetadata(url=subfolder_url, name=item, thumb=thumb, metadata=f"{_args.web_root_url}{baseurl}{urllib.parse.quote(item)}/.metadata.json"))
             return generate_html(os.path.join(folder, item), os.path.join(folder, item).removeprefix(_args.root_directory), _args, raw, version, logo)
-    subfolders.append({"url": subfolder_url, "name": item, "thumb": thumb, "metadata": None})
-    return []
+    subfolders.append(SubfolderMetadata(url=subfolder_url, name=item, thumb=thumb))
+    return set()
 
 
 def process_license(folder: str, item: str) -> None:
@@ -548,7 +548,7 @@ def process_info_file(folder: str, item: str) -> None:
         info[urllib.parse.quote(folder)] = f.read()
 
 
-def should_generate_html(images: list[dict[str, Any]], contains_files, _args: Args) -> bool:
+def should_generate_html(images: list[ImageMetadata], contains_files, _args: Args) -> bool:
     """
     Determines if HTML should be generated.
 
@@ -559,7 +559,7 @@ def should_generate_html(images: list[dict[str, Any]], contains_files, _args: Ar
     Returns:
         bool: True if HTML should be generated, False otherwise.
     """
-    return images or (_args.use_fancy_folders and not contains_files) or (_args.use_fancy_folders and _args.ignore_other_files)
+    return bool(images) or (_args.use_fancy_folders and not contains_files) or (_args.use_fancy_folders and _args.ignore_other_files)
 
 
 def format_html(html: str) -> str:
@@ -568,8 +568,8 @@ def format_html(html: str) -> str:
 
 
 def create_html_file(
-    folder: str, title: str, foldername: str, images: list[dict[str, Any]], subfolders: list[dict[str, str]], _args: Args, version: str, logo: str, subfoldertags: list[str]
-) -> list[str]:
+    folder: str, title: str, foldername: str, images: list[ImageMetadata], subfolders: list[SubfolderMetadata], _args: Args, version: str, logo: str, subfoldertags: set[str]
+) -> set[str]:
     """
     Creates the HTML file using the template.
 
@@ -602,15 +602,13 @@ def create_html_file(
 
     alltags = set()
     for img in images:
-        if img["tags"]:
-            alltags.update(img["tags"])
+        if img.tags:
+            alltags.update(img.tags)
 
-    alltags.update(set(subfoldertags))
+    alltags.update(subfoldertags)
 
     folder_info = info.get(urllib.parse.quote(folder), "").split("\n")
     _info = [i for i in folder_info if len(i) > 1] if folder_info else None
-    if _args.reverse_sort:
-        images.sort(key=lambda i: i["name"], reverse=True)
 
     folder_license = licens.get(urllib.parse.quote(folder), False)
 
@@ -661,7 +659,7 @@ def create_html_file(
         logger.info("writing formatted html file", extra={"path": html_file})
         f.write(format_html(content))
 
-    return sorted(alltags)
+    return set(sorted(alltags))
 
 
 def list_folder(folder: str, title: str, _args: Args, raw: list[str], version: str, logo: str) -> list[tuple[str, str, str]]:

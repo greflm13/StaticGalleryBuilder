@@ -95,7 +95,8 @@ def css_color_to_hex(css_color: str) -> str:
     # Helper function to convert HSL tuple to RGB tuple
     def hsl_to_rgb(hsl: tuple[int, float, float]) -> tuple[int, int, int]:
         logger.debug("converting hsl tuple to rgb tuple", extra={"hsl": hsl})
-        return tuple(round(c * 255) for c in colorsys.hls_to_rgb(hsl[0] / 360, hsl[1] / 100, hsl[2] / 100))
+        r, g, b = colorsys.hls_to_rgb(hsl[0] / 360, hsl[1] / 100, hsl[2] / 100)
+        return (round(r * 255), round(g * 255), round(b * 255))
 
     # Regular expression pattern to match CSS colors
     color_pattern = re.compile(
