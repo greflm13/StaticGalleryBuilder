@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from typing import Optional
 import os
-import argparse
+
+import configargparse
 
 try:
     from rich_argparse import RichHelpFormatter, HelpPreviewAction
@@ -18,6 +19,14 @@ else:
 SCRIPTDIR = os.path.abspath(os.path.dirname(__file__).removesuffix(PACKAGE))
 DEFAULT_THEME_PATH = os.path.join(SCRIPTDIR, "templates", "default.css")
 DEFAULT_AUTHOR = "Author"
+
+if "APPDATA" in os.environ:
+    CONFIGHOME = os.environ["APPDATA"]
+elif "XDG_CONFIG_HOME" in os.environ:
+    CONFIGHOME = os.environ["XDG_CONFIG_HOME"]
+else:
+    CONFIGHOME = os.path.join(os.environ["HOME"], ".config")
+CONFIGPATH = os.path.join(CONFIGHOME, "StaticGalleryBuilder")
 
 
 @dataclass(init=True)
@@ -116,9 +125,9 @@ def parse_arguments(version: str) -> Args:
     """
     # fmt: off
     if RICH:
-        parser = argparse.ArgumentParser(description="generate HTML files for a static image hosting website", formatter_class=RichHelpFormatter)
+        parser = configargparse.ArgumentParser(default_config_files=[CONFIGPATH], add_config_file_help=False, description="generate HTML files for a static image hosting website", formatter_class=RichHelpFormatter)
     else:
-        parser = argparse.ArgumentParser(description="generate HTML files for a static image hosting website")
+        parser = configargparse.ArgumentParser(default_config_files=[CONFIGPATH], add_config_file_help=False, description="generate HTML files for a static image hosting website")
     parser.add_argument("-a", "--author-name", help="name of the author of the images", default=DEFAULT_AUTHOR, type=str, dest="author_name", metavar="AUTHOR")
     parser.add_argument("-e", "--file-extensions", help="file extensions to include (can be specified multiple times)", action="append", dest="file_extensions", metavar="EXTENSION")
     parser.add_argument("-l", "--license-type", help="specify the license type for the images", choices=["cc-zero", "cc-by", "cc-by-sa", "cc-by-nd", "cc-by-nc", "cc-by-nc-sa", "cc-by-nc-nd"], default=None, dest="license_type", metavar="LICENSE")
@@ -127,10 +136,11 @@ def parse_arguments(version: str) -> Args:
     parser.add_argument("-p", "--root-directory", help="root directory containing the images", required=True, type=str, dest="root_directory", metavar="ROOT")
     parser.add_argument("-t", "--site-title", help="title of the image hosting site", required=True, type=str, dest="site_title", metavar="TITLE")
     parser.add_argument("-w", "--web-root-url", help="base URL of the web root for the image hosting site", required=True, type=str, dest="web_root_url", metavar="URL")
+    parser.add_argument('-c', '--config-file', is_config_file=True, help='config file path', metavar="CONFIG_FILE")
     parser.add_argument("--exclude-folder", help="folders to exclude from processing, globs supported (can be specified multiple times)", action="append", dest="exclude_folders", metavar="FOLDER")
     parser.add_argument("--folderthumbnails", help="generate subfolder thumbnails (first image in folder will be shown)", action="store_true", default=False, dest="folder_thumbs")
     if RICH:
-        parser.add_argument("--generate-help-preview", action=HelpPreviewAction, path="help.svg", )
+        parser.add_argument("--generate-help-preview", action=HelpPreviewAction, path="help.svg")
     parser.add_argument("--ignore-other-files", help="ignore files that do not match the specified extensions", action="store_true", default=False, dest="ignore_other_files")
     parser.add_argument("--ignore-extension", help="file extensions to ignore (can be specified multiple times)", action="append", default=[], dest="ignore_extensions", metavar="EXTENSION")
     parser.add_argument("--regenerate-thumbnails", help="regenerate thumbnails even if they already exist", action="store_true", default=False, dest="regenerate_thumbnails")
@@ -140,7 +150,12 @@ def parse_arguments(version: str) -> Args:
     parser.add_argument("--theme-path", help="path to the CSS theme file", default=DEFAULT_THEME_PATH, type=str, dest="theme_path", metavar="PATH")
     parser.add_argument("--use-fancy-folders", help="enable fancy folder view instead of the default Apache directory listing", action="store_true", default=False, dest="use_fancy_folders")
     parser.add_argument("--version", action="version", version=f"%(prog)s {version}")
+    parser.add_argument("--write-config", type=str, required=False, help="write current command line args to config file", metavar="CONFIG_FILE")
     parsed_args = parser.parse_args()
+    if parsed_args.write_config:
+        config_path = parsed_args.write_config
+        del parsed_args.write_config
+        parser.write_config_file(parsed_args, [config_path], exit_after=False)
     # fmt: on
     _args = Args(
         author_name=parsed_args.author_name,
