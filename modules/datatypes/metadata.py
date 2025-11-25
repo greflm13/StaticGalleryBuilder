@@ -52,7 +52,7 @@ def from_native_dict(f: Callable[[Any], T], x: Any) -> Dict[Any, T]:
 class ImageMetadata:
     w: Optional[int]
     h: Optional[int]
-    tags: List[str]
+    tags: Optional[List[str]]
     exifdata: Optional[Dict[str, Any]]
     xmp: Optional[Dict[str, Any]]
     src: str
@@ -67,7 +67,7 @@ class ImageMetadata:
         assert isinstance(obj, dict)
         w = from_union([from_int, from_none], obj.get("w"))
         h = from_union([from_int, from_none], obj.get("h"))
-        tags = from_list(from_str, obj.get("tags"))
+        tags = from_union([lambda x: from_list(from_str, x), from_none], obj.get("tags"))
         exifdata = from_union([lambda x: from_native_dict(dict, x), from_none], obj.get("exifdata"))
         xmp = from_union([lambda x: from_native_dict(dict, x), from_none], obj.get("xmp"))
         src = from_str(obj.get("src"))
@@ -84,7 +84,8 @@ class ImageMetadata:
             result["w"] = from_union([from_int, from_none], self.w)
         if self.h is not None:
             result["h"] = from_union([from_int, from_none], self.h)
-        result["tags"] = from_list(from_str, self.tags)
+        if self.tags is not None:
+            result["tags"] = from_union([lambda x: from_list(from_str, x), from_none], self.tags)
         result["src"] = from_str(self.src)
         result["msrc"] = from_str(self.msrc)
         result["name"] = from_str(self.name)
