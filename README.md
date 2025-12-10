@@ -103,3 +103,9 @@ To generate a web manifest file:
 ## License
 
 This project is licensed under the AGPL-3.0 License. See the [LICENSE](LICENSE) file for details.
+
+## Star History
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=greflm13/StaticGalleryBuilder&type=date&legend=top-left)](https://www.star-history.com/#greflm13/StaticGalleryBuilder&type=date&legend=top-left)
