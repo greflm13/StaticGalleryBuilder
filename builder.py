@@ -155,7 +155,7 @@ def generate_thumbnail(arguments: tuple[str, str, str]) -> None:
                 imgrgb = imgfile.convert("RGB")
                 img = ImageOps.exif_transpose(imgrgb)
                 img.thumbnail((512, 512))
-                img.save(path, "JPEG", quality=75, optimize=True, mode="RGB")
+                img.save(path, "JPEG", quality=50, optimize=True, mode="RGB", subsampling=2)
         except OSError:
             logger.error("Failed to generate thumbnail for %s", item, extra={"path": image})
             print(f"Failed to generate thumbnail for {image}")
