@@ -427,7 +427,7 @@ def generate_html(folder: str, title: str, _args: Args, raw: list[str], version:
 
     logger.info("processing contents", extra={"folder": folder})
     if not _args.non_interactive_mode:
-        for item in tqdm(items, total=len(items), desc=f"Getting image infos - {folder}", unit="files", ascii=True, dynamic_ncols=True):
+        for item in tqdm(items, total=len(items), desc=f"Getting image infos - {folder}", unit="files", ascii=True, dynamic_ncols=True, leave=False):
             if item not in EXCLUDES and not item.startswith(".") and os.path.splitext(item)[1][1:].lower() not in _args.ignore_extensions:
                 if os.path.isdir(os.path.join(folder, item)):
                     subfoldertags.update(process_subfolder(item, folder, baseurl, subfolders, _args, raw, version, logo))
