@@ -25,7 +25,7 @@ if __package__ is None:
     PACKAGE = ""
 else:
     PACKAGE = __package__
-SCRIPTDIR = os.path.abspath(os.path.dirname(__file__).removesuffix(PACKAGE))
+SCRIPTDIR = os.path.dirname(os.path.realpath(__file__).removesuffix(PACKAGE))
 LOG_DIR = os.path.join(SCRIPTDIR, "logs")
 LATEST_LOG_FILE = os.path.join(LOG_DIR, "latest.jsonl")
 

@@ -22,7 +22,7 @@ if __package__ is None:
     PACKAGE = ""
 else:
     PACKAGE = __package__
-SCRIPTDIR = os.path.abspath(os.path.dirname(__file__).removesuffix(PACKAGE))
+SCRIPTDIR = os.path.dirname(os.path.realpath(__file__).removesuffix(PACKAGE))
 STATIC_FILES_DIR = os.path.join(SCRIPTDIR, "files")
 ICON_SIZES = ["36x36", "48x48", "72x72", "96x96", "144x144", "192x192", "512x512"]
 
