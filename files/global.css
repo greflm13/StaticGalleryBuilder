@@ -77,10 +77,6 @@ figure {
   margin: 0;
 }
 
-.licensefile {
-  padding: 30px;
-}
-
 .caption {
   padding-top: 4px;
   text-align: center;
@@ -93,7 +89,6 @@ figure {
   position: absolute;
   bottom: 0;
   right: 0;
-  font-size: xx-small;
   padding: 6px;
 }
 
@@ -102,7 +97,8 @@ figure {
   bottom: 0;
   width: 100%;
   padding: 6px;
-  min-height: calc(6.75pt + 12px);
+  height: calc(9.75pt + 12px);
+  font-size: small;
 }
 
 .footer a {
@@ -110,7 +106,7 @@ figure {
 }
 
 .footer a img {
-  height: 22px !important;
+  height: 9.75pt !important;
   margin-left: 3px;
   vertical-align: text-bottom;
 }
@@ -140,16 +136,19 @@ figure {
 
 .navbar .navleft {
   float: left;
+  height: 100%;
 }
 
 .navbar .navcenter {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+  height: 100%;
 }
 
 .navbar .navright {
-  float: right
+  float: right;
+  height: 100%;
 }
 
 .navbar li .header {
@@ -303,11 +302,67 @@ input {
   border-style: none;
 }
 
+#dark-mode-switch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  position: relative;
+}
+
+#dark-mode-switch .checkbox {
+  position: absolute;
+  width: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+#dark-mode-switch .knobs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: 1em;
+  position: relative;
+  width: 100%;
+}
+
+#dark-mode-switch .light,
+#dark-mode-switch .dark {
+  text-align: center;
+}
+
+#dark-mode-switch .slider {
+  position: absolute;
+  width: calc(2em - 2px);
+  height: calc(2em - 2px);
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  transition: left 0.25s ease, transform 0.25s ease;
+  left: calc(50% - 1em + 1px);
+}
+
+#dark-mode-switch .checkbox:checked+.knobs .slider {
+  left: calc(50% + 1em - 1px);
+}
+
 @media screen and (max-width: 1000px) {
   .column {
     -ms-flex: 25%;
     flex: 25%;
     max-width: 25%;
+  }
+
+  .footer {
+    font-size: small;
+  }
+
+  .footer a img {
+    height: 9.75pt !important;
   }
 
   .folders figure {
@@ -341,6 +396,14 @@ input {
     -ms-flex: 50%;
     flex: 50%;
     max-width: 50%;
+  }
+
+  .footer {
+    font-size: x-small;
+  }
+
+  .footer a img {
+    height: 7.5pt !important;
   }
 
   .folders figure {
@@ -382,6 +445,14 @@ input {
     -ms-flex: 100%;
     flex: 100%;
     max-width: 100%;
+  }
+
+  .footer {
+    font-size: xx-small;
+  }
+
+  .footer a img {
+    height: 6.75pt !important;
   }
 
   .folders figure {

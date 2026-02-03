@@ -19,7 +19,7 @@ def extract_colorscheme(theme_path: str) -> dict[str, str]:
         dictionary containing color scheme variables and their hexadecimal values.
     """
     logger.info("extracting color scheme from theme file", extra={"theme_path": theme_path})
-    pattern = r"--(color[1-4]|bcolor1):\s*(#[0-9a-fA-F]+|rgba?\([^)]*\)|hsla?\([^)]*\)|[a-zA-Z]+);"
+    pattern = r"--(color\d+|bcolor\d+):\s*(#[0-9a-fA-F]+|rgba?\([^)]*\)|hsla?\([^)]*\)|[a-zA-Z]+);"
     colorscheme = {}
 
     with open(theme_path, "r", encoding="utf-8") as f:

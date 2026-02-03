@@ -18,11 +18,7 @@ from modules.argumentparser import parse_arguments, Args
 
 # fmt: off
 # Constants
-if __package__ is None:
-    PACKAGE = ""
-else:
-    PACKAGE = __package__
-SCRIPTDIR = os.path.dirname(os.path.realpath(__file__).removesuffix(PACKAGE))
+SCRIPTDIR = os.path.dirname(os.path.realpath(__file__)).removesuffix(__package__ if __package__ else "")
 STATIC_FILES_DIR = os.path.join(os.path.abspath(SCRIPTDIR), "files")
 VERSION = open(os.path.join(SCRIPTDIR, ".version"), "r", encoding="utf-8").read()
 RAW_EXTENSIONS = [
@@ -75,7 +71,48 @@ def init_globals(_args: Args, raw: list[str]) -> tuple[Args, list[str]]:
     return _args, raw
 
 
-def copy_static_files(_args: Args) -> None:
+def handle_theme_icon(themepath: str, dest: str) -> None:
+    """
+    Handle the icon specified in the theme file.
+    """
+    logger.info("reading theme file", extra={"theme": themepath})
+    with open(themepath, "r", encoding="utf-8") as f:
+        theme = f.read()
+    split = theme.split(".foldericon {")
+    split2 = split[1].split("}", maxsplit=1)
+    themehead = split[0]
+    themetail = split2[1]
+    foldericon = split2[0].strip()
+    foldericon = re.sub(r"/\*.*\*/", "", foldericon)
+
+    for match in re.finditer(r"content: (.*);", foldericon):
+        foldericon = match[1]
+        foldericon = foldericon.replace('"', "")
+        logger.info("found foldericon", extra={"foldericon": foldericon})
+        break
+
+    if "url" in foldericon:
+        logger.info("foldericon in theme file, using it")
+        shutil.copyfile(themepath, dest)
+    else:
+        with open(os.path.join(SCRIPTDIR, foldericon), "r", encoding="utf-8") as f:
+            logger.info("Reading foldericon svg")
+            svg = f.read()
+
+        if "svg.j2" in foldericon:
+            logger.info("foldericon in theme file is a jinja2 template")
+            colorscheme = extract_colorscheme(themepath)
+            for color_key, color_value in colorscheme.items():
+                svg = svg.replace(f"{{{{ {color_key} }}}}", color_value)
+            logger.info("replaced colors in svg")
+
+        svg = urllib.parse.quote(svg)
+        with open(dest, "x", encoding="utf-8") as f:
+            logger.info("writing theme file")
+            f.write(themehead + '\n.foldericon {\n  content: url("data:image/svg+xml,' + svg + '");\n}\n' + themetail)
+
+
+def copy_static_files(_args: Args) -> bool:
     """
     Copy static files to the root directory.
 
@@ -85,6 +122,7 @@ def copy_static_files(_args: Args) -> None:
         Parsed command-line arguments.
     """
     static_dir = os.path.join(_args.root_directory, ".static")
+    darktheme = False
     if os.path.exists(static_dir):
         print("Removing existing .static folder...")
         logger.info("removing existing .static folder")
@@ -93,41 +131,20 @@ def copy_static_files(_args: Args) -> None:
     print("Copying static files...")
     logger.info("copying static files")
     shutil.copytree(STATIC_FILES_DIR, static_dir, dirs_exist_ok=True)
-    logger.info("reading theme file", extra={"theme": _args.theme_path})
-    with open(_args.theme_path, "r", encoding="utf-8") as f:
-        theme = f.read()
-    split = theme.split(".foldericon {")
-    split2 = split[1].split("}", maxsplit=1)
-    themehead = split[0]
-    themetail = split2[1]
-    foldericon = split2[0].strip()
-    foldericon = re.sub(r"/\*.*\*/", "", foldericon)
-    for match in re.finditer(r"content: (.*);", foldericon):
-        foldericon = match[1]
-        foldericon = foldericon.replace('"', "")
-        logger.info("found foldericon", extra={"foldericon": foldericon})
-        break
-    if "url" in foldericon:
-        logger.info("foldericon in theme file, using it")
-        shutil.copyfile(_args.theme_path, os.path.join(static_dir, "theme.css"))
-        return
-    with open(os.path.join(SCRIPTDIR, foldericon), "r", encoding="utf-8") as f:
-        logger.info("Reading foldericon svg")
-        svg = f.read()
-    if "svg.j2" in foldericon:
-        logger.info("foldericon in theme file is a jinja2 template")
-        colorscheme = extract_colorscheme(_args.theme_path)
-        for color_key, color_value in colorscheme.items():
-            svg = svg.replace(f"{{{{ {color_key} }}}}", color_value)
-        logger.info("replaced colors in svg")
-    svg = urllib.parse.quote(svg)
-    with open(os.path.join(static_dir, "theme.css"), "x", encoding="utf-8") as f:
-        logger.info("writing theme file")
-        f.write(themehead + '\n.foldericon {\n  content: url("data:image/svg+xml,' + svg + '");\n}\n' + themetail)
+
+    theme = os.path.splitext(os.path.abspath(_args.theme_path))[0]
+    darktheme_path = f"{theme}-dark.css"
+    if os.path.exists(darktheme_path):
+        handle_theme_icon(darktheme_path, os.path.join(static_dir, "theme-dark.css"))
+        darktheme = True
+    handle_theme_icon(_args.theme_path, os.path.join(static_dir, "theme.css"))
+
     logger.info("minifying javascript")
     with open(os.path.join(SCRIPTDIR, "templates", "functionality.js"), "r", encoding="utf-8") as js_file:
         with open(os.path.join(static_dir, "functionality.min.js"), "w+", encoding="utf-8") as min_file:
             min_file.write(jsmin(js_file.read()))
+
+    return darktheme
 
 
 def generate_thumbnail(arguments: tuple[str, str, str]) -> None:
@@ -201,7 +218,7 @@ def main(args) -> None:
                 shutil.rmtree(thumbdir)
         os.makedirs(thumbdir, exist_ok=True)
 
-        copy_static_files(args)
+        darktheme = copy_static_files(args)
         icons(args)
 
         if args.generate_webmanifest:
@@ -211,13 +228,13 @@ def main(args) -> None:
         if args.non_interactive_mode:
             logger.info("generating HTML files")
             print("Generating HTML files...")
-            thumbnails = list_folder(args.root_directory, args.site_title, args, raw, VERSION, logo)
+            thumbnails = list_folder(args.root_directory, args.site_title, args, raw, VERSION, logo, darktheme=darktheme)
             with Pool(os.cpu_count()) as pool:
                 logger.info("generating thumbnails")
                 print("Generating thumbnails...")
                 pool.map(generate_thumbnail, thumbnails)
         else:
-            thumbnails = list_folder(args.root_directory, args.site_title, args, raw, VERSION, logo)
+            thumbnails = list_folder(args.root_directory, args.site_title, args, raw, VERSION, logo, darktheme=darktheme)
 
             with Pool(os.cpu_count()) as pool:
                 logger.info("generating thumbnails")

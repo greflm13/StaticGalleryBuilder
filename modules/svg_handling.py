@@ -18,11 +18,7 @@ from modules.argumentparser import Args
 from modules.css_color import extract_theme_color, extract_colorscheme
 
 # Define constants for static files directory and icon sizes
-if __package__ is None:
-    PACKAGE = ""
-else:
-    PACKAGE = __package__
-SCRIPTDIR = os.path.dirname(os.path.realpath(__file__).removesuffix(PACKAGE))
+SCRIPTDIR = os.path.dirname(os.path.realpath(__file__)).removesuffix(__package__)
 STATIC_FILES_DIR = os.path.join(SCRIPTDIR, "files")
 ICON_SIZES = ["36x36", "48x48", "72x72", "96x96", "144x144", "192x192", "512x512"]
 

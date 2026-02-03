@@ -24,6 +24,10 @@ class PhotoGallery {
     this.scrollFunction = this.scrollFunction.bind(this);
     this.topFunction = this.topFunction.bind(this);
     this.onLoad = this.onLoad.bind(this);
+    this.darkMode = this.darkMode.bind(this);
+    this.lightMode = this.lightMode.bind(this);
+    this.darkModeToggle = this.darkModeToggle.bind(this);
+    this.detectDarkMode = this.detectDarkMode.bind(this);
 
     this.init();
   }
@@ -38,12 +42,7 @@ class PhotoGallery {
 
   openSwipe(imgIndex) {
     const options = { index: imgIndex };
-    const gallery = new PhotoSwipe(
-      this.pswpElement,
-      PhotoSwipeUI_Default,
-      this.shown,
-      options
-    );
+    const gallery = new PhotoSwipe(this.pswpElement, PhotoSwipeUI_Default, this.shown, options);
     gallery.init();
   }
 
@@ -78,9 +77,7 @@ class PhotoGallery {
 
     if (folders) folders.style.display = "";
     document.getElementById("recursive").checked = false;
-    document
-      .querySelectorAll("#tagdropdown input.tagcheckbox:checked")
-      .forEach((checkbox) => (checkbox.checked = false));
+    document.querySelectorAll("#tagdropdown input.tagcheckbox:checked").forEach((checkbox) => (checkbox.checked = false));
     window.history.replaceState({ html: content, pageTitle: title }, "", path);
     this.requestMetadata();
   }
@@ -150,10 +147,9 @@ class PhotoGallery {
                 existingItems.add(image.src);
               }
             }
-            if (Array.isArray(data.subfolders))
-              nextLevel.push(...data.subfolders);
+            if (Array.isArray(data.subfolders)) nextLevel.push(...data.subfolders);
           } catch {}
-        })
+        }),
       );
       if (nextLevel.length > 0) await fetchFoldersRecursively(nextLevel);
     };
@@ -194,39 +190,30 @@ class PhotoGallery {
   filter() {
     const searchParams = new URLSearchParams(window.location.search);
     this.shown = [];
-    let path = decodeURIComponent(
-      window.location.origin +
-        window.location.pathname.replace("index.html", "")
-    );
+    let path = decodeURIComponent(window.location.origin + window.location.pathname.replace("index.html", ""));
     if (path.startsWith("null")) {
       path = window.location.protocol + "//" + path.substring(4);
     }
     const selectedTags = [];
 
-    document
-      .querySelectorAll("#tagdropdown input.tagcheckbox:checked")
-      .forEach((checkbox) => {
-        let tag = checkbox.parentElement.id.trim().substring(1);
-        if (checkbox.parentElement.parentElement.children.length > 1)
-          tag += "|";
-        selectedTags.push(tag);
-      });
+    document.querySelectorAll("#tagdropdown input.tagcheckbox:checked").forEach((checkbox) => {
+      let tag = checkbox.parentElement.id.trim().substring(1);
+      if (checkbox.parentElement.parentElement.children.length > 1) tag += "|";
+      selectedTags.push(tag);
+    });
 
     const urltags = selectedTags.join(",");
 
     let isRecursiveChecked = false;
     try {
-      isRecursiveChecked =
-        document.getElementById("recursive")?.checked || false;
+      isRecursiveChecked = document.getElementById("recursive")?.checked || false;
     } catch {}
 
     for (const item of this.items) {
       const tags = item.tags || [];
       const include = selectedTags.every((selected) => {
         const isParent = selected.endsWith("|");
-        return isParent
-          ? tags.some((t) => t.startsWith(selected))
-          : tags.includes(selected);
+        return isParent ? tags.some((t) => t.startsWith(selected)) : tags.includes(selected);
       });
 
       if (include || selectedTags.length === 0) {
@@ -313,9 +300,7 @@ class PhotoGallery {
     let str = "";
     this.shown.forEach((item, index) => {
       let tags = this.parseHierarchicalTags(item.tags || []);
-      str += `<div class="column"><figure title="${this.renderTree(
-        tags
-      )}"><img src="${
+      str += `<div class="column"><figure title="${this.renderTree(tags)}"><img src="${
         item.msrc
       }" data-index="${index}" /><figcaption class="caption">${item.name}`;
       if (item.tiff) str += `&nbsp;<a href="${item.tiff}">TIFF</a>`;
@@ -328,20 +313,13 @@ class PhotoGallery {
   }
 
   setFilter(selected) {
-    document
-      .querySelectorAll("#tagdropdown input.tagcheckbox")
-      .forEach((checkbox) => {
-        selected.forEach((tag) => {
-          if (
-            checkbox.parentElement.id
-              .trim()
-              .substring(1)
-              .replace(" ", "%20") === tag
-          ) {
-            checkbox.checked = true;
-          }
-        });
+    document.querySelectorAll("#tagdropdown input.tagcheckbox").forEach((checkbox) => {
+      selected.forEach((tag) => {
+        if (checkbox.parentElement.id.trim().substring(1).replace(" ", "%20") === tag) {
+          checkbox.checked = true;
+        }
       });
+    });
   }
 
   toggleTag(tagid) {
@@ -350,9 +328,7 @@ class PhotoGallery {
     const svg = tag?.parentElement.querySelector(".tagtoggle svg");
     if (!ol || !svg) return;
     ol.classList.toggle("show");
-    svg.style.transform = ol.classList.contains("show")
-      ? "rotate(180deg)"
-      : "rotate(0deg)";
+    svg.style.transform = ol.classList.contains("show") ? "rotate(180deg)" : "rotate(0deg)";
   }
 
   setupDropdownToggle() {
@@ -364,18 +340,12 @@ class PhotoGallery {
       event.stopPropagation();
       const svg = toggleLink.querySelector("svg");
       dropdown.classList.toggle("show");
-      if (svg)
-        svg.style.transform = dropdown.classList.contains("show")
-          ? "rotate(180deg)"
-          : "rotate(0deg)";
+      if (svg) svg.style.transform = dropdown.classList.contains("show") ? "rotate(180deg)" : "rotate(0deg)";
       this.tagDropdownShown = dropdown.classList.contains("show");
     });
 
     document.addEventListener("click", (event) => {
-      if (
-        !dropdown.contains(event.target) &&
-        !toggleLink.contains(event.target)
-      ) {
+      if (!dropdown.contains(event.target) && !toggleLink.contains(event.target)) {
         dropdown.classList.remove("show");
         this.tagDropdownShown = false;
         const svg = toggleLink.querySelector("svg");
@@ -402,17 +372,17 @@ class PhotoGallery {
   }
 
   setupClickHandlers() {
-    const resetEl = document
-      .getElementById("reset-filter")
-      ?.querySelector("label");
+    const resetEl = document.getElementById("reset-filter")?.querySelector("label");
     if (resetEl) resetEl.addEventListener("click", this.reset);
 
     const recurseEl = document.getElementById("recursive");
-    if (recurseEl)
-      recurseEl.addEventListener("change", this.debounce(this.recursive, 150));
+    if (recurseEl) recurseEl.addEventListener("change", this.debounce(this.recursive, 150));
 
     const totop = document.getElementById("totop");
     if (totop) totop.addEventListener("click", this.topFunction);
+
+    const darkModeSwitch = document.getElementById("dark-mode-switch");
+    if (darkModeSwitch) darkModeSwitch.addEventListener("click", this.darkModeToggle);
 
     const imagelist = document.getElementById("imagelist");
     if (imagelist) {
@@ -442,10 +412,7 @@ class PhotoGallery {
   scrollFunction() {
     const totopbutton = document.getElementById("totop");
     if (!totopbutton) return;
-    if (
-      document.body.scrollTop > 20 ||
-      document.documentElement.scrollTop > 20
-    ) {
+    if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
       totopbutton.style.display = "block";
     } else {
       totopbutton.style.display = "none";
@@ -454,6 +421,53 @@ class PhotoGallery {
 
   topFunction() {
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  darkMode() {
+    const themeLink = document.getElementById("theme");
+    const darkThemeLink = document.getElementById("darktheme");
+    if (themeLink) themeLink.disabled = true;
+    if (darkThemeLink) darkThemeLink.disabled = false;
+  }
+
+  lightMode() {
+    const themeLink = document.getElementById("theme");
+    const darkThemeLink = document.getElementById("darktheme");
+    if (themeLink) themeLink.disabled = false;
+    if (darkThemeLink) darkThemeLink.disabled = true;
+  }
+
+  darkModeToggle(mode) {
+    const switchState = document.getElementById("dark-mode-switch-check");
+    if (mode == "dark") {
+      this.darkMode();
+      if (switchState) {
+        switchState.checked = true;
+      }
+    } else if (mode == "light") {
+      this.lightMode();
+      if (switchState) {
+        switchState.checked = false;
+      }
+    } else {
+      if (switchState.checked) {
+        switchState.checked = false;
+        this.lightMode();
+      } else {
+        switchState.checked = true;
+        this.darkMode();
+      }
+    }
+  }
+
+  detectDarkMode() {
+    if (document.getElementById("darktheme")) {
+      if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        this.darkModeToggle("dark");
+      } else {
+        this.darkModeToggle("light");
+      }
+    }
   }
 
   onLoad() {
@@ -469,6 +483,7 @@ class PhotoGallery {
     this.setupDropdownToggle();
     this.setupTagHandlers();
     this.setupClickHandlers();
+    this.detectDarkMode();
 
     window.addEventListener("scroll", this.scrollFunction);
   }

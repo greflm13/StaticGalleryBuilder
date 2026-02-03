@@ -20,11 +20,7 @@ from modules.argumentparser import Args
 from modules.datatypes.metadata import Metadata, ImageMetadata, SubfolderMetadata
 
 # Constants for file paths and exclusions
-if __package__ is None:
-    PACKAGE = ""
-else:
-    PACKAGE = __package__
-SCRIPTDIR = os.path.dirname(os.path.realpath(__file__).removesuffix(PACKAGE))
+SCRIPTDIR = os.path.dirname(os.path.realpath(__file__)).removesuffix(__package__)
 FAVICON_PATH = ".static/favicon.ico"
 GLOBAL_CSS_PATH = ".static/global.css"
 EXCLUDES = ["index.html", "manifest.json", "robots.txt"]
@@ -393,7 +389,7 @@ def process_image(item: str, folder: str, _args: Args, baseurl: str, metadata: M
     return image, metadata
 
 
-def generate_html(folder: str, title: str, _args: Args, raw: list[str], version: str, logo: str) -> set[str]:
+def generate_html(folder: str, title: str, _args: Args, raw: list[str], version: str, logo: str, darktheme: bool = False) -> set[str]:
     """
     Generates HTML content for a folder of images.
 
@@ -463,7 +459,7 @@ def generate_html(folder: str, title: str, _args: Args, raw: list[str], version:
     update_metadata(metadata, folder)
 
     if should_generate_html(images, contains_files, _args):
-        subfoldertags = create_html_file(folder, title, foldername, images, subfolders, _args, version, logo, subfoldertags)
+        subfoldertags = create_html_file(folder, title, foldername, images, subfolders, _args, version, logo, subfoldertags, darktheme=darktheme)
     else:
         if os.path.exists(os.path.join(folder, "index.html")):
             logger.info("removing existing index.html", extra={"folder": folder})
@@ -568,7 +564,16 @@ def format_html(html: str) -> str:
 
 
 def create_html_file(
-    folder: str, title: str, foldername: str, images: list[ImageMetadata], subfolders: list[SubfolderMetadata], _args: Args, version: str, logo: str, subfoldertags: set[str]
+    folder: str,
+    title: str,
+    foldername: str,
+    images: list[ImageMetadata],
+    subfolders: list[SubfolderMetadata],
+    _args: Args,
+    version: str,
+    logo: str,
+    subfoldertags: set[str],
+    darktheme: bool = False,
 ) -> set[str]:
     """
     Creates the HTML file using the template.
@@ -625,6 +630,7 @@ def create_html_file(
                 favicon=f"{_args.web_root_url}{FAVICON_PATH}",
                 stylesheet=f"{_args.web_root_url}{GLOBAL_CSS_PATH}",
                 theme=f"{_args.web_root_url}.static/theme.css",
+                darktheme=f"{_args.web_root_url}.static/theme-dark.css" if darktheme else None,
                 root=_args.web_root_url,
                 parent=f"{_args.web_root_url}{urllib.parse.quote(foldername)}",
                 header=f"{header} - LICENSE",
@@ -642,6 +648,7 @@ def create_html_file(
         favicon=f"{_args.web_root_url}{FAVICON_PATH}",
         stylesheet=f"{_args.web_root_url}{GLOBAL_CSS_PATH}",
         theme=f"{_args.web_root_url}.static/theme.css",
+        darktheme=f"{_args.web_root_url}.static/theme-dark.css" if darktheme else None,
         root=_args.web_root_url,
         parent=parent,
         header=header,
@@ -662,7 +669,7 @@ def create_html_file(
     return set(sorted(alltags))
 
 
-def list_folder(folder: str, title: str, _args: Args, raw: list[str], version: str, logo: str) -> list[tuple[str, str, str]]:
+def list_folder(folder: str, title: str, _args: Args, raw: list[str], version: str, logo: str, darktheme: bool = False) -> list[tuple[str, str, str]]:
     """
     lists and processes a folder, generating HTML files.
 
@@ -676,5 +683,5 @@ def list_folder(folder: str, title: str, _args: Args, raw: list[str], version: s
     Returns:
         list[tuple[str, str]]: list of thumbnails generated.
     """
-    generate_html(folder, title, _args, raw, version, logo)
+    generate_html(folder, title, _args, raw, version, logo, darktheme=darktheme)
     return thumbnails

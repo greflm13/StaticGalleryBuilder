@@ -34,10 +34,16 @@
   {%- if theme %}
   <link rel="preload" href="{{ theme }}" as="style">
   {%- endif %}
+  {%- if darktheme %}
+  <link rel="preload" href="{{ darktheme }}" as="style">
+  {%- endif %}
   <link rel="icon" type="image/x-icon" href="{{ favicon }}">
   <link rel="stylesheet" href="{{ stylesheet }}">
   {%- if theme %}
-  <link rel="stylesheet" href="{{ theme }}">
+  <link rel="stylesheet" href="{{ theme }}" id="theme">
+  {%- endif %}
+  {%- if darktheme %}
+  <link rel="stylesheet" href="{{ darktheme }}" id="darktheme" disabled>
   {%- endif %}
   <link rel="preload" href="{{ root }}.static/pswp/photoswipe.css" as="style">
   <link rel="preload" href="{{ root }}.static/pswp/default-skin/default-skin.css" as="style">
@@ -89,9 +95,21 @@
             {{ render_tags(tags, '') }}
           </ol>
         </li>
-        {% endif %}
+        {%- endif %}
         {%- if licensefile %}
         <li class="license"><a href="{{ licensefile }}">License</a></li>
+        {%- endif %}
+        {%- if darktheme %}
+        <li>
+          <a class="button" id="dark-mode-switch">
+            <input type="checkbox" class="checkbox" id="dark-mode-switch-check" />
+            <div class="knobs">
+              <span class="light">☀︎</span>
+              <span class="slider"></span>
+              <span class="dark">☽</span>
+            </div>
+          </a>
+        </li>
         {%- endif %}
       </div>
     </ol>
@@ -120,7 +138,7 @@
     <a property="dct:title" rel="cc:attributionURL" href="{{ root }}">{{ license.project }}</a> by <span property="cc:attributionName">{{ license.author }}</span> is marked with
     <a href="{{ license.url }}" target="_blank" rel="license noopener noreferrer" style="display: inline-block">CC0 1.0
       {%- for pic in license.pics %}
-      <img style="height: 22px !important; margin-left: 3px; vertical-align: text-bottom" src="{{ pic }}" alt="" />
+      <img src="{{ pic }}" alt="" />
       {%- endfor %}
     </a>
     {%- else %}
