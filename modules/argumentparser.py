@@ -12,7 +12,7 @@ except ModuleNotFoundError:
     RICH = False
 
 
-SCRIPTDIR = os.path.dirname(os.path.realpath(__file__)).removesuffix(__package__)
+SCRIPTDIR = os.path.dirname(os.path.realpath(__file__)).removesuffix(__package__ if __package__ else "")
 DEFAULT_THEME_PATH = os.path.join(SCRIPTDIR, "templates", "default.css")
 DEFAULT_AUTHOR = "Author"
 

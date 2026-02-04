@@ -20,7 +20,7 @@ from modules.argumentparser import Args
 from modules.datatypes.metadata import Metadata, ImageMetadata, SubfolderMetadata
 
 # Constants for file paths and exclusions
-SCRIPTDIR = os.path.dirname(os.path.realpath(__file__)).removesuffix(__package__)
+SCRIPTDIR = os.path.dirname(os.path.realpath(__file__)).removesuffix(__package__ if __package__ else "")
 FAVICON_PATH = ".static/favicon.ico"
 GLOBAL_CSS_PATH = ".static/global.css"
 EXCLUDES = ["index.html", "manifest.json", "robots.txt"]
