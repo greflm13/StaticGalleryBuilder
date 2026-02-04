@@ -302,6 +302,11 @@ input {
   border-style: none;
 }
 
+.darkmodeswitch {
+  font-size: smaller;
+  height: 100%;
+}
+
 #dark-mode-switch {
   display: flex;
   align-items: center;

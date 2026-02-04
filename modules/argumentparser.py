@@ -60,6 +60,8 @@ class Args:
         Whether to enable fancy folder view.
     web_root_url : str
         The base URL of the web root for the image hosting site.
+    darktheme : bool
+        Whether a dark theme is present.
     """
 
     author_name: str
@@ -80,6 +82,7 @@ class Args:
     theme_path: str
     use_fancy_folders: bool
     web_root_url: str
+    darktheme: bool = False
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -102,6 +105,7 @@ class Args:
         result["theme_path"] = self.theme_path
         result["use_fancy_folders"] = self.use_fancy_folders
         result["web_root_url"] = self.web_root_url
+        result["darktheme"] = self.darktheme
         return result
 
 
@@ -172,5 +176,6 @@ def parse_arguments(version: str) -> Args:
         theme_path=parsed_args.theme_path,
         use_fancy_folders=parsed_args.use_fancy_folders,
         web_root_url=parsed_args.web_root_url,
+        darktheme=False,
     )
     return _args

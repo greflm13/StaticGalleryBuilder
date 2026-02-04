@@ -218,7 +218,7 @@ def main(args) -> None:
                 shutil.rmtree(thumbdir)
         os.makedirs(thumbdir, exist_ok=True)
 
-        darktheme = copy_static_files(args)
+        args.darktheme = copy_static_files(args)
         icons(args)
 
         if args.generate_webmanifest:
@@ -228,13 +228,13 @@ def main(args) -> None:
         if args.non_interactive_mode:
             logger.info("generating HTML files")
             print("Generating HTML files...")
-            thumbnails = list_folder(args.root_directory, args.site_title, args, raw, VERSION, logo, darktheme=darktheme)
+            thumbnails = list_folder(args.root_directory, args.site_title, args, raw, VERSION, logo)
             with Pool(os.cpu_count()) as pool:
                 logger.info("generating thumbnails")
                 print("Generating thumbnails...")
                 pool.map(generate_thumbnail, thumbnails)
         else:
-            thumbnails = list_folder(args.root_directory, args.site_title, args, raw, VERSION, logo, darktheme=darktheme)
+            thumbnails = list_folder(args.root_directory, args.site_title, args, raw, VERSION, logo)
 
             with Pool(os.cpu_count()) as pool:
                 logger.info("generating thumbnails")
