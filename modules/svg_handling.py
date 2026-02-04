@@ -148,7 +148,7 @@ def render_manifest_json(_args: Args, icon_list: list[Icon], colors: dict[str, s
         short_name=_args.site_title,
         icons=icon_list,
         background_color=colors["bcolor1"],
-        theme_color=colors["theme_color"],
+        theme_color=colors["color1"],
     )
     with open(os.path.join(_args.root_directory, ".static", "manifest.webmanifest"), "w", encoding="utf-8") as f:
         logger.info("rendering manifest.webmanifest", extra={"path": os.path.join(_args.root_directory, ".static", "manifest.webmanifest")})
@@ -262,5 +262,4 @@ def webmanifest(_args: Args) -> None:
         return
 
     colorscheme = extract_colorscheme(os.path.join(_args.root_directory, ".static", "theme.css"))
-    colorscheme["theme_color"] = extract_theme_color(os.path.join(_args.root_directory, ".static", "theme.css"))
     render_manifest_json(_args, icon_list, colorscheme)
