@@ -52,6 +52,7 @@ class PhotoGallery {
 
     const img = document.createElement("img");
     img.src = this.shown[imgIndex]?.src || "";
+    console.log("Prefetching image:", img);
     prefetchDiv.appendChild(img);
   }
 
@@ -62,6 +63,7 @@ class PhotoGallery {
     const img = prefetchDiv.querySelector(`img[src="${this.shown[imgIndex]?.src || ""}"]`);
     if (img) {
       prefetchDiv.removeChild(img);
+      console.log("Cancelled prefetch for image:", img);
     }
   }
 
