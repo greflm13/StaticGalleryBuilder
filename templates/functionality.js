@@ -4,7 +4,6 @@ class PhotoGallery {
     this.items = [];
     this.shown = [];
     this.subfolders = [];
-    this.controllers = {};
     this.tagDropdownShown = false;
 
     this.debounce = this.debounce.bind(this);
@@ -53,18 +52,8 @@ class PhotoGallery {
     const img = document.createElement("img");
     img.src = this.shown[imgIndex]?.src || "";
     console.log("Prefetching image:", img);
+    prefetchDiv.removeChild(prefetchDiv.firstChild);
     prefetchDiv.appendChild(img);
-  }
-
-  cancel(imgIndex) {
-    const prefetchDiv = document.getElementById("img-prefetch");
-    if (!prefetchDiv) return;
-
-    const img = prefetchDiv.querySelector(`img[src="${this.shown[imgIndex]?.src || ""}"]`);
-    if (img) {
-      prefetchDiv.removeChild(img);
-      console.log("Cancelled prefetch for image:", img);
-    }
   }
 
   reset() {
@@ -394,18 +383,11 @@ class PhotoGallery {
         if (!isNaN(index)) this.openSwipe(index);
       });
 
-      imagelist.addEventListener("mouseenter", (event) => {
+      imagelist.addEventListener("mousemove", (event) => {
         const img = event.target.closest("img");
         if (!img || !img.dataset.index) return;
         const index = parseInt(img.dataset.index);
         if (!isNaN(index)) this.prefetch(index);
-      });
-
-      imagelist.addEventListener("mouseleave", (event) => {
-        const img = event.target.closest("img");
-        if (!img || !img.dataset.index) return;
-        const index = parseInt(img.dataset.index);
-        if (!isNaN(index)) this.cancel(index);
       });
     }
   }
