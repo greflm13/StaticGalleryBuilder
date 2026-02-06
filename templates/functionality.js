@@ -426,6 +426,7 @@ class PhotoGallery {
   darkMode() {
     const themeLink = document.getElementById("theme");
     const darkThemeLink = document.getElementById("darktheme");
+    localStorage.setItem("theme", "dark");
     if (themeLink) themeLink.disabled = true;
     if (darkThemeLink) darkThemeLink.disabled = false;
   }
@@ -433,6 +434,7 @@ class PhotoGallery {
   lightMode() {
     const themeLink = document.getElementById("theme");
     const darkThemeLink = document.getElementById("darktheme");
+    localStorage.setItem("theme", "light");
     if (themeLink) themeLink.disabled = false;
     if (darkThemeLink) darkThemeLink.disabled = true;
   }
@@ -462,9 +464,22 @@ class PhotoGallery {
 
   detectDarkMode() {
     if (document.getElementById("darktheme")) {
+      const switchState = document.getElementById("dark-mode-switch-check");
+      const localStorageTheme = localStorage.getItem("theme");
+      if (localStorageTheme === "dark") {
+        switchState.checked = true;
+        this.darkModeToggle("dark");
+        return;
+      } else if (localStorageTheme === "light") {
+        switchState.checked = true;
+        this.darkModeToggle("light");
+        return;
+      }
       if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        switchState.checked = true;
         this.darkModeToggle("dark");
       } else {
+        switchState.checked = false;
         this.darkModeToggle("light");
       }
     }
