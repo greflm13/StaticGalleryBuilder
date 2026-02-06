@@ -9,7 +9,6 @@ class PhotoGallery {
     this.debounce = this.debounce.bind(this);
     this.openSwipe = this.openSwipe.bind(this);
     this.prefetch = this.prefetch.bind(this);
-    this.cancel = this.cancel.bind(this);
     this.reset = this.reset.bind(this);
     this.recursive = this.recursive.bind(this);
     this.requestMetadata = this.requestMetadata.bind(this);
