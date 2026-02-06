@@ -125,7 +125,7 @@ def parse_arguments(version: str) -> Args:
     """
     # fmt: off
     if RICH:
-        parser = configargparse.ArgumentParser(default_config_files=[CONFIGPATH], add_config_file_help=False, description="generate HTML files for a static image hosting website", formatter_class=RichHelpFormatter)
+        parser = configargparse.ArgumentParser(default_config_files=[CONFIGPATH], add_config_file_help=False, description="generate HTML files for a static image hosting website", formatter_class=RichHelpFormatter) # pyright: ignore[reportPossiblyUnboundVariable]
     else:
         parser = configargparse.ArgumentParser(default_config_files=[CONFIGPATH], add_config_file_help=False, description="generate HTML files for a static image hosting website")
     parser.add_argument("-a", "--author-name", help="name of the author of the images", default=DEFAULT_AUTHOR, type=str, dest="author_name", metavar="AUTHOR")
@@ -140,7 +140,7 @@ def parse_arguments(version: str) -> Args:
     parser.add_argument("--exclude-folder", help="folders to exclude from processing, globs supported (can be specified multiple times)", action="append", dest="exclude_folders", metavar="FOLDER")
     parser.add_argument("--folderthumbnails", help="generate subfolder thumbnails (first image in folder will be shown)", action="store_true", default=False, dest="folder_thumbs")
     if RICH:
-        parser.add_argument("--generate-help-preview", action=HelpPreviewAction, path="help.svg")
+        parser.add_argument("--generate-help-preview", action=HelpPreviewAction, path="help.svg") # pyright: ignore[reportPossiblyUnboundVariable]
     parser.add_argument("--ignore-other-files", help="ignore files that do not match the specified extensions", action="store_true", default=False, dest="ignore_other_files")
     parser.add_argument("--ignore-extension", help="file extensions to ignore (can be specified multiple times)", action="append", default=[], dest="ignore_extensions", metavar="EXTENSION")
     parser.add_argument("--regenerate-thumbnails", help="regenerate thumbnails even if they already exist", action="store_true", default=False, dest="regenerate_thumbnails")

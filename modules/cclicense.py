@@ -128,4 +128,4 @@ def licensepicswitch(cclicense: str) -> list[str]:
         ],
     }
 
-    return switch.get(cclicense, "")
+    return switch.get(cclicense, [])

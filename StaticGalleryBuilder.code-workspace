@@ -129,8 +129,6 @@
     "[python]": {
       "editor.defaultFormatter": "charliermarsh.ruff"
     },
-    "black-formatter.args": ["-l 260"],
-    "black-formatter.interpreter": ["/usr/bin/python3"],
     "editor.formatOnSave": false,
     "emmet.includeLanguages": {
       "jinja-css": "css",
@@ -157,7 +155,9 @@
     "json.schemaDownload.enable": true,
     "json.schemas": [
       {
-        "fileMatch": ["manifest.json.j2"],
+        "fileMatch": [
+          "manifest.json.j2"
+        ],
         "url": "https://json.schemastore.org/web-manifest-combined.json"
       }
     ],
@@ -169,9 +169,10 @@
         "packageManager": "ms-python.python:pip"
       }
     ],
-    "python.analysis.inlayHints.callArgumentNames": "off",
-    "python.analysis.inlayHints.functionReturnTypes": false,
-    "python.analysis.inlayHints.variableTypes": false,
+    "python.analysis.inlayHints.callArgumentNames": "all",
+    "python.analysis.inlayHints.functionReturnTypes": true,
+    "python.analysis.inlayHints.variableTypes": true,
+    "python.analysis.typeCheckingMode": "standard",
     "yaml.schemas": {
       "https://raw.githubusercontent.com/pamburus/hl/master/schema/json/config.schema.json": "file:///home/user/git/github.com/greflm13/StaticGalleryBuilder/hl_config.yaml"
     },
@@ -228,7 +229,9 @@
           "kind": "build",
           "isDefault": true
         },
-        "dependsOn": ["Clean"]
+        "dependsOn": [
+          "Clean"
+        ]
       },
       {
         "command": "rm -rf build dist",

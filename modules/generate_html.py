@@ -138,9 +138,14 @@ def update_metadata(metadata: Metadata, folder: str) -> None:
     """
     metadata_path = os.path.join(folder, ".metadata.json")
     if metadata:
-        with open(metadata_path, "w", encoding="utf-8") as metadatafile:
-            logger.info("writing metadata file", extra={"file": metadata_path})
-            metadatafile.write(json.dumps(metadata.to_dict(), indent=4))
+        if os.path.exists(metadata_path):
+            logger.info("updating metadata file", extra={"file": metadata_path})
+            with open(metadata_path, "w", encoding="utf-8") as metadatafile:
+                metadatafile.write(json.dumps(metadata.to_dict(), indent=4))
+        else:
+            logger.info("creating metadata file", extra={"file": metadata_path})
+            with open(metadata_path, "x", encoding="utf-8") as metadatafile:
+                metadatafile.write(json.dumps(metadata.to_dict(), indent=4))
     else:
         if os.path.exists(metadata_path):
             logger.info("deleting empty metadata file", extra={"file": metadata_path})
@@ -257,11 +262,11 @@ def get_image_info(item: str, folder: str) -> ImageMetadata:
     return ImageMetadata(w=width, h=height, tags=tags, exifdata=exifdata, xmp=xmp, src="", msrc="", name="", title="")
 
 
-def nested_dict():
+def nested_dict() -> defaultdict[Any, Any]:
     return defaultdict(nested_dict)
 
 
-def insert_path(d, path):
+def insert_path(d, path) -> None:
     for part in path[:-1]:
         d = d[part]
     last = path[-1]

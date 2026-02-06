@@ -1,5 +1,6 @@
 import os
 import shutil
+from dataclasses import dataclass
 from subprocess import Popen, PIPE
 from PIL import Image
 from jinja2 import Environment, FileSystemLoader
@@ -26,6 +27,7 @@ ICON_SIZES = ["36x36", "48x48", "72x72", "96x96", "144x144", "192x192", "512x512
 env = Environment(loader=FileSystemLoader(os.path.join(SCRIPTDIR, "templates")))
 
 
+@dataclass
 class Icon:
     src: str
     type: str
@@ -68,11 +70,12 @@ def save_png_icon(content: str, iconspath: str) -> None:
     iconspath : str
         Path to the directory where the PNG icon will be saved.
     """
-    tmpimg = BytesIO()
-    cairosvg.svg2png(bytestring=content, write_to=tmpimg)
-    with Image.open(tmpimg) as iconfile:
-        logger.info("saving png icon", extra={"iconspath": iconspath})
-        iconfile.save(os.path.join(iconspath, "icon.png"))
+    if SVGSUPPORT:
+        tmpimg = BytesIO()  # pyright: ignore[reportPossiblyUnboundVariable]
+        cairosvg.svg2png(bytestring=content, write_to=tmpimg)  # pyright: ignore[reportPossiblyUnboundVariable]
+        with Image.open(tmpimg) as iconfile:
+            logger.info("saving png icon", extra={"iconspath": iconspath})
+            iconfile.save(os.path.join(iconspath, "icon.png"))
 
 
 def generate_favicon(iconspath: str, root_directory: str) -> None:
@@ -176,40 +179,20 @@ def create_icons_from_svg(files: list[str], iconspath: str, _args: Args) -> list
     svg = [file for file in files if file.endswith(".svg")][0]
     logger.info("creating icons for web application", extra={"iconspath": iconspath, "svg": svg})
     icon_list = [
-        {"src": f"{_args.web_root_url}.static/icons/{svg}", "type": "image/svg+xml", "sizes": "512x512", "purpose": "maskable"},
-        {"src": f"{_args.web_root_url}.static/icons/{svg}", "type": "image/svg+xml", "sizes": "512x512", "purpose": "any"},
+        Icon(src=f"{_args.web_root_url}.static/icons/{svg}", type="image/svg+xml", sizes="512x512", purpose="maskable"),
+        Icon(src=f"{_args.web_root_url}.static/icons/{svg}", type="image/svg+xml", sizes="512x512", purpose="any"),
     ]
     for size in ICON_SIZES:
-        tmpimg = BytesIO()
+        tmpimg = BytesIO()  # pyright: ignore[reportPossiblyUnboundVariable]
         sizes = size.split("x")
         iconpath = os.path.join(iconspath, os.path.splitext(svg)[0] + "-" + size + ".png")
         logger.info("converting svg to png", extra={"svg": svg, "size": size})
-        cairosvg.svg2png(
-            url=os.path.join(iconspath, svg),
-            write_to=tmpimg,
-            output_width=int(sizes[0]),
-            output_height=int(sizes[1]),
-            scale=1,
-        )
+        cairosvg.svg2png(url=os.path.join(iconspath, svg), write_to=tmpimg, output_width=int(sizes[0]), output_height=int(sizes[1]), scale=1)  # pyright: ignore[reportPossiblyUnboundVariable]
         with Image.open(tmpimg) as iconfile:
             logger.info("saving png file", extra={"iconpath": iconpath})
             iconfile.save(iconpath, format="PNG")
-        icon_list.append(
-            {
-                "src": f"{_args.web_root_url}.static/icons/{os.path.splitext(svg)[0]}-{size}.png",
-                "sizes": size,
-                "type": "image/png",
-                "purpose": "maskable",
-            }
-        )
-        icon_list.append(
-            {
-                "src": f"{_args.web_root_url}.static/icons/{os.path.splitext(svg)[0]}-{size}.png",
-                "sizes": size,
-                "type": "image/png",
-                "purpose": "any",
-            }
-        )
+        icon_list.append(Icon(src=f"{_args.web_root_url}.static/icons/{os.path.splitext(svg)[0]}-{size}.png", sizes=size, type="image/png", purpose="maskable"))
+        icon_list.append(Icon(src=f"{_args.web_root_url}.static/icons/{os.path.splitext(svg)[0]}-{size}.png", sizes=size, type="image/png", purpose="any"))
     return icon_list
 
 
@@ -236,8 +219,8 @@ def create_icons_from_png(iconspath: str, web_root_url: str) -> list[Icon]:
         with Image.open(os.path.join(iconspath, icon)) as iconfile:
             iconsize = f"{iconfile.size[0]}x{iconfile.size[1]}"
             logger.info("using icon", extra={"iconspath": iconspath, "icon": icon, "size": iconsize})
-        icon_list.append({"src": f"{web_root_url}.static/icons/{icon}", "sizes": iconsize, "type": "image/png", "purpose": "maskable"})
-        icon_list.append({"src": f"{web_root_url}.static/icons/{icon}", "sizes": iconsize, "type": "image/png", "purpose": "any"})
+        icon_list.append(Icon(src=f"{web_root_url}.static/icons/{icon}", sizes=iconsize, type="image/png", purpose="maskable"))
+        icon_list.append(Icon(src=f"{web_root_url}.static/icons/{icon}", sizes=iconsize, type="image/png", purpose="any"))
     return icon_list
 
 
@@ -254,7 +237,9 @@ def webmanifest(_args: Args) -> None:
 
     iconspath = os.path.join(_args.root_directory, ".static", "icons")
     files = os.listdir(iconspath)
-    icon_list = create_icons_from_svg(files, iconspath, _args) if SVGSUPPORT and any(file.endswith(".svg") for file in files) else create_icons_from_png(iconspath, _args.web_root_url)
+    icon_list = (
+        create_icons_from_svg(files, iconspath, _args) if SVGSUPPORT and any(file.endswith(".svg") for file in files) else create_icons_from_png(iconspath, _args.web_root_url)
+    )
 
     if not icon_list:
         print("No icons found in the static/icons folder!")

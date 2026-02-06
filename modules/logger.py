@@ -18,7 +18,7 @@ import gzip
 import shutil
 import logging
 from datetime import datetime
-from pythonjsonlogger import json as jsonlogger
+from pythonjsonlogger import jsonlogger
 
 # Constants for file paths and exclusions
 SCRIPTDIR = os.path.dirname(os.path.realpath(__file__)).removesuffix(__package__ if __package__ else "")
