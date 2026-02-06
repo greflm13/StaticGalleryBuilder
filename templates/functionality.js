@@ -50,7 +50,6 @@ class PhotoGallery {
 
     const img = document.createElement("img");
     img.src = this.shown[imgIndex]?.src || "";
-    console.log("Prefetching image:", img);
     prefetchDiv.removeChild(prefetchDiv.firstChild);
     prefetchDiv.appendChild(img);
   }
