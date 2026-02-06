@@ -47,22 +47,21 @@ class PhotoGallery {
   }
 
   prefetch(imgIndex) {
-    if (this.controllers[imgIndex]) {
-      this.cancel(imgIndex);
-    }
-    const controller = new AbortController();
-    const signal = controller.signal;
-    this.controllers[imgIndex] = controller;
-    const urlToFetch = this.shown[imgIndex]?.src;
-    if (urlToFetch) {
-      fetch(urlToFetch, { method: "GET", signal }).catch(() => {});
-    }
+    const prefetchDiv = document.getElementById("img-prefetch");
+    if (!prefetchDiv) return;
+
+    const img = document.createElement("img");
+    img.src = this.shown[imgIndex]?.src || "";
+    prefetchDiv.appendChild(img);
   }
 
   cancel(imgIndex) {
-    if (this.controllers[imgIndex]) {
-      this.controllers[imgIndex].abort();
-      delete this.controllers[imgIndex];
+    const prefetchDiv = document.getElementById("img-prefetch");
+    if (!prefetchDiv) return;
+
+    const img = prefetchDiv.querySelector(`img[src="${this.shown[imgIndex]?.src || ""}"]`);
+    if (img) {
+      prefetchDiv.removeChild(img);
     }
   }
 
@@ -393,7 +392,7 @@ class PhotoGallery {
         if (!isNaN(index)) this.openSwipe(index);
       });
 
-      imagelist.addEventListener("mouseover", (event) => {
+      imagelist.addEventListener("mouseenter", (event) => {
         const img = event.target.closest("img");
         if (!img || !img.dataset.index) return;
         const index = parseInt(img.dataset.index);

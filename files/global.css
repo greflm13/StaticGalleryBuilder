@@ -353,6 +353,13 @@ input {
   left: calc(50% + 1em - 1px);
 }
 
+.imgprefetch {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
 @media screen and (max-width: 1000px) {
   .column {
     -ms-flex: 25%;
