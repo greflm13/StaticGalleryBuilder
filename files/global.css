@@ -132,6 +132,8 @@ figure {
   text-align: center;
   padding: 14px 16px;
   text-decoration: none;
+  height: 1.222em;
+  box-sizing: content-box;
 }
 
 .navbar .navleft {
@@ -302,12 +304,7 @@ input {
   border-style: none;
 }
 
-.darkmodeswitch {
-  font-size: smaller;
-  height: 100%;
-}
-
-#dark-mode-switch {
+.darkmodeswitch a {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -316,7 +313,7 @@ input {
   position: relative;
 }
 
-#dark-mode-switch .checkbox {
+.darkmodeswitch a input[type="checkbox"] {
   position: absolute;
   width: 100%;
   margin: 0;
@@ -325,7 +322,7 @@ input {
   z-index: 2;
 }
 
-#dark-mode-switch .knobs {
+.darkmodeswitch a .knobs {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -334,12 +331,12 @@ input {
   width: 100%;
 }
 
-#dark-mode-switch .light,
-#dark-mode-switch .dark {
+.darkmodeswitch a .light,
+.darkmodeswitch a .dark {
   text-align: center;
 }
 
-#dark-mode-switch .slider {
+.darkmodeswitch a .slider {
   position: absolute;
   width: calc(2em - 2px);
   height: calc(2em - 2px);
@@ -351,7 +348,7 @@ input {
   left: calc(50% - 1em + 1px);
 }
 
-#dark-mode-switch .checkbox:checked+.knobs .slider {
+.darkmodeswitch a input[type="checkbox"]:checked+.knobs .slider {
   left: calc(50% + 1em - 1px);
 }
 
