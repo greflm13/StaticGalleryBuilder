@@ -326,14 +326,15 @@ input {
   display: flex;
   align-items: center;
   justify-content: center;
-  column-gap: 1em;
+  column-gap: 1.25em;
   position: relative;
   width: 100%;
 }
 
 .darkmodeswitch a .light,
 .darkmodeswitch a .dark {
-  text-align: center;
+  position: relative;
+  top: -0.111em;
 }
 
 .darkmodeswitch a .slider {
@@ -342,7 +343,7 @@ input {
   height: calc(2em - 2px);
   border: 1px solid currentColor;
   border-radius: 3px;
-  top: 50%;
+  top: calc(50% - 2px);
   transform: translate(-50%, -50%);
   transition: left 0.25s ease, transform 0.25s ease;
   left: calc(50% - 1em + 1px);
