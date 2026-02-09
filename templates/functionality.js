@@ -286,6 +286,7 @@ class PhotoGallery {
     const imagelist = document.getElementById("imagelist");
     if (!imagelist) return;
     let str = "";
+    this.shown.sort((a, b) => a.src.replace(a.name, "").localeCompare(b.src.replace(b.name, "")));
     this.shown.forEach((item, index) => {
       let tags = this.parseHierarchicalTags(item.tags || []);
       str += `<div class="column"><figure title="${this.renderTree(tags)}"><img src="${
