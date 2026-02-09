@@ -383,10 +383,8 @@ def process_image(item: str, folder: str, _args: Args, baseurl: str, metadata: M
         if os.path.exists(file):
             url = f"{_args.web_root_url}{baseurl}{urllib.parse.quote(extsplit[0])}{_raw}"
             if _raw in (".tif", ".tiff"):
-                logger.info("tiff file found", extra={"file": file})
                 image.tiff = url
             else:
-                logger.info("raw file found", extra={"file": file, "extension": _raw})
                 image.raw = url
 
     metadata.images[item] = image
