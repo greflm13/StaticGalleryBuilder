@@ -18,10 +18,12 @@ class PhotoGallery {
     this.openSwipe = this.openSwipe.bind(this);
     this.parseHierarchicalTags = this.parseHierarchicalTags.bind(this);
     this.prefetch = this.prefetch.bind(this);
+    this.prefetchCancel = this.prefetchCancel.bind(this);
     this.recursive = this.recursive.bind(this);
     this.renderTree = this.renderTree.bind(this);
     this.requestMetadata = this.requestMetadata.bind(this);
     this.reset = this.reset.bind(this);
+    this.resetHoverTimer = this.resetHoverTimer.bind(this);
     this.scrollFunction = this.scrollFunction.bind(this);
     this.setFilter = this.setFilter.bind(this);
     this.setupClickHandlers = this.setupClickHandlers.bind(this);
@@ -227,8 +229,15 @@ class PhotoGallery {
 
     const img = document.createElement("img");
     img.src = this.shown[imgIndex]?.src || "";
-    prefetchDiv.removeChild(prefetchDiv.firstChild);
     prefetchDiv.appendChild(img);
+  }
+
+  prefetchCancel() {
+    const prefetchDiv = document.getElementById("img-prefetch");
+    if (!prefetchDiv) return;
+    if (prefetchDiv.firstChild) {
+      prefetchDiv.removeChild(prefetchDiv.firstChild);
+    }
   }
 
   async recursive() {
@@ -363,6 +372,16 @@ class PhotoGallery {
     this.requestMetadata();
   }
 
+  resetHoverTimer(index) {
+    if (this.hoverTimer) {
+      clearTimeout(this.hoverTimer);
+    }
+    this.prefetchCancel();
+    this.hoverTimer = setTimeout(() => {
+      this.prefetch(index);
+    }, 500);
+  }
+
   scrollFunction() {
     const totopbutton = document.getElementById("totop");
     if (!totopbutton) return;
@@ -405,11 +424,25 @@ class PhotoGallery {
         if (!isNaN(index)) this.openSwipe(index);
       });
 
-      imagelist.addEventListener("mousemove", (event) => {
-        const img = event.target.closest("img");
+      imagelist.addEventListener("mouseenter", (event) => {
+        const img = event.target;
         if (!img || !img.dataset.index) return;
         const index = parseInt(img.dataset.index);
-        if (!isNaN(index)) this.prefetch(index);
+        if (!isNaN(index)) this.resetHoverTimer(index);
+      });
+
+      imagelist.addEventListener("mousemove", (event) => {
+        const img = event.target;
+        if (!img || !img.dataset.index) return;
+        const index = parseInt(img.dataset.index);
+        if (!isNaN(index)) this.resetHoverTimer(index);
+      });
+
+      imagelist.addEventListener("mouseleave", () => {
+        if (this.hoverTimer) {
+          clearTimeout(this.hoverTimer);
+        }
+        this.prefetchCancel();
       });
     }
   }
