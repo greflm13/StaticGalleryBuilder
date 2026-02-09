@@ -202,6 +202,7 @@ input {
 .tooltip .infotext {
   padding: 12px;
   width: max-content;
+  pointer-events: none;
 }
 
 .tooltiptext.tagdropdown {
@@ -224,11 +225,13 @@ input {
 .tooltip:hover .infotext {
   display: block;
   opacity: 1;
+  pointer-events: auto;
 }
 
 .tooltip:active .infotext {
   display: block;
   opacity: 1;
+  pointer-events: auto;
 }
 
 .tagentryparent {
