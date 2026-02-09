@@ -176,6 +176,7 @@ class PhotoGallery {
   }
 
   filter() {
+    this.showLoader();
     const searchParams = new URLSearchParams(window.location.search);
     this.shown = [];
     let path = decodeURIComponent(window.location.origin + window.location.pathname.replace("index.html", ""));
@@ -283,6 +284,7 @@ class PhotoGallery {
   };
 
   updateImageList() {
+    this.showLoader();
     const imagelist = document.getElementById("imagelist");
     if (!imagelist) return;
     let str = "";
