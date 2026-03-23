@@ -15,6 +15,7 @@ class PhotoGallery {
     this.insertPath = this.insertPath.bind(this);
     this.lightMode = this.lightMode.bind(this);
     this.onLoad = this.onLoad.bind(this);
+    this.onPageShow = this.onPageShow.bind(this);
     this.openSwipe = this.openSwipe.bind(this);
     this.parseHierarchicalTags = this.parseHierarchicalTags.bind(this);
     this.prefetch = this.prefetch.bind(this);
@@ -191,7 +192,6 @@ class PhotoGallery {
   }
 
   onLoad() {
-    this.detectDarkMode();
     document.querySelectorAll(".tagtoggle").forEach((toggle) => {
       toggle.addEventListener("mouseup", (event) => {
         event.stopPropagation();
@@ -206,6 +206,10 @@ class PhotoGallery {
     this.setupClickHandlers();
 
     window.addEventListener("scroll", this.scrollFunction);
+  }
+
+  onPageShow() {
+    this.detectDarkMode();
   }
 
   openSwipe(imgIndex) {
@@ -528,6 +532,11 @@ class PhotoGallery {
   }
 
   init() {
+    if (window.addEventListener) {
+      window.addEventListener("pageshow", this.onPageShow, false);
+    } else if (window.attachEvent) {
+      window.attachEvent("pageshow", this.onPageShow);
+    }
     if (window.addEventListener) {
       window.addEventListener("load", this.onLoad, false);
     } else if (window.attachEvent) {
