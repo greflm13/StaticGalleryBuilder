@@ -191,6 +191,7 @@ class PhotoGallery {
   }
 
   onLoad() {
+    this.detectDarkMode();
     document.querySelectorAll(".tagtoggle").forEach((toggle) => {
       toggle.addEventListener("mouseup", (event) => {
         event.stopPropagation();
@@ -203,7 +204,6 @@ class PhotoGallery {
     this.setupDropdownToggle();
     this.setupTagHandlers();
     this.setupClickHandlers();
-    this.detectDarkMode();
 
     window.addEventListener("scroll", this.scrollFunction);
   }
