@@ -26,7 +26,7 @@
           "-p",
           "${workspaceFolder}/test",
           "-w",
-          "file://${workspaceFolder}/test",
+          "http://localhost/",
           "-t",
           "Pictures",
           "--theme",
@@ -141,9 +141,6 @@
       "**/*.css": "css",
       "**/*.html.j2": "jinja-html"
     },
-    "gitblame.inlineMessageEnabled": true,
-    "gitblame.inlineMessageFormat": "${author.name}, ${time.ago} • ${commit.summary}",
-    "gitblame.statusBarMessageFormat": "${author.name} (${time.ago})",
     "html.format.indentHandlebars": true,
     "html.format.templating": true,
     "html.format.wrapAttributes": "preserve",
