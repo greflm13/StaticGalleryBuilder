@@ -168,8 +168,14 @@ def get_image_info(item: str, folder: str) -> ImageMetadata:
         with Image.open(file) as img:
             logger.info("extracting image information", extra={"file": file})
             width, height = img.size
-            exif = img.getexif()
-            xmpdata = img.getxmp()
+            try:
+                exif = img.getexif()
+            except Exception:
+                exif = None
+            try:
+                xmpdata = img.getxmp()
+            except Exception:
+                xmpdata = None
 
     except UnidentifiedImageError:
         logger.error("cannot identify image file", extra={"file": file})
