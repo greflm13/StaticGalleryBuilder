@@ -6,21 +6,21 @@ import shutil
 import urllib.error
 import urllib.parse
 import urllib.request
-from multiprocessing import Pool, freeze_support
-from pathlib import Path
 
+from pathlib import Path
+from importlib.metadata import version
+from multiprocessing import Pool, freeze_support
+
+from jsmin import jsmin
 from tqdm.auto import tqdm
 from PIL import Image, ImageOps
-from jsmin import jsmin
 
 from modules.argumentparser import parse_arguments, Args
-
 
 # fmt: off
 # Constants
 SCRIPTDIR = os.path.dirname(os.path.realpath(__file__)).removesuffix(__package__ if __package__ else "")
 STATIC_FILES_DIR = os.path.join(os.path.abspath(SCRIPTDIR), "files")
-VERSION = open(os.path.join(SCRIPTDIR, ".version"), "r", encoding="utf-8").read()
 RAW_EXTENSIONS = [
     ".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr",
     ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos",
@@ -31,7 +31,8 @@ IMG_EXTENSIONS = [".jpg", ".jpeg", ".png"]
 NOT_LIST = ["*/Galleries/*", "Archives"]
 # fmt: on
 
-args = parse_arguments(VERSION)
+__version__ = version("StaticGalleryBuilder")
+args = parse_arguments(__version__)
 
 LOCKFILE = os.path.join(args.root_directory, ".lock")
 if os.path.exists(LOCKFILE):
@@ -192,7 +193,7 @@ def main(args) -> None:
 
     try:
         Path(LOCKFILE).touch()
-        logger.info("starting builder", extra={"version": VERSION, "arguments": args})
+        logger.info("starting builder", extra={"version": __version__, "arguments": args})
 
         logger.info("getting logo from sorogon.eu")
         req = urllib.request.Request("https://files.sorogon.eu/logo.svg")
@@ -228,13 +229,13 @@ def main(args) -> None:
         if args.non_interactive_mode:
             logger.info("generating HTML files")
             print("Generating HTML files...")
-            thumbnails = list_folder(args.root_directory, args.site_title, args, raw, VERSION, logo)
+            thumbnails = list_folder(args.root_directory, args.site_title, args, raw, __version__, logo)
             with Pool(os.cpu_count()) as pool:
                 logger.info("generating thumbnails")
                 print("Generating thumbnails...")
                 pool.map(generate_thumbnail, thumbnails)
         else:
-            thumbnails = list_folder(args.root_directory, args.site_title, args, raw, VERSION, logo)
+            thumbnails = list_folder(args.root_directory, args.site_title, args, raw, __version__, logo)
 
             with Pool(os.cpu_count()) as pool:
                 logger.info("generating thumbnails")
@@ -252,7 +253,7 @@ def main(args) -> None:
         print(f"An unhandled exception occurred: {str(e)}")
     finally:
         os.remove(LOCKFILE)
-        logger.info("finished builder", extra={"version": VERSION})
+        logger.info("finished builder", extra={"version": __version__})
 
 
 if __name__ == "__main__":

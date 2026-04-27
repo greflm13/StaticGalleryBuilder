@@ -22,15 +22,18 @@ jobs:
       - name: Build Package
         shell: bash
         run: |
-          VERSION=$(cat .version)
+          VERSION=$(python - <<'EOF'
+          from importlib.metadata import version
+          print(version("StaticGalleryBuilder"))
+          EOF
+          )
           OS=$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]')
           pyinstaller builder.py modules/*.py \
             -n StaticGalleryBuilder-${VERSION}-${OS} \
             -F \
             --add-data files:files \
             --add-data templates:templates \
-            --add-data themes:themes \
-            --add-data .version:.
+            --add-data themes:themes
       - name: Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
