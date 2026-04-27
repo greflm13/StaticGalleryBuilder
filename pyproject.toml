@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "StaticGalleryBuilder"
-version = "2.9.2"
+version = "2.9.1"
 description = "Python script to generate static HTML files for website galleries. "
 readme = "README.md"
 requires-python = ">=3.12"

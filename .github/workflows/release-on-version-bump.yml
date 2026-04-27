@@ -1,4 +1,4 @@
-name: Release previous version on version bump
+name: release-on-version-bump
 
 on:
   push:
@@ -9,8 +9,11 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  version:
     runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+      tag: ${{ steps.tag.outputs.tag }}
 
     steps:
       - uses: actions/checkout@v4
@@ -47,14 +50,74 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Create tag
+      - name: Create and push tag
+        id: tag
         if: steps.check.outputs.changed == 'true'
         run: |
-          git tag v${{ steps.versions.outputs.prev }}
-          git push origin v${{ steps.versions.outputs.prev }}
+          TAG="v${{ steps.versions.outputs.prev }}"
+          git tag "$TAG"
+          git push origin "$TAG"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
-      - name: Create release
-        if: steps.check.outputs.changed == 'true'
+  build:
+    needs: version
+    if: needs.version.outputs.changed == 'true'
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install .
+
+      - name: Build package
+        shell: bash
+        run: |
+          VERSION="${{ needs.version.outputs.tag }}"
+          VERSION="${VERSION#v}"
+          OS=$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]')
+          pyinstaller builder.py modules/*.py \
+            -n StaticGalleryBuilder-${VERSION}-${OS} \
+            -F \
+            --add-data files:files \
+            --add-data templates:templates \
+            --add-data themes:themes
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: StaticGalleryBuilder-${{ runner.os }}
+          path: dist/StaticGalleryBuilder*
+
+  release:
+    needs:
+      - version
+      - build
+    runs-on: ubuntu-latest
+    if: needs.version.outputs.changed == 'true'
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.versions.outputs.prev }}
+          tag_name: ${{ needs.version.outputs.tag }}
+          make_latest: true
+          generate_release_notes: true
+          files: dist/**/*
