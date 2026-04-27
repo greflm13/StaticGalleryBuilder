@@ -40,7 +40,7 @@ jobs:
 
       - name: Check version change
         run: |
-          if [ "${{ steps.versions.outputs.prev }}" = "${{ steps.versions.outputs.current }}" ]; then
+          if [ "${{ steps.versions.outputs.prev }}" == "${{ steps.versions.outputs.current }}" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
