@@ -24,10 +24,9 @@ jobs:
       - name: Read versions
         id: versions
         run: |
-          PREV_VERSION=$(git show HEAD~1:pyproject.toml | python - <<'EOF'
-          import tomllib, sys
-          print(tomllib.loads(sys.stdin.read())["project"]["version"])
-          EOF
+          PREV_VERSION=$(
+            git show HEAD~1:pyproject.toml |
+            python -c 'import tomllib,sys; print(tomllib.loads(sys.stdin.read())["project"]["version"])'
           )
           CUR_VERSION=$(python - <<'EOF'
           import tomllib
