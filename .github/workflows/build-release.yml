@@ -17,8 +17,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install pyinstaller
           pip install -r requirements.txt
-      - name: Build Package (Unix)
-        if: runner.os != 'Windows'
+      - name: Build Package
         run: |
           VERSION=$(cat .version)
           OS=$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]')
@@ -28,17 +27,6 @@ jobs:
             --add-data files:files \
             --add-data templates:templates \
             --add-data .version:.
-      - name: Build Package (Windows)
-        if: runner.os == 'Windows'
-        shell: bash
-        run: |
-          VERSION=$(cat .version)
-          pyinstaller builder.py modules/*.py \
-            -n StaticGalleryBuilder-${VERSION}-windows \
-            -F \
-            --add-data files;files \
-            --add-data templates;templates \
-            --add-data .version;.
       - name: Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
