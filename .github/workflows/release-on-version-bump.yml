@@ -49,7 +49,9 @@ jobs:
 
       - name: Create tag
         if: steps.check.outputs.changed == 'true'
-        run: git tag v${{ steps.versions.outputs.prev }}
+        run: |
+          git tag v${{ steps.versions.outputs.prev }}
+          git push origin v${{ steps.versions.outputs.prev }}
 
       - name: Create release
         if: steps.check.outputs.changed == 'true'

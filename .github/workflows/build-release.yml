@@ -2,8 +2,8 @@ name: build-release
 run-name: build-release
 on:
   push:
-    branches:
-      - main
+    tags:
+      - "v*"
 jobs:
   build:
     strategy:
@@ -17,20 +17,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install Dependencies
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pyinstaller
           pip install .
-      - name: Build Package
+      - name: Build package
         shell: bash
         run: |
-          VERSION=$(python - <<'EOF'
-          import tomllib
-          with open("pyproject.toml", "rb") as f:
-              print(tomllib.load(f)["project"]["version"])
-          EOF
-          )
+          VERSION="${GITHUB_REF#refs/tags/v}"
           OS=$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]')
           pyinstaller builder.py modules/*.py \
             -n StaticGalleryBuilder-${VERSION}-${OS} \
@@ -38,11 +33,28 @@ jobs:
             --add-data files:files \
             --add-data templates:templates \
             --add-data themes:themes
-      - name: Release
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: StaticGalleryBuilder-${{ runner.os }}
+          path: dist/*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Create release
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
         with:
           make_latest: true
           generate_release_notes: true
-          files: |
-            dist/StaticGalleryBuilder*
+          files: dist/**
