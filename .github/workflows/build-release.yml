@@ -1,6 +1,9 @@
 name: build-release
 run-name: build-release
-on: push
+on:
+  push:
+    branches:
+      - main
 jobs:
   build:
     strategy:
