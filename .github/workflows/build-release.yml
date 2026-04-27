@@ -9,6 +9,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -27,6 +29,7 @@ jobs:
             -F \
             --add-data files:files \
             --add-data templates:templates \
+            --add-data themes:themes \
             --add-data .version:.
       - name: Release
         uses: softprops/action-gh-release@v2
