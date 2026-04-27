@@ -1,0 +1,56 @@
+name: Release previous version on version bump
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Read versions
+        id: versions
+        run: |
+          PREV_VERSION=$(git show HEAD~1:pyproject.toml | python - <<'EOF'
+          import tomllib, sys
+          print(tomllib.loads(sys.stdin.read())["project"]["version"])
+          EOF
+          )
+          CUR_VERSION=$(python - <<'EOF'
+          import tomllib
+          with open("pyproject.toml", "rb") as f:
+              print(tomllib.load(f)["project"]["version"])
+          EOF
+          )
+
+          echo "prev=$PREV_VERSION" >> "$GITHUB_OUTPUT"
+          echo "current=$CUR_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Check version change
+        run: |
+          if [ "${{ steps.versions.outputs.prev }}" = "${{ steps.versions.outputs.current }}" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create tag
+        if: steps.check.outputs.changed == 'true'
+        run: git tag v${{ steps.versions.outputs.prev }}
+
+      - name: Create release
+        if: steps.check.outputs.changed == 'true'
+        uses: softprops/action-gh-release@v2
