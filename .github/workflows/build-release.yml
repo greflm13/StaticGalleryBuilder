@@ -23,7 +23,7 @@ jobs:
           VERSION=$(cat .version)
           OS=$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]')
           pyinstaller builder.py modules/*.py \
-            -n StaticGalleryBuilder-${VERSION-${OS} \
+            -n StaticGalleryBuilder-${VERSION}-${OS} \
             -F \
             --add-data files:files \
             --add-data templates:templates \
@@ -34,7 +34,7 @@ jobs:
         run: |
           VERSION=$(cat .version)
           pyinstaller builder.py modules/*.py \
-            -n StaticGalleryBuilder-${VERSION-windows \
+            -n StaticGalleryBuilder-${VERSION}-windows \
             -F \
             --add-data files;files \
             --add-data templates;templates \
