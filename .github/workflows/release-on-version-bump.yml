@@ -50,35 +50,13 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Find previous version commit and tag it
+      - name: Create and push tag
         id: tag
         if: steps.check.outputs.changed == 'true'
         run: |
           TAG="v${{ steps.versions.outputs.prev }}"
-                  
-          TARGET_COMMIT=$(
-            git log --pretty=format:%H -- pyproject.toml | while read commit; do
-              prev=$(git show "${commit}^:pyproject.toml" 2>/dev/null | \
-                python -c 'import tomllib,sys; print(tomllib.loads(sys.stdin.read())["project"]["version"])' 2>/dev/null)
-                  
-              curr=$(git show "${commit}:pyproject.toml" | \
-                python -c 'import tomllib,sys; print(tomllib.loads(sys.stdin.read())["project"]["version"])')
-                  
-              if [ "$prev" != "$curr" ] && [ "$curr" = "${{ steps.versions.outputs.prev }}" ]; then
-                echo "$commit"
-                break
-              fi
-            done
-          )
-                  
-          if [ -z "$TARGET_COMMIT" ]; then
-            echo "Could not find matching commit for version $TAG"
-            exit 1
-          fi
-                  
-          git tag "$TAG" "$TARGET_COMMIT"
+          git tag "$TAG" HEAD~1
           git push origin "$TAG"
-                  
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
   build:
