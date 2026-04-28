@@ -149,7 +149,7 @@ def parse_arguments(version: str) -> Args:
     parser.add_argument("--reverse-sort", help="sort images in reverse order", action="store_true", default=False, dest="reverse_sort")
     parser.add_argument("--theme-path", help="path to the CSS theme file", default=DEFAULT_THEME_PATH, type=str, dest="theme_path", metavar="PATH")
     parser.add_argument("--use-fancy-folders", help="enable fancy folder view instead of the default Apache directory listing", action="store_true", default=False, dest="use_fancy_folders")
-    parser.add_argument("-V", "--version", action="version", version="%(prog)s" + version)
+    parser.add_argument("-V", "--version", action="version", version="%(prog)s-" + version)
     parser.add_argument("--write-config", type=str, required=False, help="write current command line args to config file", metavar="CONFIG_FILE")
     parsed_args = parser.parse_args()
     if parsed_args.write_config:

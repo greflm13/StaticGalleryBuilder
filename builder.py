@@ -8,8 +8,8 @@ import urllib.parse
 import urllib.request
 
 from pathlib import Path
-from importlib.metadata import version
 from multiprocessing import Pool, freeze_support
+from importlib.metadata import version, PackageNotFoundError
 
 from jsmin import jsmin
 from tqdm.auto import tqdm
@@ -31,7 +31,12 @@ IMG_EXTENSIONS = [".jpg", ".jpeg", ".png"]
 NOT_LIST = ["*/Galleries/*", "Archives"]
 # fmt: on
 
-__version__ = version("StaticGalleryBuilder")
+try:
+    __version__ = version("StaticGalleryBuilder")
+except PackageNotFoundError:
+    import tomllib
+
+    __version__ = tomllib.loads(open(os.path.join(SCRIPTDIR, "pyproject.toml"), "r").read())["project"]["version"]
 args = parse_arguments(__version__)
 
 LOCKFILE = os.path.join(args.root_directory, ".lock")

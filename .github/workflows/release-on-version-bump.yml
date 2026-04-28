@@ -87,11 +87,9 @@ jobs:
       - name: Build package
         shell: bash
         run: |
-          VERSION="${{ needs.version.outputs.tag }}"
-          VERSION="${VERSION#v}"
           OS=$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]')
           pyinstaller builder.py modules/*.py \
-            -n StaticGalleryBuilder-${VERSION}-${OS} \
+            -n StaticGalleryBuilder-${OS} \
             -F \
             --add-data files:files \
             --add-data templates:templates \
