@@ -64,8 +64,28 @@ jobs:
     if: needs.version.outputs.changed == 'true'
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
-    runs-on: ${{ matrix.os }}
+        include:
+          - runner: ubuntu-latest
+            os: linux
+            arch: x64
+
+          - runner: ubuntu-24.04-arm
+            os: linux
+            arch: arm64
+
+          - runner: windows-latest
+            os: windows
+            arch: x64
+
+          - runner: macos-latest
+            os: macos
+            arch: arm64
+
+          - runner: macos-13
+            os: macos
+            arch: x64
+
+    runs-on: ${{ matrix.runner }}
 
     steps:
       - uses: actions/checkout@v4
@@ -77,6 +97,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          architecture: ${{ matrix.arch }}
 
       - name: Install dependencies
         run: |
@@ -87,9 +108,8 @@ jobs:
       - name: Build package
         shell: bash
         run: |
-          OS=$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]')
           pyinstaller builder.py modules/*.py \
-            -n StaticGalleryBuilder-${OS} \
+            -n StaticGalleryBuilder-${{ matrix.os }}-${{ matrix.arch }} \
             -F \
             --add-data files:files \
             --add-data templates:templates \
@@ -98,7 +118,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: StaticGalleryBuilder-${{ runner.os }}
+          name: StaticGalleryBuilder-${{ matrix.os }}-${{ matrix.arch }}
           path: dist/StaticGalleryBuilder*
 
   release:
