@@ -3,12 +3,13 @@ import os
 import re
 import sys
 import shutil
+import logging
 import urllib.error
 import urllib.parse
 import urllib.request
 
 from pathlib import Path
-from multiprocessing import Pool, freeze_support
+from multiprocessing import Pool, freeze_support, current_process
 from importlib.metadata import version, PackageNotFoundError
 
 from jsmin import jsmin
@@ -16,6 +17,8 @@ from tqdm.auto import tqdm
 from PIL import Image, ImageOps
 
 from modules.argumentparser import parse_arguments, Args
+from modules.svg_handling import icons, webmanifest, extract_colorscheme
+from modules.generate_html import list_folder
 
 # fmt: off
 # Constants
@@ -29,6 +32,7 @@ RAW_EXTENSIONS = [
 ]
 IMG_EXTENSIONS = [".jpg", ".jpeg", ".png"]
 NOT_LIST = ["*/Galleries/*", "Archives"]
+IS_WORKER = current_process().name != "MainProcess"
 # fmt: on
 
 try:
@@ -37,16 +41,20 @@ except PackageNotFoundError:
     import tomllib
 
     __version__ = tomllib.loads(open(os.path.join(SCRIPTDIR, "pyproject.toml"), "r").read())["project"]["version"]
-args = parse_arguments(__version__)
 
-LOCKFILE = os.path.join(args.root_directory, ".lock")
-if os.path.exists(LOCKFILE):
-    print("Another instance of this program is running.")
-    sys.exit()
-else:
+if not IS_WORKER:
+    args = parse_arguments(__version__)
+    LOCKFILE = os.path.join(args.root_directory, ".lock")
+
+    if os.path.exists(LOCKFILE):
+        print("Another instance of this program is running.")
+        sys.exit()
+
     from modules.logger import logger
-    from modules.svg_handling import icons, webmanifest, extract_colorscheme
-    from modules.generate_html import list_folder
+else:
+    args = None
+    LOCKFILE = ""
+    logger = logging.getLogger("none")
 
 
 def init_globals(_args: Args, raw: list[str]) -> tuple[Args, list[str]]:
@@ -197,7 +205,8 @@ def main(args) -> None:
     thumbdir = os.path.join(args.root_directory, ".thumbnails")
 
     try:
-        Path(LOCKFILE).touch()
+        if not IS_WORKER:
+            Path(LOCKFILE).touch()
         logger.info("starting builder", extra={"version": __version__, "arguments": args})
 
         logger.info("getting logo from sorogon.eu")
@@ -257,8 +266,9 @@ def main(args) -> None:
         logger.critical("an unhandled exception occurred: %s", str(e), exc_info=True)
         print(f"An unhandled exception occurred: {str(e)}")
     finally:
-        os.remove(LOCKFILE)
-        logger.info("finished builder", extra={"version": __version__})
+        if not IS_WORKER and LOCKFILE and os.path.exists(LOCKFILE):
+            os.remove(LOCKFILE)
+            logger.info("finished builder", extra={"version": __version__})
 
 
 if __name__ == "__main__":
