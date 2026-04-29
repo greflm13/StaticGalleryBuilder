@@ -16,11 +16,11 @@ jobs:
       tag: ${{ steps.tag.outputs.tag }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -69,7 +69,7 @@ jobs:
             os: linux
             arch: x64
 
-          - runner: ubuntu-24.04-arm
+          - runner: ubuntu-latest
             os: linux
             arch: arm64
 
@@ -79,22 +79,22 @@ jobs:
 
           - runner: macos-latest
             os: macos
-            arch: arm64
-
-          - runner: macos-13
-            os: macos
             arch: x64
+
+          - runner: macos-latest
+            os: macos
+            arch: arm64
 
     runs-on: ${{ matrix.runner }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.version.outputs.tag }}
           fetch-depth: 0
           submodules: recursive
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           architecture: ${{ matrix.arch }}
@@ -116,7 +116,7 @@ jobs:
             --add-data themes:themes
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: StaticGalleryBuilder-${{ matrix.os }}-${{ matrix.arch }}
           path: dist/StaticGalleryBuilder*
@@ -130,12 +130,12 @@ jobs:
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: dist
 
       - name: Create GitHub release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.version.outputs.tag }}
           make_latest: true
