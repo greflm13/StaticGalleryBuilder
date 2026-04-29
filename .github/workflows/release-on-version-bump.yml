@@ -86,7 +86,7 @@ jobs:
 
           echo "changed=true" >>"$GITHUB_OUTPUT"
           echo "tag=$TAG" >>"$GITHUB_OUTPUT"
-          echo "version=$PREV_VERSION"
+          echo "version=$PREV_VERSION" >>"$GITHUB_OUTPUT"
 
       - name: Create draft release
         if: steps.detect.outputs.changed == 'true'
