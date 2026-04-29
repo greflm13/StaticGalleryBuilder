@@ -4,6 +4,7 @@ import urllib.parse
 import fnmatch
 import json
 import html
+import logging
 from typing import Any
 from datetime import datetime
 from collections import defaultdict
@@ -14,7 +15,6 @@ from jinja2 import Environment, FileSystemLoader
 from defusedxml import ElementTree
 from bs4 import BeautifulSoup
 
-from modules.logger import logger
 from modules import cclicense
 from modules.argumentparser import Args
 from modules.datatypes.metadata import Metadata, ImageMetadata, SubfolderMetadata
@@ -32,7 +32,8 @@ Image.MAX_IMAGE_PIXELS = 933120000
 env = Environment(loader=FileSystemLoader(os.path.join(SCRIPTDIR, "templates")))
 thumbnails: list[tuple[str, str, str]] = []
 info: dict[str, str] = {}
-licens: dict[str, str] = {}
+folder_licenses: dict[str, str] = {}
+logger = logging.getLogger(name="defaultlogger")
 
 
 def getxmp(strbuffer: str) -> dict[str, Any]:
@@ -537,7 +538,7 @@ def process_license(folder: str, item: str) -> None:
         logger.info("processing LICENSE", extra={"path": path})
         raw_text = f.read()
         escaped_text = html.escape(raw_text)
-        licens[urllib.parse.quote(folder)] = f"<pre>{escaped_text}</pre>"
+        folder_licenses[urllib.parse.quote(folder)] = f"<pre>{escaped_text}</pre>"
 
 
 def process_info_file(folder: str, item: str) -> None:
@@ -569,7 +570,10 @@ def should_generate_html(images: list[ImageMetadata], contains_files, _args: Arg
 
 def format_html(html: str) -> str:
     soup = BeautifulSoup(html, "html5lib")
-    return soup.prettify()
+    pretty = soup.prettify()
+    if isinstance(pretty, bytes):
+        pretty = pretty.decode()
+    return pretty
 
 
 def create_html_file(
@@ -615,7 +619,7 @@ def create_html_file(
     folder_info = info.get(urllib.parse.quote(folder), "").split("\n")
     _info = [i for i in folder_info if len(i) > 1] if folder_info else None
 
-    folder_license = licens.get(urllib.parse.quote(folder), False)
+    folder_license = folder_licenses.get(urllib.parse.quote(folder), False)
 
     license_url = ""
 

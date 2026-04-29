@@ -1,15 +1,16 @@
 import os
 import sys
 import shutil
+import logging
 from dataclasses import dataclass
 from subprocess import Popen, PIPE
 from PIL import Image
 from jinja2 import Environment, FileSystemLoader
 
-from modules.logger import logger
 from modules.argumentparser import Args
 from modules.css_color import extract_colorscheme
 
+logger = logging.getLogger(name="defaultlogger")
 # Attempt to import cairosvg for SVG support, set flag based on success
 try:
     import cairosvg
