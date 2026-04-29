@@ -129,8 +129,3 @@ def setup_consolelogger(level=logging.INFO):
     _logger.addHandler(logging.StreamHandler())
     _logger.setLevel(level=level)
     return _logger
-
-
-rotate_log_file(compress=True)
-logger = setup_logger()
-consolelogger = setup_consolelogger()
