@@ -122,28 +122,28 @@ def css_color_to_hex(css_color: str) -> str:
         return hex_color.lower()
 
     elif groups["rgb"]:
-        r = int(groups["r"].rstrip("%")) * 255 // 100 if "%" in groups["r"] else int(groups["r"])
-        g = int(groups["g"].rstrip("%")) * 255 // 100 if "%" in groups["g"] else int(groups["g"])
-        b = int(groups["b"].rstrip("%")) * 255 // 100 if "%" in groups["b"] else int(groups["b"])
-        a = float(groups["a"]) if groups["a"] else 1.0
-        if a < 1.0:
-            logger.debug("converting rgba color to hex", extra={"color": css_color, "r": r, "g": g, "b": b, "a": a})
-            return rgb_to_hex((r, g, b)) + f"{round(a * 255):02x}"
+        red = int(groups["r"].rstrip("%")) * 255 // 100 if "%" in groups["r"] else int(groups["r"])
+        green = int(groups["g"].rstrip("%")) * 255 // 100 if "%" in groups["g"] else int(groups["g"])
+        blue = int(groups["b"].rstrip("%")) * 255 // 100 if "%" in groups["b"] else int(groups["b"])
+        alpha = float(groups["a"]) if groups["a"] else 1.0
+        if alpha < 1.0:
+            logger.debug("converting rgba color to hex", extra={"color": css_color, "r": red, "g": green, "b": blue, "a": alpha})
+            return rgb_to_hex((red, green, blue)) + f"{round(alpha * 255):02x}"
         else:
-            logger.debug("converting rgb color to hex", extra={"color": css_color, "r": r, "g": g, "b": b})
-            return rgb_to_hex((r, g, b))
+            logger.debug("converting rgb color to hex", extra={"color": css_color, "r": red, "g": green, "b": blue})
+            return rgb_to_hex((red, green, blue))
 
     elif groups["hsl"]:
-        h = int(groups["h"])
-        s = int(groups["s"])
-        l = int(groups["l"])
-        a = float(groups["a"]) if groups["a"] else 1.0
-        rgb_color = hsl_to_rgb((h, s, l))
-        if a < 1.0:
-            logger.debug("converting hsla color to hex", extra={"color": css_color, "hsl": (h, s, l), "a": a})
-            return rgb_to_hex(rgb_color) + f"{round(a * 255):02x}"
+        hue = int(groups["h"])
+        saturation = int(groups["s"])
+        lightness = int(groups["l"])
+        alpha = float(groups["a"]) if groups["a"] else 1.0
+        rgb_color = hsl_to_rgb((hue, saturation, lightness))
+        if alpha < 1.0:
+            logger.debug("converting hsla color to hex", extra={"color": css_color, "hsl": (hue, saturation, lightness), "a": alpha})
+            return rgb_to_hex(rgb_color) + f"{round(alpha * 255):02x}"
         else:
-            logger.debug("converting hsl color to hex", extra={"color": css_color, "hsl": (h, s, l)})
+            logger.debug("converting hsl color to hex", extra={"color": css_color, "hsl": (hue, saturation, lightness)})
             return rgb_to_hex(rgb_color)
 
     # fmt: off
