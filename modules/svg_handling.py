@@ -1,9 +1,14 @@
 import os
+import sys
 import shutil
 from dataclasses import dataclass
 from subprocess import Popen, PIPE
 from PIL import Image
 from jinja2 import Environment, FileSystemLoader
+
+from modules.logger import logger
+from modules.argumentparser import Args
+from modules.css_color import extract_colorscheme
 
 # Attempt to import cairosvg for SVG support, set flag based on success
 try:
@@ -11,12 +16,9 @@ try:
     from io import BytesIO
 
     SVGSUPPORT = True
-except ImportError:
+except (ImportError, OSError):
     SVGSUPPORT = False
-
-from modules.logger import logger
-from modules.argumentparser import Args
-from modules.css_color import extract_colorscheme
+    logger.warning("cairosvg not available, SVG support disabled. Please install cairosvg to enable SVG support.", extra={"error": sys.exc_info()})
 
 # Define constants for static files directory and icon sizes
 SCRIPTDIR = os.path.dirname(os.path.realpath(__file__)).removesuffix(__package__ if __package__ else "")
