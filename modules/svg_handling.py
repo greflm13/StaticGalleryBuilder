@@ -19,7 +19,6 @@ try:
     SVGSUPPORT = True
 except (ImportError, OSError):
     SVGSUPPORT = False
-    logger.warning("cairosvg not available, SVG support disabled. Please install cairosvg to enable SVG support.", extra={"error": sys.exc_info()})
 
 # Define constants for static files directory and icon sizes
 SCRIPTDIR = os.path.dirname(os.path.realpath(__file__)).removesuffix(__package__ if __package__ else "")

@@ -9,7 +9,7 @@ import urllib.parse
 import urllib.request
 
 from pathlib import Path
-from multiprocessing import Pool, freeze_support, current_process
+from multiprocessing import Pool, freeze_support
 from importlib.metadata import version, PackageNotFoundError
 
 from jsmin import jsmin
@@ -19,6 +19,7 @@ from PIL import Image, ImageOps
 from modules.argumentparser import parse_arguments, Args
 from modules.svg_handling import icons, webmanifest, extract_colorscheme
 from modules.generate_html import list_folder
+from modules.logger import setup_logger, rotate_log_file
 
 # fmt: off
 # Constants
@@ -32,8 +33,9 @@ RAW_EXTENSIONS = [
 ]
 IMG_EXTENSIONS = [".jpg", ".jpeg", ".png"]
 NOT_LIST = ["*/Galleries/*", "Archives"]
-IS_WORKER = current_process().name != "MainProcess"
 # fmt: on
+
+logger = logging.getLogger("defaultlogger")
 
 try:
     __version__ = version("StaticGalleryBuilder")
@@ -41,20 +43,6 @@ except PackageNotFoundError:
     import tomllib
 
     __version__ = tomllib.loads(open(os.path.join(SCRIPTDIR, "pyproject.toml"), "r").read())["project"]["version"]
-
-if not IS_WORKER:
-    args = parse_arguments(__version__)
-    LOCKFILE = os.path.join(args.root_directory, ".lock")
-
-    if os.path.exists(LOCKFILE):
-        print("Another instance of this program is running.")
-        sys.exit()
-
-    from modules.logger import logger
-else:
-    args = None
-    LOCKFILE = ""
-    logger = logging.getLogger("none")
 
 
 def init_globals(_args: Args, raw: list[str]) -> tuple[Args, list[str]]:
@@ -205,8 +193,7 @@ def main(args) -> None:
     thumbdir = os.path.join(args.root_directory, ".thumbnails")
 
     try:
-        if not IS_WORKER:
-            Path(LOCKFILE).touch()
+        Path(LOCKFILE).touch()
         logger.info("starting builder", extra={"version": __version__, "arguments": args})
 
         logger.info("getting logo from sorogon.eu")
@@ -266,11 +253,20 @@ def main(args) -> None:
         logger.critical("an unhandled exception occurred: %s", str(e), exc_info=True)
         print(f"An unhandled exception occurred: {str(e)}")
     finally:
-        if not IS_WORKER and LOCKFILE and os.path.exists(LOCKFILE):
-            os.remove(LOCKFILE)
-            logger.info("finished builder", extra={"version": __version__})
+        os.remove(LOCKFILE)
+        logger.info("finished builder", extra={"version": __version__})
 
 
 if __name__ == "__main__":
     freeze_support()
+    args = parse_arguments(__version__)
+    LOCKFILE = os.path.join(args.root_directory, ".lock")
+
+    if os.path.exists(LOCKFILE):
+        print("Another instance of this program is running.")
+        sys.exit()
+
+    rotate_log_file(compress=True)
+    setup_logger()
+
     main(args)
