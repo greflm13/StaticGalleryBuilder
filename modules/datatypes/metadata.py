@@ -50,8 +50,8 @@ def from_native_dict(f: Callable[[Any], T], x: Any) -> Dict[Any, T]:
 
 @dataclass
 class ImageMetadata:
-    w: Optional[int]
-    h: Optional[int]
+    w: int
+    h: int
     tags: Optional[List[str]]
     exifdata: Optional[Dict[str, Any]]
     xmp: Optional[Dict[str, Any]]
@@ -65,8 +65,8 @@ class ImageMetadata:
     @staticmethod
     def from_dict(obj: Any) -> "ImageMetadata":
         assert isinstance(obj, dict)
-        w = from_union([from_int, from_none], obj.get("w"))
-        h = from_union([from_int, from_none], obj.get("h"))
+        w = from_int(obj.get("w"))
+        h = from_int(obj.get("h"))
         tags = from_union([lambda x: from_list(from_str, x), from_none], obj.get("tags"))
         exifdata = from_union([lambda x: from_native_dict(dict, x), from_none], obj.get("exifdata"))
         xmp = from_union([lambda x: from_native_dict(dict, x), from_none], obj.get("xmp"))
@@ -80,10 +80,8 @@ class ImageMetadata:
 
     def to_dict(self) -> dict:
         result: dict = {}
-        if self.w is not None:
-            result["w"] = from_union([from_int, from_none], self.w)
-        if self.h is not None:
-            result["h"] = from_union([from_int, from_none], self.h)
+        result["w"] = from_int(self.w)
+        result["h"] = from_int(self.h)
         if self.tags is not None:
             result["tags"] = from_union([lambda x: from_list(from_str, x), from_none], self.tags)
         result["src"] = from_str(self.src)

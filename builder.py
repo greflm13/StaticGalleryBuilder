@@ -191,6 +191,7 @@ def main(args) -> None:
 
     args, raw = init_globals(args, RAW_EXTENSIONS)
     thumbdir = os.path.join(args.root_directory, ".thumbnails")
+    ERROR = False
 
     try:
         Path(LOCKFILE).touch()
@@ -252,9 +253,13 @@ def main(args) -> None:
     except Exception as e:
         logger.critical("an unhandled exception occurred: %s", str(e), exc_info=True)
         print(f"An unhandled exception occurred: {str(e)}")
+        ERROR = True
     finally:
         os.remove(LOCKFILE)
-        logger.info("finished builder", extra={"version": __version__})
+        if ERROR:
+            logger.critical("finished builder", extra={"version": __version__}, exc_info=True)
+        else:
+            logger.info("finished builder", extra={"version": __version__})
 
 
 if __name__ == "__main__":

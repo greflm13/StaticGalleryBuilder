@@ -153,7 +153,7 @@ def update_metadata(metadata: Metadata, folder: str) -> None:
             os.remove(metadata_path)
 
 
-def get_image_info(item: str, folder: str) -> ImageMetadata:
+def get_image_info(item: str, folder: str) -> ImageMetadata | None:
     """
     Extracts image information and EXIF data.
 
@@ -181,7 +181,7 @@ def get_image_info(item: str, folder: str) -> ImageMetadata:
     except UnidentifiedImageError:
         logger.error("cannot identify image file", extra={"file": file})
         print(f"cannot identify image file: {file}")
-        return ImageMetadata(w=None, h=None, tags=[], exifdata=None, xmp=None, src="", msrc="", name="", title="")
+        return None
     if exif:
         logger.info("extracting EXIF data", extra={"file": file})
         ifd = exif.get_ifd(ExifTags.IFD.Exif)
@@ -347,7 +347,7 @@ def get_tags(sidecarfile: str) -> list[str]:
     return tags  # type: ignore
 
 
-def process_image(item: str, folder: str, _args: Args, baseurl: str, metadata: Metadata, raw: list[str]) -> tuple[ImageMetadata, Metadata]:
+def process_image(item: str, folder: str, _args: Args, baseurl: str, metadata: Metadata, raw: list[str]) -> tuple[ImageMetadata | None, Metadata]:
     """
     Processes an image and prepares its data for the HTML template.
 
@@ -365,7 +365,11 @@ def process_image(item: str, folder: str, _args: Args, baseurl: str, metadata: M
     extsplit = os.path.splitext(item)
     sidecarfile = os.path.join(folder, item + ".xmp")
     if item not in metadata.images or _args.reread_metadata:
-        metadata.images[item] = get_image_info(item, folder)
+        imgmetadata = get_image_info(item, folder)
+        if imgmetadata:
+            metadata.images[item] = imgmetadata
+        else:
+            return None, metadata
     if _args.reread_sidecar and os.path.exists(sidecarfile):
         logger.info("xmp sidecar file found", extra={"file": sidecarfile})
         try:
@@ -433,33 +437,23 @@ def generate_html(folder: str, title: str, _args: Args, raw: list[str], version:
 
     logger.info("processing contents", extra={"folder": folder})
     if not _args.non_interactive_mode:
-        for item in tqdm(items, total=len(items), desc=f"Getting image infos - {folder}", unit="files", ascii=True, dynamic_ncols=True, leave=False):
-            if item not in EXCLUDES and not item.startswith(".") and os.path.splitext(item)[1][1:].lower() not in _args.ignore_extensions:
-                if os.path.isdir(os.path.join(folder, item)):
-                    subfoldertags.update(process_subfolder(item, folder, baseurl, subfolders, _args, raw, version, logo))
-                else:
-                    contains_files = True
-                    if os.path.splitext(item)[1].lower() in _args.file_extensions:
-                        img, metadata = process_image(item, folder, _args, baseurl, metadata, raw)
-                        images.append(img)
-                    if item == "info":
-                        process_info_file(folder, item)
-                    if item == "LICENSE":
-                        process_license(folder, item)
+        iterator = tqdm(items, total=len(items), desc=f"Getting image infos - {folder}", unit="files", ascii=True, dynamic_ncols=True, leave=False)
     else:
-        for item in items:
-            if item not in EXCLUDES and not item.startswith(".") and os.path.splitext(item)[1][1:].lower() not in _args.ignore_extensions:
-                if os.path.isdir(os.path.join(folder, item)):
-                    subfoldertags.update(process_subfolder(item, folder, baseurl, subfolders, _args, raw, version, logo))
-                else:
-                    contains_files = True
-                    if os.path.splitext(item)[1].lower() in _args.file_extensions:
-                        img, metadata = process_image(item, folder, _args, baseurl, metadata, raw)
+        iterator = items
+    for item in iterator:
+        if item not in EXCLUDES and not item.startswith(".") and os.path.splitext(item)[1][1:].lower() not in _args.ignore_extensions:
+            if os.path.isdir(os.path.join(folder, item)):
+                subfoldertags.update(process_subfolder(item, folder, baseurl, subfolders, _args, raw, version, logo))
+            else:
+                contains_files = True
+                if os.path.splitext(item)[1].lower() in _args.file_extensions:
+                    img, metadata = process_image(item, folder, _args, baseurl, metadata, raw)
+                    if img:
                         images.append(img)
-                    if item == "info":
-                        process_info_file(folder, item)
-                    if item == "LICENSE":
-                        process_license(folder, item)
+                if item == "info":
+                    process_info_file(folder, item)
+                if item == "LICENSE":
+                    process_license(folder, item)
 
     metadata.subfolders = subfolders
     if _args.reverse_sort:
