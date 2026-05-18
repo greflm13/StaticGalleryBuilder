@@ -4,12 +4,11 @@
 
 [project]
     description     = "Python script to generate static HTML files for website galleries."
+    license         = "AGPL-3.0-or-later"
     name            = "StaticGalleryBuilder"
     readme          = "README.md"
     requires-python = ">=3.12"
     version         = "2.9.7"
-
-    license = "AGPL-3.0-or-later"
 
     authors = [{ name = "Flo Greistorfer" }]
 
