@@ -1,25 +1,38 @@
 [build-system]
-requires = ["setuptools>=61", "wheel"]
-build-backend = "setuptools.build_meta"
+    build-backend = "setuptools.build_meta"
+    requires      = ["setuptools>=61", "wheel"]
 
 [project]
-name = "StaticGalleryBuilder"
-version = "2.9.7"
-description = "Python script to generate static HTML files for website galleries."
-readme = "README.md"
-requires-python = ">=3.12"
+    description     = "Python script to generate static HTML files for website galleries."
+    name            = "StaticGalleryBuilder"
+    readme          = "README.md"
+    requires-python = ">=3.12"
+    version         = "2.9.7"
 
-license = "AGPL-3.0-or-later"
+    license = "AGPL-3.0-or-later"
 
-authors = [{ name = "Flo Greistorfer" }]
+    authors = [{ name = "Flo Greistorfer" }]
 
-dependencies = ["beautifulsoup4~=4.14.3", "CairoSVG~=2.7.1", "ConfigArgParse~=1.7.1", "defusedxml~=0.7.1", "html5lib~=1.1", "Jinja2~=3.1.6", "jsmin~=3.0.1", "Pillow~=12.1.0", "python_json_logger~=2.0.7", "rich_argparse~=1.7.2", "selenium~=4.40.0", "tqdm~=4.66.6"]
+    dependencies = [
+        "CairoSVG~=2.7.1",
+        "ConfigArgParse~=1.7.1",
+        "Jinja2~=3.1.6",
+        "Pillow~=12.1.0",
+        "beautifulsoup4~=4.14.3",
+        "defusedxml~=0.7.1",
+        "html5lib~=1.1",
+        "jsmin~=3.0.1",
+        "python_json_logger~=2.0.7",
+        "rich_argparse~=1.7.2",
+        "selenium~=4.40.0",
+        "tqdm~=4.66.6",
+    ]
+
+    [project.scripts]
+        grocycode-printpage = "main:builder"
 
 [dependency-groups]
-dev = ["ruff"]
-
-[project.scripts]
-grocycode-printpage = "main:builder"
+    dev = ["ruff"]
 
 [tool.setuptools]
-packages = []
+    packages = []
