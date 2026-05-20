@@ -15,11 +15,11 @@ from jsmin import jsmin
 from PIL import Image, ImageOps
 from tqdm.auto import tqdm
 
-from staticgallerybuilder.modules.argumentparser import Args, parse_arguments
-from staticgallerybuilder.modules.generate_html import list_folder
-from staticgallerybuilder.modules.logger import rotate_log_file, setup_logger
-from staticgallerybuilder.modules.svg_handling import extract_colorscheme, icons, webmanifest
-from staticgallerybuilder.modules.util import resource_path
+from .modules.argumentparser import Args, parse_arguments
+from .modules.generate_html import list_folder
+from .modules.logger import rotate_log_file, setup_logger
+from .modules.svg_handling import extract_colorscheme, icons, webmanifest
+from .modules.util import resource_path
 
 # fmt: off
 # Constants

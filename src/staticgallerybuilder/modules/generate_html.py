@@ -16,9 +16,9 @@ from PIL import ExifTags, Image, TiffImagePlugin, UnidentifiedImageError
 from tqdm.auto import tqdm
 
 from ..modules import cclicense
-from staticgallerybuilder.modules.argumentparser import Args
-from staticgallerybuilder.modules.datatypes.metadata import ImageMetadata, Metadata, SubfolderMetadata
-from staticgallerybuilder.modules.util import resource_path
+from ..modules.argumentparser import Args
+from ..modules.datatypes.metadata import ImageMetadata, Metadata, SubfolderMetadata
+from ..modules.util import resource_path
 
 # Constants for file paths and exclusions
 FAVICON_PATH = ".static/favicon.ico"

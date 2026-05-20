@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 import configargparse
 
-from staticgallerybuilder.modules.util import resource_path
+from ..modules.util import resource_path
 
 try:
     from rich_argparse import HelpPreviewAction, RichHelpFormatter
