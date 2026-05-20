@@ -1,4 +1,3 @@
-import os
 import platform
 import tomllib
 
@@ -8,8 +7,8 @@ from PyInstaller.utils.hooks import collect_submodules
 
 with open("pyproject.toml", "rb") as f:
     app_name = tomllib.load(f)["project"]["name"]
-build_os = os.environ.get("BUILD_OS", platform.system().lower())
-build_arch = os.environ.get("BUILD_ARCH", platform.machine())
+build_os = platform.system().lower()
+build_arch = platform.machine()
 
 name = f"{app_name}-{build_os}-{build_arch}"
 datas = [("src/staticgallerybuilder/files", "files"), ("src/staticgallerybuilder/templates", "templates"), ("themes", "themes")]

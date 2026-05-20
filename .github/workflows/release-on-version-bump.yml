@@ -155,10 +155,6 @@ jobs:
         shell: bash
         run: |
           pyinstaller build.spec
-        env:
-          APP_NAME: ${{ needs.version.outputs.name }}
-          BUILD_OS: ${{ matrix.os }}
-          BUILD_ARCH: ${{ matrix.arch }}
 
       - name: Upload asset to GitHub Release
         uses: softprops/action-gh-release@v3
