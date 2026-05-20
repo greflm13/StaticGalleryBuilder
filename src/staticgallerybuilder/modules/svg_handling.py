@@ -7,9 +7,9 @@ from subprocess import PIPE, Popen
 from jinja2 import Environment, FileSystemLoader
 from PIL import Image
 
-from ..modules.argumentparser import Args
-from ..modules.css_color import extract_colorscheme
-from ..modules.util import resource_path
+from staticgallerybuilder.modules.argumentparser import Args
+from staticgallerybuilder.modules.css_color import extract_colorscheme
+from staticgallerybuilder.modules.util import resource_path
 
 logger = logging.getLogger(name="defaultlogger")
 # Attempt to import cairosvg for SVG support, set flag based on success
