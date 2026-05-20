@@ -139,7 +139,8 @@
     "files.associations": {
       "**/*.css.j2": "jinja-css",
       "**/*.css": "css",
-      "**/*.html.j2": "jinja-html"
+      "**/*.html.j2": "jinja-html",
+      "build.spec": "python"
     },
     "html.format.indentHandlebars": true,
     "html.format.templating": true,

@@ -5,7 +5,7 @@
 [project]
     description     = "Python script to generate static HTML files for website galleries."
     license         = "AGPL-3.0-or-later"
-    name            = "StaticGalleryBuilder"
+    name            = "staticgallerybuilder"
     readme          = "README.md"
     requires-python = ">=3.12"
     version         = "3.0.0"
@@ -19,7 +19,6 @@
         "Pillow~=12.1.0",
         "beautifulsoup4~=4.14.3",
         "defusedxml~=0.7.1",
-        "html5lib~=1.1",
         "jsmin~=3.0.1",
         "python_json_logger~=2.0.7",
         "rich_argparse~=1.7.2",
@@ -28,10 +27,25 @@
     ]
 
     [project.scripts]
-        grocycode-printpage = "main:builder"
+        staticgallerybuilder = "staticgallerybuilder.main:main"
 
 [dependency-groups]
-    dev = ["ruff"]
+    dev = ["deptry", "pyinstaller", "ruff"]
 
-[tool.setuptools]
-    packages = []
+[tool.setuptools.packages.find]
+    where = ["src"]
+
+[tool.setuptools.package-data]
+    staticgallerybuilder = ["**/*"]
+
+[tool.ruff]
+    line-length    = 180
+    target-version = "py312"
+
+    [tool.ruff.lint]
+        ignore = ["E501"]
+        select = ["B", "E", "F", "I", "UP"]
+
+    [tool.ruff.format]
+        indent-style = "space"
+        quote-style  = "double"

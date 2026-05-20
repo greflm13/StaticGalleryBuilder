@@ -1,26 +1,26 @@
+import fnmatch
+import html
+import json
+import logging
 import os
 import re
 import urllib.parse
-import fnmatch
-import json
-import html
-import logging
-from typing import Any
-from datetime import datetime
 from collections import defaultdict
+from datetime import datetime
+from typing import Any
 
-from tqdm.auto import tqdm
-from PIL import Image, ExifTags, TiffImagePlugin, UnidentifiedImageError
-from jinja2 import Environment, FileSystemLoader
-from defusedxml import ElementTree
 from bs4 import BeautifulSoup
+from defusedxml import ElementTree
+from jinja2 import Environment, FileSystemLoader
+from PIL import ExifTags, Image, TiffImagePlugin, UnidentifiedImageError
+from tqdm.auto import tqdm
 
-from modules import cclicense
-from modules.argumentparser import Args
-from modules.datatypes.metadata import Metadata, ImageMetadata, SubfolderMetadata
+from ..modules import cclicense
+from ..modules.argumentparser import Args
+from ..modules.datatypes.metadata import ImageMetadata, Metadata, SubfolderMetadata
+from ..modules.util import resource_path
 
 # Constants for file paths and exclusions
-SCRIPTDIR = os.path.dirname(os.path.realpath(__file__)).removesuffix(__package__ if __package__ else "")
 FAVICON_PATH = ".static/favicon.ico"
 GLOBAL_CSS_PATH = ".static/global.css"
 EXCLUDES = ["index.html", "manifest.json", "robots.txt"]
@@ -29,7 +29,7 @@ EXCLUDES = ["index.html", "manifest.json", "robots.txt"]
 Image.MAX_IMAGE_PIXELS = 933120000
 
 # Initialize Jinja2 environment for template rendering
-env = Environment(loader=FileSystemLoader(os.path.join(SCRIPTDIR, "templates")))
+env = Environment(loader=FileSystemLoader(resource_path("templates")))
 thumbnails: list[tuple[str, str, str]] = []
 info: dict[str, str] = {}
 folder_licenses: dict[str, str] = {}
@@ -98,7 +98,7 @@ def initialize_metadata(folder: str) -> Metadata:
     # remove old sizelist if it exists
     sizelist_path = os.path.join(folder, ".sizelist.json")
     if os.path.exists(sizelist_path):
-        with open(sizelist_path, "r") as sizelist:
+        with open(sizelist_path) as sizelist:
             metadata = json.loads(sizelist.read())
         logger.warning("found old .sizelist.json, removing it...", extra={"path": sizelist_path})
         os.remove(sizelist_path)
@@ -563,7 +563,7 @@ def should_generate_html(images: list[ImageMetadata], contains_files, _args: Arg
 
 
 def format_html(html: str) -> str:
-    soup = BeautifulSoup(html, "html5lib")
+    soup = BeautifulSoup(html, "html.parser")
     pretty = soup.prettify()
     if isinstance(pretty, bytes):
         pretty = pretty.decode()

@@ -1,30 +1,29 @@
 #!/usr/bin/env python3
+import logging
 import os
 import re
-import sys
 import shutil
-import logging
+import sys
 import urllib.error
 import urllib.parse
 import urllib.request
-
-from pathlib import Path
+from importlib.metadata import version
 from multiprocessing import Pool, freeze_support
-from importlib.metadata import version, PackageNotFoundError
+from pathlib import Path
 
 from jsmin import jsmin
-from tqdm.auto import tqdm
 from PIL import Image, ImageOps
+from tqdm.auto import tqdm
 
-from modules.argumentparser import parse_arguments, Args
-from modules.svg_handling import icons, webmanifest, extract_colorscheme
-from modules.generate_html import list_folder
-from modules.logger import setup_logger, rotate_log_file
+from .modules.argumentparser import Args, parse_arguments
+from .modules.generate_html import list_folder
+from .modules.logger import rotate_log_file, setup_logger
+from .modules.svg_handling import extract_colorscheme, icons, webmanifest
+from .modules.util import resource_path
 
 # fmt: off
 # Constants
-SCRIPTDIR = os.path.dirname(os.path.realpath(__file__)).removesuffix(__package__ if __package__ else "")
-STATIC_FILES_DIR = os.path.join(os.path.abspath(SCRIPTDIR), "files")
+STATIC_FILES_DIR = resource_path("files")
 RAW_EXTENSIONS = [
     ".3fr", ".ari", ".arw", ".bay", ".braw", ".crw", ".cr2", ".cr3", ".cap", ".data", ".dcs", ".dcr",
     ".dng", ".drf", ".eip", ".erf", ".fff", ".gpr", ".iiq", ".k25", ".kdc", ".mdc", ".mef", ".mos",
@@ -37,12 +36,7 @@ NOT_LIST = ["*/Galleries/*", "Archives"]
 
 logger = logging.getLogger("defaultlogger")
 
-try:
-    __version__ = version("StaticGalleryBuilder")
-except PackageNotFoundError:
-    import tomllib
-
-    __version__ = tomllib.loads(open(os.path.join(SCRIPTDIR, "pyproject.toml"), "r").read())["project"]["version"]
+__version__ = version("StaticGalleryBuilder")
 
 
 def init_globals(_args: Args, raw: list[str]) -> tuple[Args, list[str]]:
@@ -78,7 +72,7 @@ def handle_theme_icon(themepath: str, dest: str) -> None:
     Handle the icon specified in the theme file.
     """
     logger.info("reading theme file", extra={"theme": themepath})
-    with open(themepath, "r", encoding="utf-8") as f:
+    with open(themepath, encoding="utf-8") as f:
         theme = f.read()
     split = theme.split(".foldericon {")
     split2 = split[1].split("}", maxsplit=1)
@@ -97,7 +91,7 @@ def handle_theme_icon(themepath: str, dest: str) -> None:
         logger.info("foldericon in theme file, using it")
         shutil.copyfile(themepath, dest)
     else:
-        with open(os.path.join(SCRIPTDIR, foldericon), "r", encoding="utf-8") as f:
+        with open(os.path.join(Path(themepath).parent, foldericon), encoding="utf-8") as f:
             logger.info("Reading foldericon svg")
             svg = f.read()
 
@@ -142,7 +136,7 @@ def copy_static_files(_args: Args) -> bool:
     handle_theme_icon(_args.theme_path, os.path.join(static_dir, "theme.css"))
 
     logger.info("minifying javascript")
-    with open(os.path.join(SCRIPTDIR, "templates", "functionality.js"), "r", encoding="utf-8") as js_file:
+    with open(resource_path("templates", "functionality.js"), encoding="utf-8") as js_file:
         with open(os.path.join(static_dir, "functionality.min.js"), "w+", encoding="utf-8") as min_file:
             min_file.write(jsmin(js_file.read()))
 
@@ -183,7 +177,7 @@ def generate_thumbnail(arguments: tuple[str, str, str]) -> None:
         logger.debug("thumbnail already exists for %s", item, extra={"path": image})
 
 
-def main(args) -> None:
+def builder(args) -> None:
     """
     Main function to process images and generate a static image hosting website.
     """
@@ -262,7 +256,8 @@ def main(args) -> None:
             logger.info("finished builder", extra={"version": __version__})
 
 
-if __name__ == "__main__":
+def main() -> None:
+    global LOCKFILE
     freeze_support()
     args = parse_arguments(__version__)
     LOCKFILE = os.path.join(args.root_directory, ".lock")
@@ -274,4 +269,8 @@ if __name__ == "__main__":
     rotate_log_file(compress=True)
     setup_logger()
 
-    main(args)
+    builder(args)
+
+
+if __name__ == "__main__":
+    main()

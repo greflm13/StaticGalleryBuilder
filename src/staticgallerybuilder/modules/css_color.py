@@ -1,6 +1,6 @@
-import re
-import logging
 import colorsys
+import logging
+import re
 
 logger = logging.getLogger(name="defaultlogger")
 
@@ -23,7 +23,7 @@ def extract_colorscheme(theme_path: str) -> dict[str, str]:
     pattern = r"--(color\d+|bcolor\d+):\s*(#[0-9a-fA-F]+|rgba?\([^)]*\)|hsla?\([^)]*\)|[a-zA-Z]+);"
     colorscheme = {}
 
-    with open(theme_path, "r", encoding="utf-8") as f:
+    with open(theme_path, encoding="utf-8") as f:
         filecontent = f.read()
 
     matches = re.findall(pattern, filecontent)
@@ -53,7 +53,7 @@ def extract_theme_color(theme_path: str) -> str:
         The theme color value in hexadecimal format.
     """
     pattern = r"--bcolor1:\s*(#[0-9a-fA-F]+);"
-    with open(theme_path, "r", encoding="utf-8") as f:
+    with open(theme_path, encoding="utf-8") as f:
         filecontent = f.read()
     match = re.search(pattern, filecontent)
     if match:

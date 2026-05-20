@@ -18,6 +18,7 @@ jobs:
       changed: ${{ steps.detect.outputs.changed }}
       tag: ${{ steps.detect.outputs.tag }}
       version: ${{ steps.detect.outputs.version }}
+      name: ${{ steps.name.outputs.name }}
 
     steps:
       - uses: actions/checkout@v6
@@ -27,6 +28,16 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+
+      - name: Detect project name and export it
+        id: name
+        run: |
+          PROJECT_NAME=$(python -c '
+          import tomllib
+          with open("pyproject.toml", "rb") as f:
+          	print(tomllib.load(f)["project"]["name"])
+          ')
+          echo "name=$PROJECT_NAME" >>"$GITHUB_OUTPUT"
 
       - name: Detect previous version and tag it
         id: detect
@@ -138,24 +149,22 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyinstaller
-          pip install .
+          pip install . --group dev
 
       - name: Build package
         shell: bash
         run: |
-          pyinstaller builder.py modules/*.py \
-            -n StaticGalleryBuilder-${{ matrix.os }}-${{ matrix.arch }} \
-            -F \
-            --add-data files:files \
-            --add-data templates:templates \
-            --add-data themes:themes
+          pyinstaller build.spec
+        env:
+          APP_NAME: ${{ needs.version.outputs.name }}
+          BUILD_OS: ${{ matrix.os }}
+          BUILD_ARCH: ${{ matrix.arch }}
 
       - name: Upload asset to GitHub Release
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.version.outputs.tag }}
-          files: dist/StaticGalleryBuilder*
+          files: dist/${{ needs.version.outputs.name }}*
           draft: true
 
   release:

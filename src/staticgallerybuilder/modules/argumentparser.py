@@ -1,19 +1,19 @@
-from dataclasses import dataclass
-from typing import Optional
 import os
+from dataclasses import dataclass
 
 import configargparse
 
+from ..modules.util import resource_path
+
 try:
-    from rich_argparse import RichHelpFormatter, HelpPreviewAction
+    from rich_argparse import HelpPreviewAction, RichHelpFormatter
 
     RICH = True
 except ModuleNotFoundError:
     RICH = False
 
 
-SCRIPTDIR = os.path.dirname(os.path.realpath(__file__)).removesuffix(__package__ if __package__ else "")
-DEFAULT_THEME_PATH = os.path.join(SCRIPTDIR, "templates", "default.css")
+DEFAULT_THEME_PATH = resource_path("templates", "default.css")
 DEFAULT_AUTHOR = "Author"
 
 if "APPDATA" in os.environ:
@@ -71,7 +71,7 @@ class Args:
     generate_webmanifest: bool
     ignore_extensions: list[str]
     ignore_other_files: bool
-    license_type: Optional[str]
+    license_type: str | None
     non_interactive_mode: bool
     regenerate_thumbnails: bool
     reread_metadata: bool

@@ -1,31 +1,33 @@
+import logging
 import os
 import shutil
-import logging
 from dataclasses import dataclass
-from subprocess import Popen, PIPE
-from PIL import Image
-from jinja2 import Environment, FileSystemLoader
+from subprocess import PIPE, Popen
 
-from modules.argumentparser import Args
-from modules.css_color import extract_colorscheme
+from jinja2 import Environment, FileSystemLoader
+from PIL import Image
+
+from ..modules.argumentparser import Args
+from ..modules.css_color import extract_colorscheme
+from ..modules.util import resource_path
 
 logger = logging.getLogger(name="defaultlogger")
 # Attempt to import cairosvg for SVG support, set flag based on success
 try:
-    import cairosvg
     from io import BytesIO
+
+    import cairosvg
 
     SVGSUPPORT = True
 except (ImportError, OSError):
     SVGSUPPORT = False
 
 # Define constants for static files directory and icon sizes
-SCRIPTDIR = os.path.dirname(os.path.realpath(__file__)).removesuffix(__package__ if __package__ else "")
-STATIC_FILES_DIR = os.path.join(SCRIPTDIR, "files")
+STATIC_FILES_DIR = resource_path("files")
 ICON_SIZES = ["36x36", "48x48", "72x72", "96x96", "144x144", "192x192", "512x512"]
 
 # Initialize Jinja2 environment for template rendering
-env = Environment(loader=FileSystemLoader(os.path.join(SCRIPTDIR, "templates")))
+env = Environment(loader=FileSystemLoader(resource_path("templates")))
 
 
 @dataclass

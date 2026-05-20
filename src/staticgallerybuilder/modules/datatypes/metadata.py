@@ -1,5 +1,6 @@
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import List, Optional, Any, Dict, TypeVar, Callable, Type, cast
+from typing import Any, TypeVar, cast
 
 T = TypeVar("T")
 
@@ -14,7 +15,7 @@ def from_str(x: Any) -> str:
     return x
 
 
-def from_list(f: Callable[[Any], T], x: Any) -> List[T]:
+def from_list[T](f: Callable[[Any], T], x: Any) -> list[T]:
     assert isinstance(x, list)
     return [f(y) for y in x]
 
@@ -30,20 +31,20 @@ def from_union(fs, x):
             return f(x)
         except AssertionError:
             pass
-    assert False
+    raise AssertionError
 
 
-def to_class(c: Type[T], x: Any) -> dict:
+def to_class[T](c: type[T], x: Any) -> dict:
     assert isinstance(x, c)
     return cast(Any, x).to_dict()
 
 
-def from_dict(f: Callable[[Any], T], x: Any) -> Dict[str, T]:
+def from_dict[T](f: Callable[[Any], T], x: Any) -> dict[str, T]:
     assert isinstance(x, dict)
     return {k: f(v) for (k, v) in x.items()}
 
 
-def from_native_dict(f: Callable[[Any], T], x: Any) -> Dict[Any, T]:
+def from_native_dict[T](f: Callable[[Any], T], x: Any) -> dict[Any, T]:
     assert isinstance(x, dict)
     return x
 
@@ -52,15 +53,15 @@ def from_native_dict(f: Callable[[Any], T], x: Any) -> Dict[Any, T]:
 class ImageMetadata:
     w: int
     h: int
-    tags: Optional[List[str]]
-    exifdata: Optional[Dict[str, Any]]
-    xmp: Optional[Dict[str, Any]]
+    tags: list[str] | None
+    exifdata: dict[str, Any] | None
+    xmp: dict[str, Any] | None
     src: str
     msrc: str
     name: str
     title: str
-    tiff: Optional[str] = None
-    raw: Optional[str] = None
+    tiff: str | None = None
+    raw: str | None = None
 
     @staticmethod
     def from_dict(obj: Any) -> "ImageMetadata":
@@ -103,8 +104,8 @@ class ImageMetadata:
 class SubfolderMetadata:
     url: str
     name: str
-    metadata: Optional[str] = None
-    thumb: Optional[str] = None
+    metadata: str | None = None
+    thumb: str | None = None
 
     @staticmethod
     def from_dict(obj: Any) -> "SubfolderMetadata":
@@ -126,8 +127,8 @@ class SubfolderMetadata:
 
 @dataclass
 class Metadata:
-    images: Dict[str, ImageMetadata]
-    subfolders: Optional[List[SubfolderMetadata]] = None
+    images: dict[str, ImageMetadata]
+    subfolders: list[SubfolderMetadata] | None = None
 
     @staticmethod
     def from_dict(obj: Any) -> "Metadata":
