@@ -12,7 +12,7 @@ build_arch = platform.machine()
 
 name = f"{app_name}-{build_os}-{build_arch}"
 datas = [("src/staticgallerybuilder/files", "files"), ("src/staticgallerybuilder/templates", "templates"), ("themes", "themes")]
-hiddenimports = collect_submodules("modules")
+hiddenimports = collect_submodules("staticgallerybuilder.modules")
 
 a = Analysis(
     ["src/staticgallerybuilder/main.py"],

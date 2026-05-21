@@ -54,7 +54,6 @@ jobs:
 
           LAST_COMMIT_OF_PREV=""
           PREV_VERSION=""
-          PREV_COMMIT=""
 
           for COMMIT in $(git rev-list HEAD); do
           	VERSION_AT_COMMIT=$(git show "$COMMIT:pyproject.toml" 2>/dev/null | python -c '
@@ -68,11 +67,9 @@ jobs:
 
           	if [ "$VERSION_AT_COMMIT" != "$CURRENT_VERSION" ]; then
           		PREV_VERSION="$VERSION_AT_COMMIT"
-          		LAST_COMMIT_OF_PREV="$PREV_COMMIT"
+          		LAST_COMMIT_OF_PREV="$COMMIT"
           		break
           	fi
-
-          	PREV_COMMIT="$COMMIT"
           done
 
           if [ -z "$PREV_VERSION" ]; then
