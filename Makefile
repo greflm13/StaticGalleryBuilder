@@ -9,7 +9,11 @@ clean:
 rebuild: clean build
 
 install:
+	pip install .
+
+dev:
 	pip install -e . --group dev
+	ln -s $(HOME)/.local/state/staticgallerybuilder logs
 
 lint:
 	ruff check .

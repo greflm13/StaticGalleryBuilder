@@ -308,6 +308,8 @@ def get_tags(sidecarfile: str) -> list[str]:
     logger.info("extracting XMP sidecar file data", extra={"file": sidecarfile})
     with open(sidecarfile) as sidecar:
         strbuffer = sidecar.read()
+    if strbuffer == "":
+        return []
     xmpdata = getxmp(strbuffer)
     tags = []
     try:
